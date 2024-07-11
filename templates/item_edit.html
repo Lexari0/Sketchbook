@@ -33,34 +33,38 @@
         });
         $("form.submit-changes").submit(function(event) {
             event.preventDefault();
-            var files = $("input.file")[0].files;
-            if (files.length > 0)
-            {
-                var form_data = new FormData();
-                form_data.append("file", files[0]);
-                fetch("/api/gallery/item/{{ item.gallery_item_id }}/new_file", {
-                    method: "POST",
-                    body: form_data
-                }).then(response => console.log(`POST response: ${response}`));
-            }
-            var url = new URL(window.location.href);
-            var params = {tags_to_remove: [], tags_to_add: [], name: $("input.name").prop("value"), description: $("textarea.description").prop("value")};
-            for (const k of Object.keys(tag_changes.to_remove))
-            {
-                if (tag_changes.to_remove[k])
+            async function submitBody() {
+                var files = $("input.file")[0].files;
+                if (files.length > 0)
                 {
-                    params.tags_to_remove.push(k)
+                    var form_data = new FormData();
+                    form_data.append("file", files[0]);
+                    const response = await fetch("/api/gallery/item/{{ item.gallery_item_id }}/new_file", {
+                        method: "POST",
+                        body: form_data
+                    });
+                    console.log(`POST response: ${response}`);
                 }
-            }
-            for (const k of Object.keys(tag_changes.to_add))
-            {
-                if (tag_changes.to_add[k])
+                var url = new URL(window.location.href);
+                var params = {tags_to_remove: [], tags_to_add: [], name: $("input.name").prop("value"), description: $("textarea.description").prop("value")};
+                for (const k of Object.keys(tag_changes.to_remove))
                 {
-                    params.tags_to_add.push(k)
+                    if (tag_changes.to_remove[k])
+                    {
+                        params.tags_to_remove.push(k)
+                    }
                 }
-            }
-            url.search = "submitting&" + Object.keys(params).map(k => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`).join("&");
-            //window.location.href = url.toString(); // temp commented out to test file uploads via console output
+                for (const k of Object.keys(tag_changes.to_add))
+                {
+                    if (tag_changes.to_add[k])
+                    {
+                        params.tags_to_add.push(k)
+                    }
+                }
+                url.search = "submitting&" + Object.keys(params).map(k => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`).join("&");
+                window.location.href = url.toString();
+            };
+            submitBody();
         });
     });
 
