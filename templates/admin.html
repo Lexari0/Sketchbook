@@ -117,7 +117,7 @@ $(async () => {
             }
             addEndpointDropdowns("", config.api.enabled_endpoints);
             api.append(submitButton());
-            gallery_config.submit(event => configFormSubmit(server_owner, event));
+            api.submit(event => configFormSubmit(server_owner, event));
         });
     fetch("/api/gallery")
         .then(response => response.json())
