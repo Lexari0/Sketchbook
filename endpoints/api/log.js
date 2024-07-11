@@ -74,7 +74,7 @@ async function getLogLines(file_path, lines, line_offsets = undefined) {
     }
     catch (err)
     {
-        log.error("api", "Failed to get log contents of file: ", file_path)
+        log.error("api", "Failed to get log contents of file:", file_path, "; error:", err);
         return undefined;
     }
 }
