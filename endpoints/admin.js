@@ -145,5 +145,28 @@ module.exports = {
             res.end();
             return true;
         };
+        endpoints["/admin/upload_item"] = async (req, res) => {
+            if (req.method !== "POST")
+            {
+                res.writeHead(405, {"Content-Type": "text/html"});
+                res.end(`<h1>HTTP POST method must be used for updating the config.</h1>`);
+                return true;
+            }
+            if (!admin.isRequestAdmin(req))
+            {
+                res.writeHead(302, {
+                    "Location": "/admin?error=Must be logged in as admin to upload an item!"
+                });
+                res.end();
+                return true;
+            }
+            req
+            const item_id = 3; // TODO: Generate new id
+            res.writeHead(302, {
+                "Location": `/item/${item_id}`
+            });
+            res.end();
+            return true;
+        };
     }
 };
