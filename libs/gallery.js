@@ -113,7 +113,7 @@ module.exports = {
             log.error("gallery", "Item", gallery_item_id, "is currently missing, so there are no alternates to refresh.");
             return;
         }
-        const file_path = path.join(image_directories.small, `${gallery_item_id}.webp`);
+        const file_path = path.join(this.image_directories.small, `${gallery_item_id}.webp`);
         var image = await sharp(file_path);
         if (size)
         {
