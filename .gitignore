@@ -1,7 +1,8 @@
 node_modules
 package-lock.json
 config.yaml
-content
+content/
 gallery.db
 *.log
+gallery/
 

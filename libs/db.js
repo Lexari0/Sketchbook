@@ -61,7 +61,7 @@ module.exports = {
         else if (values instanceof Object)
         {
             const keys = Object.keys(values)
-            command += "("
+            command += " ("
             for (const i in keys)
             {
                 if (i > 0)

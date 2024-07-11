@@ -24,13 +24,15 @@ const requestListener = async function (req, res) {
         var url_split = req.url.split("?")
         const url_page = url_split.shift();
         const url_query = url_split.shift();
-        if (url_page !== "/" && url_page.endsWith("/")) {
+        if (url_page !== "/" && url_page.endsWith("/"))
+        {
             res.writeHead(302, {
                 "Location": url_page.replace(/\/+$/, "") + (url_query ? "?" + url_query : "")
             });
             res.end();
         }
-        else {
+        else
+        {
             if (url_page in endpoints)
             {
                 await endpoints[url_page](req, res);
@@ -43,9 +45,12 @@ const requestListener = async function (req, res) {
                     if (key.length < 3 || !key.startsWith("/") || !key.endsWith("/")) {
                         continue;
                     }
-                    if (url_page.match(key.substring(1, key.length - 1))) {
+                    const re = key.substring(1, key.length - 1);
+                    if (url_page.match(RegExp(re)))
+                    {
                         handled = await endpoints[key](req, res);
-                        if (handled) {
+                        if (handled)
+                        {
                             break;
                         }
                     }
@@ -53,7 +58,7 @@ const requestListener = async function (req, res) {
                 if (!handled)
                 {
                     res.writeHead(404);
-                    res.end("Page not found: " + url_page);
+                    res.end("<body><h1>Page not found</h1><h2><a href=\"/\">Return Home</a></h2></body>");
                 }
             }
         }
@@ -63,7 +68,7 @@ const requestListener = async function (req, res) {
             res.writeHead(502);
             res.end("Internal server error... Contact server host or try again later.");
         } catch {
-            log.error("webserver", "Failed to send 502...");
+            log.error("webserver", "Failed to send 502 for request:", req.url);
         }
         log.error("webserver", "[Response]", req.method, ":", req.url, "->", res.statusCode, "\n\n", e);
     }

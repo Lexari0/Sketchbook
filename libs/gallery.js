@@ -1,3 +1,4 @@
+const chokidar = require("chokidar");
 const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
@@ -7,39 +8,49 @@ const config = require(path.join(process.cwd(), "libs/config.js"));
 const db = require(path.join(process.cwd(), "libs/db.js"));
 const log = require(path.join(process.cwd(), "libs/log.js"));
 
-const image_directories = {
-    "thumbs": path.join(process.cwd(), "gallery/thumbs"),
-    "small": path.join(process.cwd(), "gallery/small")
-};
-for (const dir of Object.values(image_directories))
-{
-    if (!fs.existsSync(dir))
-    {
-        log.message("gallery", "Making missing directory", dir);
-        fs.mkdirSync(dir, {recursive: true});
-        continue;
-    }
-}
+const content_path = path.join(process.cwd(), config.gallery.content_path);
 
 module.exports = {
+    image_directories: {
+        "thumb": path.join(process.cwd(), "gallery/thumb"),
+        "small": path.join(process.cwd(), "gallery/small")
+    },
     prepareTables: async function() {
         if (db.db == null) {
             db.open();
         }
         await db.createTable("items", ["gallery_item_id INTEGER PRIMARY KEY AUTOINCREMENT", "file_path TEXT", "hash CHARACTER(64)", "created DATETIME DEFAULT CURRENT_TIMESTAMP", "last_update DATETIME DEFAULT CURRENT_TIMESTAMP", "missing INT DEFAULT 0"]);
-        await db.createTable("item_tags", ["tag_entry INTEGER PRIMARY KEY AUTOINCREMENT", "gallery_item_id INTEGER", "tag TEXT"]);
+        await db.createTable("item_tags", ["tag_entry INTEGER PRIMARY KEY AUTOINCREMENT", "gallery_item_id INTEGER REFERENCES items", "tag TEXT"]);
     },
-    refreshAlternates: async function(source_path) {
-        const thumbs_size = 256;
+    refreshAlternates: async function(gallery_item_id) {
+        const thumb_size = 256;
         const small_size = 1024;
-        sharp(source_path)
-            .resize(thumbs_size, thumbs_size, "contain")
+        const entry = (await db.select(["file_path", "missing"], "items", {where: `gallery_item_id=${gallery_item_id}`})).shift();
+        if (entry === undefined)
+        {
+            log.error("gallery", `No database entry for item ${gallery_item_id}, so there are no alternates to refresh.`);
+            return;
+        }
+        else if (entry.missing)
+        {
+            log.error("gallery", "Item", gallery_item_id, "is currently missing, so there are no alternates to refresh.");
+            return;
+        }
+        log.message("gallery", "Refreshing alternates for item", gallery_item_id);
+        const file_path = entry.file_path;
+        if (!fs.existsSync(file_path))
+        {
+            log.error("gallery", "Item", gallery_item_id, "has a file_path which doesn't exist.");
+            return;
+        }
+        await sharp(file_path)
+            .resize(thumb_size, thumb_size, {fit: "cover"})
             .webp({quality:80})
-            .toFile(path.join(image_directories["thumbs"], path.basename(source_path, path.extname(source_path)) + ".webp"));
-        sharp(source_path)
-            .resize(small_size, small_size, "inside")
+            .toFile(path.join(this.image_directories["thumb"], `${gallery_item_id}.webp`));
+        await sharp(file_path)
+            .resize(small_size, small_size, {fit: "inside"})
             .webp({quality:80})
-            .toFile(path.join(image_directories["small"], path.basename(source_path, path.extname(source_path)) + ".webp"));
+            .toFile(path.join(this.image_directories["small"], `${gallery_item_id}.webp`));
     },
     buildSQLFromSearch: function (query) {
         var order_by = undefined;
@@ -105,16 +116,25 @@ module.exports = {
         {
             required_tags.push(optional_tags.shift());
         }
-        const optional_query = optional_tags.length == 0 ? "item_tags" : "SELECT * FROM item_tags WHERE tag IN (" + optional_tags.join(", ") + ")";
-        const excluded_query = excluded_tags.length == 0 ? optional_query : "SELECT * FROM (" + optional_query + ") WHERE gallery_item_id NOT IN (SELECT gallery_item_id FROM item_tags WHERE tag in (" + excluded_tags.join(", ") + "))"
-        const required_query = required_tags.length == 0 ? excluded_query : "SELECT * FROM (SELECT * FROM (" + excluded_query + ") AS found INNER JOIN item_tags ON item_tags.gallery_item_id = found.gallery_item_id WHERE item_tags.tag IN (" + required_tags.join(", ") + ") GROUP BY item_tags.gallery_item_id HAVING COUNT(DISTINCT item_tags.tag) = " + required_tags.length + ") AS found INNER JOIN items ON items.gallery_item_id = found.gallery_item_id"
-        return "SELECT DISTINCT items.* FROM (" + required_query + ") AS found INNER JOIN items ON items.gallery_item_id=found.gallery_item_id WHERE items.missing=0 ORDER BY " + order_by + " LIMIT " + limit + " OFFSET " + ((page - 1) * limit);
+        const selected_columns = "items.gallery_item_id, items.hash, items.created, items.last_update"
+
+        if (required_tags.length === 0 && excluded_tags.length === 0 && optional_tags.length === 0)
+        {
+            required_tags.push(sqlstring.escape("untagged"));
+        }
+        const optional_query = optional_tags.length === 0 ? "item_tags" : "SELECT * FROM item_tags WHERE tag IN (" + optional_tags.join(", ") + ")";
+        const excluded_query = excluded_tags.length === 0 ? optional_query : "SELECT * FROM (" + optional_query + ") WHERE gallery_item_id NOT IN (SELECT gallery_item_id FROM item_tags WHERE tag IN (" + excluded_tags.join(", ") + "))"
+        const required_query = required_tags.length === 0 ? excluded_query : "SELECT * FROM (" + excluded_query + ") AS found INNER JOIN item_tags ON item_tags.gallery_item_id = found.gallery_item_id WHERE item_tags.tag IN (" + required_tags.join(", ") + ") GROUP BY item_tags.gallery_item_id HAVING COUNT(DISTINCT item_tags.tag) = " + required_tags.length
+        return "SELECT DISTINCT " + selected_columns + " FROM (" + required_query + ") AS found INNER JOIN items ON items.gallery_item_id=found.gallery_item_id WHERE items.missing=0 ORDER BY " + order_by + " LIMIT " + limit + " OFFSET " + ((page - 1) * limit);
     },
     search: async function (query) {
         return await db.all(this.buildSQLFromSearch(query));
     },
     hashFile: async function (file_path) {
-        file_path = path.resolve(path.join(process.cwd(), file_path));
+        if (!path.isAbsolute(file_path))
+        {
+            file_path = path.resolve(path.join(content_path, file_path));
+        }
         var hash = crypto.createHash("sha256");
         var stream = fs.createReadStream(file_path);
         return new Promise(resolve => {
@@ -123,22 +143,40 @@ module.exports = {
         });
     },
     updateItem: async function(file_path) {
+        if (!path.isAbsolute(file_path))
+        {
+            file_path = path.resolve(path.join(content_path, file_path));
+        }
         if (!fs.existsSync(file_path))
         {
-            return false;
+            log.message("gallery", "Item went missing: " + file_path);
+            await db.update("items", {missing:1}, {where: "file_path=" + sqlstring.escape(file_path)});
+            return;
         }
         const file_hash = await this.hashFile(file_path);
         const current_entry = (await db.select(["gallery_item_id", "file_path", "hash", "missing"], "items", {
             distinct: true,
             where: "file_path=" + sqlstring.escape(file_path) + "OR hash=" + sqlstring.escape(file_hash)
             })).shift();
-        if (current_entry === undefined) {
+        if (current_entry === undefined)
+        {
             log.message("gallery", "Inserted new item:", file_path);
             await db.insert("items", {file_path: sqlstring.escape(file_path), hash: sqlstring.escape(file_hash)});
+            const new_entry = (await db.select("gallery_item_id", "items", {
+                distinct: true,
+                where: "hash=" + sqlstring.escape(file_hash)
+                })).shift();
+            if (new_entry === undefined)
+            {
+                log.error("gallery", "No entry with the hash of", file_path, "exists after it should have been inserted, cannot give it the default tag.");
+                return
+            }
+            await db.insert("item_tags", {gallery_item_id: new_entry.gallery_item_id, tag: sqlstring.escape("untagged")});
+            return;
         }
-        else if (current_entry.hash != file_hash) {
+        if (current_entry.hash != file_hash) {
             log.message("gallery", "Updating item:", file_path);
-            this.refreshAlternates();
+            this.refreshAlternates(current_entry.gallery_item_id);
             await db.update("items", {hash: sqlstring.escape(file_hash), last_update: "datetime(\"now\", \"localtime\")", missing: 0}, {
                 where: "file_path=" + sqlstring.escape(file_path)
             });
@@ -146,23 +184,37 @@ module.exports = {
         else if (current_entry.missing || file_path != current_entry.file_path)
         {
             if (current_entry.missing) {
-                log.message("gallery", "Found missing item:", gallery_item_id);
+                log.message("gallery", "Found missing item:", current_entry.gallery_item_id);
             }
             log.message("gallery", "Item", current_entry.gallery_item_id,  "moved from", current_entry.file_path, "to", file_path);
-            await db.update("items", {file_path: sqlstring.escape(file_hash), last_update: "datetime(\"now\", \"localtime\")", missing: 0}, {
+            this.refreshAlternates(current_entry.gallery_item_id);
+            await db.update("items", {file_path: sqlstring.escape(file_path), last_update: "datetime(\"now\", \"localtime\")", missing: 0}, {
                 where: "hash=" + sqlstring.escape(file_hash)
             });
+        }
+        const tag_query_result = (await db.select("COUNT(tag) AS count", "item_tags", {
+                distinct: true,
+                where: `gallery_item_id=${current_entry.gallery_item_id}`
+            })).shift();
+        if (tag_query_result === undefined || tag_query_result.count == 0)
+        {
+            log.message("gallery", "Item", current_entry.gallery_item_id, "is untagged, giving it the default tag.");
+            await db.insert("item_tags", {gallery_item_id: current_entry.gallery_item_id, tag: sqlstring.escape("untagged")});
         }
     },
     refreshContent: async function() {
         log.message("gallery", "Refreshing content directory...");
-        for (var file of fs.readdirSync(config.gallery.content_path, {recursive: true}))
+        log.message("gallery", "  Checking existing files...");
+        for (var file of fs.readdirSync(content_path, {recursive: true}))
         {
-            file = path.join(config.gallery.content_path, file);
-            if (fs.lstatSync(path.join(process.cwd(), file)).isFile()) {
+            log.message("gallery", "  File:", file);
+            file = path.join(content_path, file);
+            log.message("gallery", "    ->:", file);
+            if (fs.lstatSync(file).isFile()) {
                 await this.updateItem(file);
             }
         }
+        log.message("gallery", "  Checking for missing files...");
         var new_missing_entries = [];
         for (const entry of await db.select("gallery_entry_id", "items", {
                 distinct: true,
@@ -178,3 +230,41 @@ module.exports = {
         log.message("gallery", "Refreshed content!");
     }
 };
+
+for (const dir of Object.values(module.exports.image_directories))
+{
+    if (!fs.existsSync(dir))
+    {
+        log.message("gallery", "Making missing directory", dir);
+        fs.mkdirSync(dir, {recursive: true});
+        continue;
+    }
+}
+
+const content_watcher = chokidar.watch(content_path, {persistent: false});
+content_watcher.on("add", file_path => {
+    if (path.basename(file_path).startsWith("."))
+    {
+        return;
+    }
+    file_path = path.relative(content_path, file_path);
+    log.message("gallery", "Content added:", file_path);
+    module.exports.updateItem(file_path);
+});
+content_watcher.on("change", file_path => {
+    if (path.basename(file_path).startsWith("."))
+    {
+        return;
+    }
+    log.message("gallery", "Content was changed:", file_path);
+    module.exports.updateItem(file_path);
+});
+content_watcher.on("unlink", file_path => {
+    if (path.basename(file_path).startsWith("."))
+    {
+        return;
+    }
+    log.message("gallery", "Content was removed:", file_path);
+    module.exports.updateItem(file_path);
+});
+content_watcher.on("error", error => { log.error("gallery", "Content file error:", error); });

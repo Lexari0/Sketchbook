@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<head>
+<title>{{ config.gallery.name }} - Search</title>
+<link rel="stylesheet" type="text/css" href="/static/main.css" />
+<script src="/static/jquery-3.7.1.min.js"></script>
+<script>
+    window.onload = (async () => {
+        const response = await fetch("/api/gallery/search?q={{ query.q }}");
+        const items = (await response.json()).r;
+        console.log("items:", items);
+        const contents = $("#search-contents");
+        if (items === undefined)
+        {
+            contents.append("<strong id=\"error\">Failed to perform search! Please contact site owner or try again later.</strong>");
+            return;
+        }
+        for (const item of items)
+        {
+            contents.append(`<div id="item"><a href="/item/${item.gallery_item_id}?q={{ query.q }}"><img src="/item/${item.gallery_item_id}/thumb"/></a></div>`);
+        }
+    });
+</script>
+</head>
+<body>
+<h1 id="small-title">{{ config.gallery.name }} <a href="/">Home</a></h1>
+<div id="main-body">
+    <aside id="sidebar">
+        <section id="search">
+            <form action="/search" method="get">
+                <input id="search-bar" type="text" name="q" value="{( query.q )}">
+                <br>
+                <input id="search-button" type="submit" value="Search">
+            </form>
+        </section>
+    </aside>
+    <section id="search-contents">
+</section>
+</div>
+</body>

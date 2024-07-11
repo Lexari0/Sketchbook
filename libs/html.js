@@ -121,6 +121,7 @@ module.exports = function (defaultContents = undefined) {
                 {
                     const paramPath = (parentPath.length > 0 ? parentPath + "." : "") + k;
                     template = template.replace(new RegExp(`{{\\s*${paramPath}\\s*}}`, "g"), params[k]);
+                    template = template.replace(new RegExp(`{\\(\\s*${paramPath}\\s*\\)}`, "g"), decodeURIComponent(`${params[k]}`.replace(/\+/g, " ")));
                     if (params[k] instanceof Object || params[k] instanceof Array)
                     {
                         template = replaceParams(template, params[k], paramPath);
@@ -128,7 +129,43 @@ module.exports = function (defaultContents = undefined) {
                 }
                 return template;
             };
-            this.append(replaceParams(template, params, ""));
+            function findParam(params, path) {
+                var split_path = path.split(".");
+                if (split_path.length === 0)
+                {
+                    return undefined;
+                }
+                if (split_path.length === 1)
+                {
+                    return params[path];
+                }
+                return findParam(params[split_path.shift()], split_path.join("."));
+            }
+            function evalFor(template, params) {
+                const re_start = /\{%\s*for\s+([^\s]+)\s+in\s+([^\s]+)\s*%\}/s;
+                const re_end = /\{%\s*end\s*%\}/;
+                while (start_match = template.match(re_start))
+                {
+                    const looper_key = start_match[1];
+                    const container_key = start_match[2];
+                    const pre_section = template.substr(0, start_match.index);
+                    const template_after_pre_section = template.substr(pre_section.length + start_match[0].length)
+                    const end_match = template_after_pre_section.match(re_end);
+                    const section_body = template_after_pre_section.substr(0, end_match.index);
+                    const post_section = template_after_pre_section.substr(end_match.index + end_match[0].length);
+                    const found_param = findParam(params, container_key);
+                    const section_array = Array.from({length: found_param.length}, (_, i) =>
+                            section_body.replace(new RegExp(`\\{\\{\\s*${looper_key}\\s*\\}\\}`, "g"), `{{ ${container_key}.${i} }}`)
+                        );
+                    template = pre_section
+                        + section_array.join()
+                        + post_section
+                }
+                return template;
+            }
+            template = evalFor(template, params, "");
+            template = replaceParams(template, params, "")
+            this.append(template.replace(/\{\{.*\}\}/g, ""));
             return this;
         }
     }

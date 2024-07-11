@@ -19,6 +19,5 @@ process.on("SIGUSR1", exitHandler.bind("SIGUSR1"));
 process.on("SIGUSR2", exitHandler.bind("SIGUSR2"));
 process.on("uncaughtException", exitHandler.bind("uncaughtException"));
 gallery.prepareTables()
-    .then(() => gallery.refreshContent())
     .then(() => webserver.start());
 log.message("program", "Setup complete!")

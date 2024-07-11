@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <head>
+<title>{{ config.gallery.name }} - #{{ item.gallery_item_id }}</title>
 <link rel="stylesheet" type="text/css" href="/static/main.css" />
 <script src="/static/jquery-3.7.1.min.js"></script>
 <script>
     const urlParams = new URLSearchParams(window.location.search);
-    function updateSearchBar() {
-        $("#search-bar").prop("value", urlParams.get("q"));
-    }
     window.onload = (async () => {
         updateSearchBar();
         const response = await fetch("/api/gallery/search?q=" + urlParams.get("q").replace(" ", "+"));
@@ -20,7 +18,7 @@
         }
         for (const item of items)
         {
-            contents.append(`<div id="item"><p>${item.file_path}</p></div>`);
+            contents.append(`<div id="item"><img src="/item/${item.gallery_item_id}/thumb" /></div>`);
         }
     });
 </script>
@@ -31,13 +29,24 @@
     <aside id="sidebar">
         <section id="search">
             <form action="/search" method="get">
-                <input id="search-bar" type="text" name="q" value="">
+                <input id="search-bar" type="text" name="q" value="{( query.q )}">
                 <br>
                 <input id="search-button" type="submit" value="Search">
             </form>
         </section>
+        <h3 class="sidebar-header">Tags:</h3>
+        <ul>
+            {% for tag in tags %}
+            <li>(<a href="/search?q={{ query.q }}+-{{ tag }}">-</a>/<a href="/search?q={{ query.q }}+{{ tag }}">+</a>) <a href="/search?q={{ tag }}">{{ tag }}</a></li>
+            {% end %}
+        </ul>
     </aside>
-    <section id="search-contents">
-</section>
+    <section id="item-contents">
+        <div class="imgbox">
+        <a href="/item/{{ item.gallery_item_id }}/large">
+            <img src="/item/{{ item.gallery_item_id }}/small" />
+        </a>
+        </div>
+    </section>
 </div>
 </body>
