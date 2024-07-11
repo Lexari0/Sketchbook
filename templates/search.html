@@ -8,6 +8,13 @@
         const response = await fetch("/api/gallery/search?q={{ query.q }}");
         const json = await response.json();
         const page_count = Math.ceil(json.item_count / 50);
+        $(".tag-link").each(i => {
+            const text = $(this).text();
+            if (text.length > 20)
+            {
+                $(this).text(text.substring(0, 20) + "...")
+            }
+        });
         const results = $("#search-results");
         if (json.items === undefined)
         {
@@ -72,7 +79,7 @@
     <h3 class="sidebar-header">Tags:</h3>
     <ul id="tag-list">
         {% for tag in tags %}
-        <li>(<a href="/search?q={{ query.q }}+-{{ tag.tag }}">-</a>/<a href="/search?q={{ query.q }}+{{ tag.tag }}">+</a>) <a href="/search?q={{ tag.tag }}">{{ tag.tag }}</a>: {{ tag.count }}</li>
+        <li>(<a href="/search?q={{ query.q }}+-{{ tag.tag }}">-</a>/<a href="/search?q={{ query.q }}+{{ tag.tag }}">+</a>) <a class="tag-link" href="/search?q={{ tag.tag }}">{{ tag.tag }}</a>: {{ tag.count }}</li>
         {% end %}
     </ul>
 </aside>

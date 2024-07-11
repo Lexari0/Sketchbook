@@ -10,6 +10,13 @@
         const items = (await response.json()).r;
         console.log("items:", items);
         const contents = $("#search-contents");
+        $(".tag-link").each(i => {
+            const text = $(this).text();
+            if (text.length > 20)
+            {
+                $(this).text(text.substring(0, 20) + "...");
+            }
+        });
         if (items === undefined)
         {
             contents.append("<strong id=\"error\">Failed to perform search! Please contact site owner or try again later.</strong>");
@@ -43,7 +50,7 @@
     </div>
     <ul id="tag-list">
         {% for tag in tags %}
-        <li>(<a href="/search?q={{ query.q }}+-{{ tag.tag }}">-</a>/<a href="/search?q={{ query.q }}+{{ tag.tag }}">+</a>) <a href="/search?q={{ tag.tag }}">{{ tag.tag }}</a>: {{ tag.count }}</li>
+        <li>(<a href="/search?q={{ query.q }}+-{{ tag.tag }}">-</a>/<a href="/search?q={{ query.q }}+{{ tag.tag }}">+</a>) <a class="tag-link" href="/search?q={{ tag.tag }}">{{ tag.tag }}</a>: {{ tag.count }}</li>
         {% end %}
     </ul>
 </aside>
@@ -57,7 +64,7 @@
     </div>
     <div id="item-info">
         <h3 id="item-name">{{ item.name }}</h3>
-        <hr>
+        <hr />
         <p id="item-description">{{ item.description }}</p>
     </div>
 </section>
