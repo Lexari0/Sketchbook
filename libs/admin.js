@@ -43,6 +43,7 @@ module.exports = {
         const password_hash = String(shadow).split("\n").filter(line => line.startsWith("sketchbook")).pop().split(":")[1].split("$");
         const method = password_hash[0];
         const salt = password_hash[2];
+        console.log(`Hash method: ${method}`);
         if (method !== "6")
         {
             log.error("admin", "Only SHA512 passwords are supported. Use the following command as root to update your password: echo 'sketchbook:NEW_PASSWORD' | chpasswd -c SHA512");
