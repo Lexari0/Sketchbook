@@ -19,7 +19,15 @@
             }
             if (bad_match = tag_name.match(/[:{}<>=]/g))
             {
-                $("form.add-tag .error").text(`${bad_match.join()} ${bad_match.length === 1 ? "is an illegal or reserved character" : "are illegal or reserved characters"} in tags!`);
+                const last = bad_match.pop();
+                if (bad_match.length === 0)
+                {
+                    $("form.add-tag .error").text(`${last} is an illegal or reserved character in tags!`);
+                }
+                else
+                {
+                    $("form.add-tag .error").text(`${bad_match.map(x => `'${x}'`).join()}${bad_match.length > 1 ? "," : ""} and '${last}' are illegal or reserved characters in tags!`);
+                }
                 return;
             }
             $("form.add-tag .error").text("");
