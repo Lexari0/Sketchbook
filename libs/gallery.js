@@ -369,7 +369,7 @@ ${required_query.replace(/^/gm,"    ")}
     getItemIDOfFile: async function(file_path) {
         await db.select("gallery_entry_id", "items", {
             distinct: true,
-            where: `hash=${hashFile(file_path)}`
+            where: `hash=${this.hashFile(file_path)}`
         });
     },
     refreshContent: async function() {
