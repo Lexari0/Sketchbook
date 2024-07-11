@@ -2,7 +2,6 @@ const fs = require("fs");
 const path = require("path");
 const uuid = require("uuid").v4;
 const yaml = require("yaml");
-const log = require(path.join(process.cwd(), "libs/log.js"));
 
 const PATH = "./config.yaml";
 const DEFAULT = {
@@ -62,7 +61,7 @@ if (fs.existsSync(PATH))
 else
 {
     module.exports = DEFAULT;
-    log.message("program", "Creating default config...");
+    console.log("Creating default config...");
 }
 fs.writeFileSync(PATH, yaml.stringify(module.exports), "utf-8");
 
