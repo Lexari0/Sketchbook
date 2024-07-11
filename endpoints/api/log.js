@@ -91,7 +91,7 @@ module.exports = {
                 api.sendResponse(res, 502, {error:"Failed to read log file"});
                 return true;
             }
-            api.sendResponse(res, 200, {error:"", total_lines, lines, logs});
+            api.sendResponse(res, 200, {error:"", total_lines, lines, logs: logs.trim()});
             return true;
         };
         endpoints["/api/log/files"] = async (req, res) => {
@@ -149,7 +149,7 @@ module.exports = {
             }
             else
             {
-                api.sendResponse(res, 200, {error:"", file_name, total_lines, lines, logs});
+                api.sendResponse(res, 200, {error:"", file_name, total_lines, lines, logs: logs.trim()});
             }
             return true;
         };
