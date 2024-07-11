@@ -139,6 +139,7 @@ module.exports = {
                 return true;
             }
             const line_offsets = await getFileLineOffsets(file_path);
+            console.log("line_offsets:", line_offsets);
             const total_lines = line_offsets.length;
             const lines = Math.max(0, Math.min(params.lines == undefined ? 20 : params.lines, total_lines, 1000));
             const logs = await getLogLines(file_path, lines, line_offsets);
