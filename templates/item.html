@@ -20,10 +20,10 @@
         {
             api_request_body += `subscribestar_access_token=${cookies.subscribestar_access_token}`
         }
-        const api_response = await fetch("/api/gallery/item/{{ item.gallery_item_id }}", {
+        const api_response = await (await fetch("/api/gallery/item/{{ item.gallery_item_id }}", {
             method: "POST",
             body: api_request_body
-        });
+        })).json();
         if (api_response.visibility.censored == false)
         {
             return;

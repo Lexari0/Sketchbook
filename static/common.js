@@ -1,9 +1,12 @@
 function getCookies() {
     var cookies = {};
-    for (const cookie of document.cookie.split(";"))
+    if (document.cookie.length > 0)
     {
-        const kvp = cookie.split("=");
-        cookies[kvp[0]] = kvp[1];
+        for (const cookie of document.cookie.split(";"))
+        {
+            const kvp = cookie.split("=");
+            cookies[kvp[0]] = kvp[1];
+        }
     }
     return cookies;
 }
