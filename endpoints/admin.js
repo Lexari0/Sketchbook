@@ -9,16 +9,17 @@ const html = require(path.join(process.cwd(), "libs/html.js"));
 async function getWifiSSID() {
     return new Promise(resolve => 
         exec("which iwgetid", error => {
-            if (error !== 0)
+            if (error.code !== 0)
             {
                 console.log("No iwgetid")
                 resolve("");
+                return;
             }
             exec("iwgetid -r", (error, stdout, stderr) => {
-                console.log("iwgetid:", stdout);
-                resolve(stdout.substring(0, stdout.indexOf("\n")));
-            }
-            );
+                const ssid = stdout.substring(0, stdout.indexOf("\n"));
+                console.log("ssid:", ssid);
+                resolve(ssid);
+            });
         }
         )
     );
