@@ -9,11 +9,10 @@ module.exports = {
     defaultTemplateParameterGetter: async function (req) {
         var params = {
             req: {
-                host: req.host,
+                host: req.headers.host,
                 method: req.method,
-                path: req.path,
-                protocol: req.protocol,
-                secure: req.secure
+                path: req.url,
+                protocol: req.protocol
             },
             config: config.clone(),
             can_edit: admin.isRequestAdmin(req),
