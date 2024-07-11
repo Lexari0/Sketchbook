@@ -31,13 +31,13 @@ module.exports = {
             if (admin.isRequestAdmin(req))
             {
                 const template = fs.readFileSync(path.join(process.cwd(), "templates/admin.html"), "utf-8")
-                const body = await html.buildTemplate(template, {}, req);
+                const body = await html.buildTemplate(template, {ssid: await getWifiSSID()}, req);
                 res.writeHead(200, {"Content-Type": "text/html"});
                 res.end(body);
                 return true;
             }
             const template = fs.readFileSync(path.join(process.cwd(), "templates/admin_login.html"), "utf-8")
-            const body = await html.buildTemplate(template, {ssid: await getWifiSSID()}, req);
+            const body = await html.buildTemplate(template, {}, req);
             res.writeHead(200, {"Content-Type": "text/html"});
             res.end(body);
             return true;
