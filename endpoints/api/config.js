@@ -27,9 +27,9 @@ module.exports = {
                 var changed_config_obj = changed_config;
                 for (const key_layer of key_layers)
                 {
-                    if (changed_config[key_layer] === undefined)
+                    if (changed_config_obj[key_layer] === undefined)
                     {
-                        changed_config[key_layer] = {};
+                        changed_config_obj[key_layer] = {};
                     }
                     config_obj = config_obj[key_layer];
                     changed_config_obj = changed_config[key_layer];
