@@ -233,67 +233,69 @@ Form submission destination for replacing the source file of an item in the gall
 
 Paramters:
 
-- `simple` (optional): If provided, no database or external API (eg: visibility) lookups are performed. Useful for only getting relevant URIs.
-- `subscribestar_access_token` (optional): API Bearer Token for SubscribeStar. Used to determine if the requester has access to view content restricted by a SubscribeStar subscription.
+- `file`: New file to save for item `<id>` in the gallery.
 
 #### Example Response
 
-Endpoint: `/api/gallery/item/1`
+Endpoint: `/api/gallery/item/1/new_file`
 
 ```json
 {
   "error": "",
-  "item": {
-    "resolutions": {
-      "thumb": "/item/1/thumb",
-      "small": "/item/1/small",
-      "large": "/item/1/large"
-    },
-    "uri": "/item/1",
-    "name": "untitled",
-    "description": "",
-    "uploaded_on": "2024-07-01 19:37:47",
-    "last_edited": "2024-07-04 13:07:55",
-    "source": null,
-    "missing": 0,
-    "tags": [
-      "dog",
-      "cat",
-      "plaid_shirt"
-    ]
-  },
-  "visibility": {
-    "censored": false,
-    "platforms": []
-  }
+  "gallery_item_id": 1,
+  "new_file_path": "/home/sketchbook/content/f7a66678b15e8af6362d87e16d6b3b4a2ad04090b4cdc8a12be130530eb83f6f.png"
 }
 ```
 
 ### `/api/gallery/items`
 
-Provides a list of items in the gallery.
+Provides a list of items in the gallery with some metadata, though not as much as `/api/gallery/item/<id>`.
 
 Parameters:
 
-- `since`: Date of the earliest expected update. Allows clients and aggregators to only get updates they don't have cached.
-- `page`: Page of items to receive, if multiple pages are necessary.
+- `since`: (optional) Date of the earliest expected update. Allows clients and aggregators to only get updates they don't have cached.
+- `page`: (optional) Page of items to receive, if multiple pages are necessary. Response will include `page_count` to determine if more pages are available.
 
 #### Example Response
 
 ```json
 {
   "error": "",
+  "item_count": 83,
   "page": 1,
-  "page_count": 3,
+  "page_count": 2,
   "items": {
-    "42": {
-      "_comment": "Contents identical to response from /api/gallery/item/42"
+    "3": {
+      "name": "untitled",
+      "uploaded_on": "2024-07-04 08:20:54",
+      "last_edited": "2024-07-04 08:20:54",
+      "source": null,
+      "missing": 0,
+      "tags": [
+        "cat"
+      ],
+      "resolutions": {
+        "thumb": "/item/3/thumb",
+        "small": "/item/3/small",
+        "large": "/item/3/large"
+      },
+      "uri": "/item/3"
     },
-    "43": {
-      "_comment": "Contents identical to response from /api/gallery/item/43"
-    },
-    "19": {
-      "_comment": "Contents identical to response from /api/gallery/item/19"
+    "4": {
+      "name": "untitled",
+      "uploaded_on": "2024-07-04 08:20:54",
+      "last_edited": "2024-07-04 08:30:26",
+      "source": null,
+      "missing": 0,
+      "tags": [
+        "dog"
+      ],
+      "resolutions": {
+        "thumb": "/item/4/thumb",
+        "small": "/item/4/small",
+        "large": "/item/4/large"
+      },
+      "uri": "/item/4"
     }
   }
 }
@@ -301,31 +303,185 @@ Parameters:
 
 ### `/api/gallery/search`
 
-Queries the gallery with a given search criteria and responds with posts which match that criteria
+Queries the gallery with a given search criteria and responds with posts which match that criteria.
 
 Parameters:
 
-- `q`: Search query. Specific format TBD.
-- `page`: Page of items to receive, if multiple pages are necessary.
+- `q`: Search query as a `+` delimited series of tags. A tag prefixed with `-` must be excluded from results. If multiple tags are prefixed with `~`, only one of them must be included on an item for it to be included in the results. `page:PAGE_INDEX` allows specifying the page of search results to retrieve. 
+- `simple` (optional): If provided, no database or external API (eg: visibility) lookups are performed. Useful for only getting relevant URIs.
+
+#### Example Response
+
+Parameters: `q=flannel+page:1`
+
+```json
+{
+  "error": "",
+  "q": "flannel+page:1",
+  "item_count": 1,
+  "items": {
+    "7": {
+      "resolutions": {
+        "thumb": "/item/7/thumb",
+        "small": "/item/7/small",
+        "large": "/item/7/large"
+      },
+      "uri": "/item/7",
+      "name": "untitled",
+      "description": "",
+      "uploaded_on": "2024-07-04 08:20:54",
+      "last_edited": "2024-07-04 08:20:54",
+      "source": null,
+      "missing": 0,
+      "tags": [
+        "deer",
+        "flannel"
+      ]
+    },
+  }
+}
+```
+
+### `/api/gallery/tags`
+
+Retrieves tags in the gallery database. Used by the search bar to generate auto-complete suggestions.
+
+Parameters:
+
+- `like`: (optional): Partial tag used for requesting auto-complete suggestions.
+- `item` (optional): Item to search the the tags of. If provided, only tags on this item will be returned.
+- `count` (optional): Number of tags to return.
+- `category` (optional): Tag category to limit the results to.
+
+#### Example Response
+
+Parameters: `like=night`
+
+```json
+{
+  "error": "",
+  "like": "night",
+  "count": 20,
+  "tags": [
+    {
+      "tag": "night_in_the_woods",
+      "description": null,
+      "category": "copyright",
+      "color": "#a84632",
+      "count": 4
+    }
+  ]
+}
+```
+
+### `/api/gallery/tags/categories`
+
+Retrieves tags in the gallery database. Used by the search bar to generate auto-complete suggestions.
+
+Parameters:
+
+- `like`: (optional): Partial category used for requesting auto-complete suggestions.
+- `count` (optional): Number of categories to return.
 
 #### Example Response
 
 ```json
 {
-  "page_count": 2,
-  "q": "foo"
-  "item_count": 3,
-  "items": {
-    "519": {
-      "_comment": "Contents identical to response from /api/gallery/item/519"
+  "error": "",
+  "like": "",
+  "count": 20,
+  "categories": [
+    {
+      "id": 2,
+      "category": "character",
+      "description": "Tags of this category denote a specific character.",
+      "color": "#a88932",
+      "count": 4
     },
-    "580": {
-      "_comment": "Contents identical to response from /api/gallery/item/580"
+    {
+      "id": 3,
+      "category": "copyright",
+      "description": "Tags of this category denote a specific copyright or franchise.",
+      "color": "#a84632",
+      "count": 2
     },
-    "926": {
-      "_comment": "Contents identical to response from /api/gallery/item/926"
+    {
+      "id": 1,
+      "category": "artist",
+      "description": "Tags of this category denote artists involved in the creation of an item.",
+      "color": "#b37dff",
+      "count": 1
+    },
+    {
+      "id": 4,
+      "category": "meta",
+      "description": "Tags of this category are either automatically applied based on a specified rule or apply special rules to a search query.",
+      "color": "#0871c2",
+      "count": 1
+    },
+    {
+      "id": 5,
+      "category": "species",
+      "description": "Tags of this category denote the species of character(s) depicted in an item.",
+      "color": "#60a38e",
+      "count": 0
     }
-  }
+  ]
+}
+```
+
+### `/api/gallery/refresh`
+
+Forces a content refresh of the gallery. Usually unnecessary as the gallery should automatically refresh when the server is started and when a file is added to or removed from the content folder.
+
+Parameters:
+
+- `subdir`: (optional): Subdirectory of the content directory to refresh.
+
+#### Example Response
+
+```json
+{
+  "error": "",
+  "like": "",
+  "count": 20,
+  "categories": [
+    {
+      "id": 2,
+      "category": "character",
+      "description": "Tags of this category denote a specific character.",
+      "color": "#a88932",
+      "count": 4
+    },
+    {
+      "id": 3,
+      "category": "copyright",
+      "description": "Tags of this category denote a specific copyright or franchise.",
+      "color": "#a84632",
+      "count": 2
+    },
+    {
+      "id": 1,
+      "category": "artist",
+      "description": "Tags of this category denote artists involved in the creation of an item.",
+      "color": "#b37dff",
+      "count": 1
+    },
+    {
+      "id": 4,
+      "category": "meta",
+      "description": "Tags of this category are either automatically applied based on a specified rule or apply special rules to a search query.",
+      "color": "#0871c2",
+      "count": 1
+    },
+    {
+      "id": 5,
+      "category": "species",
+      "description": "Tags of this category denote the species of character(s) depicted in an item.",
+      "color": "#60a38e",
+      "count": 0
+    }
+  ]
 }
 ```
 

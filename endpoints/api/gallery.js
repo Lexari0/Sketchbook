@@ -320,15 +320,15 @@ module.exports = {
             if (query.subdir && query.subdir.startsWith(".."))
             {
                 api.sendResponse(res, 502, {error: "Provided path must be a subdirectory."});
-                return;
+                return true;
             }
-            const original_base_path = query.subdir ? path.join(process.cwd(), "content", query.subdir) : path.join(process.cwd(), "content");
+            const original_base_path = query.subdir ? path.join(process.cwd(), config.gallery.content_path, query.subdir) : path.join(process.cwd(), config.gallery.content_path);
             var base_path = original_base_path;
             var refreshed_items = 0;
             if (!fs.existsSync(base_path))
             {
                 api.sendResponse(res, 502, {error: "Provided path does not exist."});
-                return;
+                return true;
             }
             var dir_stat = fs.lstatSync(base_path);
             while (dir_stat.isSymbolicLink())
@@ -337,13 +337,13 @@ module.exports = {
                 if (link_path === base_path)
                 {
                     api.sendResponse(res, 502, {error: "Provided path links to itself."});
-                    return;
+                    return true;
                 }
                 base_path = link_path;
                 if (!fs.existsSync(base_path))
                 {
                     api.sendResponse(res, 502, {error: "Provided path linked to something that does not exist."});
-                    return;
+                    return true;
                 }
                 dir_stat = fs.lstatSync(base_path);
             }
@@ -369,7 +369,7 @@ module.exports = {
             else
             {
                 api.sendResponse(res, 502, {error: "Provided path is not a directory or file."});
-                return;
+                return true;
             }
             api.sendResponse(res, 200, {error: "", subdir: query.subdir ? query.subdir : "", refreshed_items});
             return true;
