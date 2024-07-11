@@ -49,17 +49,18 @@ module.exports = {
             log.error("admin", "Only SHA512 passwords are supported. Use the following command as root to update your password: echo 'sketchbook:NEW_PASSWORD' | chpasswd -c SHA512");
             return false;
         }
-        await new Promise(resolve => 
-            exec(`openssl passwd -6 -salt ${salt} ${password}`, (error, stdout, stderr) => {
+        const command = `openssl passwd -6 -salt ${salt} ${password}`;
+        return await new Promise(resolve => 
+            exec(command, (error, stdout, stderr) => {
+                console.log(`stdout: ${stdout}\n\npassword_hash: ${password_hash}`);
                 if (error && error.code !== 0)
                 {
                     log.error("Running openssl resulted in an error")
                     resolve(false);
                     return;
                 }
-                resolve(stdout == password_hash)
+                resolve(stdout == password_hash);
             })
         );
-        return ;
     }
 };
