@@ -23,7 +23,7 @@
     }
 
     $(async () => {
-        buildAPIList(".new-tags", "/api/subscriptions/subscribestar/tiers", json => json.tiers, createHTMLForNewTag);
+        buildAPIList(".new-tags", "/api/subscriptions/subscribestar/tiers", json => json.tiers.map(tier => tier.tag), createHTMLForNewTag);
     });
 
     $(async () => {
