@@ -32,13 +32,13 @@ async function refreshOAuth() {
         client_secret: config.subscribestar.client_secret,
         refresh_token: config.subscribestar.auth_token.refresh_token,
         grant_type: "refresh_token",
-        redirect_uri: this.getRedirectURI()
+        redirect_uri: getRedirectURI()
     });
     if (post_response.error)
     {
         return false;
     }
-    this.updateOAuth(post_response);
+    updateOAuth(post_response);
     return true;
 }
 
