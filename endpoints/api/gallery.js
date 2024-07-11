@@ -69,7 +69,9 @@ module.exports = {
             const item = await apiGalleryIDLookup(gallery_item_id, res, "simple" in query);
             if (item !== undefined)
             {
-                api.sendResponse(res, 200, {error: "", item});
+                api.sendResponse(res, 200, {error: "", item, visibility: await gallery.isItemCensoredWithCookies(gallery_item_id, {
+                    subscribestar_access_token: query.subscribestar_access_token
+                })});
             }
             return true;
         };

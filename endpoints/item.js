@@ -40,7 +40,7 @@ module.exports = {
                 group_by: "tag"
             });
             item.description = item.description.replace(/\n/g, "<br />");
-            const params = {item, tags: tags_with_counts, censored: await gallery.isItemCensoredForRequest(req)};
+            const params = {item, tags: tags_with_counts, censored: await gallery.isItemCensoredForRequest(gallery_item_id, req)};
             const template = fs.readFileSync(path.join(process.cwd(), "templates/item.html"), "utf-8")
             const body = await html.buildTemplate(template, params, req);
             res.writeHead(200, {"Content-Type": "text/html"});
@@ -61,7 +61,7 @@ module.exports = {
                 res.end(`<h1>Item ${gallery_item_id} is currently missing</h1><h2>Please notify the gallery owner.<br /><a href="/">Return home</a></h2>`);
                 return true;
             }
-            if (await gallery.isItemCensoredForRequest(req))
+            if (await gallery.isItemCensoredForRequest(gallery_item_id, req))
             {
                 const requested_path = path.resolve(path.join(process.cwd(), "gallery", "censored", `${gallery_item_id}.webp`));
                 if (!fs.existsSync(requested_path))

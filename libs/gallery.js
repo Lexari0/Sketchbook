@@ -4,6 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const sharp = require("sharp");
 const sqlstring = require("sqlstring-sqlite");
+const gallery = require("../endpoints/api/gallery");
 const admin = require(path.join(process.cwd(), "libs/admin.js"));
 const config = require(path.join(process.cwd(), "libs/config.js"));
 const cookies = require(path.join(process.cwd(), "libs/cookies.js"));
@@ -425,23 +426,28 @@ ${required_query.replace(/^/gm,"    ")}
         await db.update("items", {missing:1}, {where: "gallery_item_id IN (" + new_missing_entries.join(", ") + ")"});
         log.message("gallery", "Refreshed content!");
     },
-    isItemCensoredForRequest: async function(req) {
+    isItemCensoredForRequest: async function(gallery_item_id, req) {
         if (admin.isRequestAdmin(req))
         {
             return true;
         }
-        const split_url = req.url.split("?").shift().split("/").filter(String);
-        const gallery_item_id = parseInt(split_url[1]);
-        const subscribestar_tags = (await db.select("tag", "item_tags_with_data", {where: `gallery_item_id=${gallery_item_id} AND tag LIKE "subscribestar:%"`})).map(x => x.tag);
         const user_cookies = cookies.getRequestCookies(req);
-        const subscribestar_access_token = user_cookies.subscribestar_access_token;
-        console.log("user_cookies: ", JSON.stringify(user_cookies));
-        console.log(`subscribestar_access_token: ${subscribestar_access_token}`);
-        if (await subscribestar.isItemCensoredForUser(subscribestar_tags, subscribestar_access_token))
+        return await this.isItemCensoredWithCookies(gallery_item_id, user_cookies);
+    },
+    isItemCensoredWithCookies: async function(gallery_item_id, cookies) {
+        return await this.getItemCensorResult(gallery_item_id, cookies).censored;
+    },
+    getItemCensorResult: async function(gallery_item_id, cookies) {
+        var censoring_platforms = [];
+        const subscribestar_tags = (await db.select("tag", "item_tags_with_data", {where: `gallery_item_id=${gallery_item_id} AND tag LIKE "subscribestar:%"`})).map(x => x.tag);
+        if (await subscribestar.isItemCensoredForUser(subscribestar_tags, cookies.subscribestar_access_token))
         {
-            return true;
+            censoring_platforms.push({
+                platform: "SubscribeStar",
+                tiers: (await subscribestar.getTiers()).filter(tier => subscribestar_tags.includes(tier.tag))
+            });
         }
-        return false;
+        return {censored: censoring_platforms.length > 0, platforms: censoring_platforms};
     }
 };
 
