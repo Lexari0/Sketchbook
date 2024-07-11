@@ -101,11 +101,15 @@ module.exports = {
                         log.message("api", `Updating file for item ${gallery_item_id}`);
                         try
                         {
-                            if (gallery.isItemMissing(gallery_item_id) === false)
+                            if (await gallery.isItemMissing(gallery_item_id) === false)
                             {
                                 const old_file_path = await gallery.getFilePathOfItem(gallery_item_id);
                                 log.message("api", `Deleting old file: ${old_file_path}`);
                                 fs.unlinkSync(old_file_path);
+                            }
+                            else
+                            {
+                                log.message("api", `Old file is missing, nothing to delete.`);
                             }
                         }
                         catch (err)
