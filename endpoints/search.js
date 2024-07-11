@@ -19,7 +19,7 @@ module.exports = {
                     distinct: true,
                     where: "tag IN (" + config.gallery.recommended_tags.map(x => sqlstring.escape(x)).join() + ")",
                     group_by: "tag",
-                    order_by: "count DESC",
+                    order_by: "count DESC, tag",
                     limit: 16
                     });
             }
@@ -28,7 +28,7 @@ module.exports = {
                 params["tags"] = await db.select(["tag", "COUNT(tag) AS count"], "item_tags", {
                     distinct: true,
                     group_by: "tag",
-                    order_by: "count DESC",
+                    order_by: "count DESC, tag",
                     limit: 16
                     });
             }
