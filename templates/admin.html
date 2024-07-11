@@ -32,11 +32,11 @@ function configFormSubmit(form, event) {
     form.find("input").each((i, x) => {
         if (x.type === "text")
         {
-            a[x.name] = x.value;
+            fields[x.name] = x.value;
         }
         else if (x.type === "checkbox")
         {
-            a[x.name] = x.checked;
+            fields[x.name] = x.checked;
         }
     });
     fetch(`/api/config/update`, {
