@@ -164,8 +164,6 @@ module.exports = {
         const viewer_id = viewer_user.id;
         const creator_user = (await this.sendGraphQLRequest("{ user { id } }")).user;
         const creator_id = creator_user.id;
-        console.log("viewer_id: ", viewer_id);
-        console.log("creator_id: ", creator_id);
         if (creator_id == viewer_id)
         {
             log.message("subscribestar", "Viewer is owner, visible");

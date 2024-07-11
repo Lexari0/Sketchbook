@@ -4,9 +4,11 @@ const fs = require("fs");
 const path = require("path");
 const sharp = require("sharp");
 const sqlstring = require("sqlstring-sqlite");
+const admin = require(path.join(process.cwd(), "libs/admin.js"));
 const config = require(path.join(process.cwd(), "libs/config.js"));
 const db = require(path.join(process.cwd(), "libs/db.js"));
 const log = require(path.join(process.cwd(), "libs/log.js"));
+const subscribestar = require(path.join(process.cwd(), "libs/subscribestar.js"));
 
 const supported_extensions = {
     images: [".png", ".jpg", ".jpeg", ".tiff", ".webp", ".ico"],
@@ -421,6 +423,22 @@ ${required_query.replace(/^/gm,"    ")}
         }
         await db.update("items", {missing:1}, {where: "gallery_item_id IN (" + new_missing_entries.join(", ") + ")"});
         log.message("gallery", "Refreshed content!");
+    },
+    isItemCensoredForRequest: async function(req) {
+        if (admin.isRequestAdmin(req))
+        {
+            return true;
+        }
+        const subscribestar_tags = (await db.select("tag", "item_tags_with_data", {where: `gallery_item_id=${gallery_item_id} AND tag LIKE "subscribestar:%"`})).map(x => x.tag);
+        const user_cookies = cookies.getRequestCookies(req);
+        const subscribestar_access_token = user_cookies.subscribestar_access_token;
+        console.log("user_cookies: ", JSON.stringify(user_cookies));
+        console.log(`subscribestar_access_token: ${subscribestar_access_token}`);
+        if (await subscribestar.isItemCensoredForUser(subscribestar_tags, subscribestar_access_token))
+        {
+            return true;
+        }
+        return false;
     }
 };
 
