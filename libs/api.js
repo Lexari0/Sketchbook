@@ -88,12 +88,12 @@ module.exports = {
         }
         return req.params;
     },
-    sendPOST: function(hostname, page, params = {}, data, content_type) {
+    sendPOST: function(hostname, page, data, content_type) {
         return new Promise((resolve, reject) => {
-            if (Object.keys(params).length > 0)
-            {
-                page += "?" + Object.keys(params).map(key => params[key] == undefined ? encodeURIComponent(`${key}`) : encodeURIComponent(`${key}`) + "=" + encodeURIComponent(`${params[key]}`)).join("&");
-            }
+            // if (Object.keys(params).length > 0)
+            // {
+            //     page += "?" + Object.keys(params).map(key => params[key] == undefined ? encodeURIComponent(`${key}`) : encodeURIComponent(`${key}`) + "=" + encodeURIComponent(`${params[key]}`)).join("&");
+            // }
             var options = {
                 hostname: hostname,
                 port: 443,
