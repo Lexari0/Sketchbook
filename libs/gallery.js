@@ -189,9 +189,11 @@ module.exports = {
         });
     },
     addTags: async function(gallery_item_id, ...tags) {
+        log.message("gallery", "Adding tags to item", gallery_item_id, ":", tags.join(", "))
         await db.all("INSERT OR REPLACE INTO item_tags (gallery_item_id, tag) " + tags.map(tag => `SELECT ${gallery_item_id}, ${tag} WHERE NOT EXISTS (SELECT * FROM item_tags WHERE gallery_item_id=${gallery_item_id} AND tag=${tag})`).join(" UNION ALL "));
     },
     removeTags: async function(gallery_item_id, ...tags) {
+        log.message("gallery", "Removing tags from item", gallery_item_id, ":", tags.join(", "))
         await db.all(`DELETE FROM item_tags WHERE gallery_item_id=${gallery_item_id} AND tag IN (${tags.join(", ")});`);
     },
     updateItem: async function(file_path) {

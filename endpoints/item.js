@@ -114,11 +114,11 @@ module.exports = {
                 console.log("Got submission!", {params});
                 if (params.tags_to_add && params.tags_to_add.length > 0)
                 {
-                    await gallery.addTags(gallery_item_id, decodeURIComponent(params.tags_to_add).split(",").map(tag => sqlstring.escape(tag)));
+                    await gallery.addTags(gallery_item_id, ...decodeURIComponent(params.tags_to_add).split(",").map(tag => sqlstring.escape(tag)));
                 }
                 if (params.tags_to_remove && params.tags_to_remove.length > 0)
                 {
-                    await gallery.removeTags(gallery_item_id, decodeURIComponent(params.tags_to_remove).split(",").map(tag => sqlstring.escape(tag)));
+                    await gallery.removeTags(gallery_item_id, ...decodeURIComponent(params.tags_to_remove).split(",").map(tag => sqlstring.escape(tag)));
                 }
                 const item_updates = {name: sqlstring.escape(decodeURIComponent(params.name)), description: sqlstring.escape(decodeURIComponent(params.description))};
                 if (Object.values(item_updates).filter(String).length > 0)
