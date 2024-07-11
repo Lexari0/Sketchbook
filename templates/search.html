@@ -24,16 +24,22 @@
 <body>
 <h1 id="small-title">{{ config.gallery.name }} <a href="/">Home</a></h1>
 <div id="main-body">
-    <aside id="sidebar">
-        <section id="search">
-            <form action="/search" method="get">
-                <input id="search-bar" type="text" name="q" value="{( query.q )}">
-                <br>
-                <input id="search-button" type="submit" value="Search">
-            </form>
-        </section>
-    </aside>
-    <section id="search-contents">
+<aside id="sidebar">
+    <section id="search">
+        <form action="/search" method="get">
+            <input id="search-bar" type="text" name="q" value="{( query.q )}">
+            <br>
+            <input id="search-button" type="submit" value="Search">
+        </form>
+    </section>
+    <h3 class="sidebar-header">Tags:</h3>
+    <ul>
+        {% for tag in tags %}
+        <li>(<a href="/search?q={{ query.q }}+-{{ tag.tag }}">-</a>/<a href="/search?q={{ query.q }}+{{ tag.tag }}">+</a>) <a href="/search?q={{ tag.tag }}">{{ tag.tag }}</a>: {{ tag.count }}</li>
+        {% end %}
+    </ul>
+</aside>
+<section id="search-contents">
 </section>
 </div>
 </body>

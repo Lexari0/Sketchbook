@@ -13,7 +13,8 @@ const content_path = path.join(process.cwd(), config.gallery.content_path);
 module.exports = {
     image_directories: {
         "thumb": path.join(process.cwd(), "gallery/thumb"),
-        "small": path.join(process.cwd(), "gallery/small")
+        "small": path.join(process.cwd(), "gallery/small"),
+        "large": path.join(process.cwd(), "gallery/large")
     },
     prepareTables: async function() {
         if (db.db == null) {
@@ -23,8 +24,6 @@ module.exports = {
         await db.createTable("item_tags", ["tag_entry INTEGER PRIMARY KEY AUTOINCREMENT", "gallery_item_id INTEGER REFERENCES items", "tag TEXT"]);
     },
     refreshAlternates: async function(gallery_item_id) {
-        const thumb_size = 256;
-        const small_size = 1024;
         const entry = (await db.select(["file_path", "missing"], "items", {where: `gallery_item_id=${gallery_item_id}`})).shift();
         if (entry === undefined)
         {
@@ -43,14 +42,23 @@ module.exports = {
             log.error("gallery", "Item", gallery_item_id, "has a file_path which doesn't exist.");
             return;
         }
-        await sharp(file_path)
-            .resize(thumb_size, thumb_size, {fit: "cover"})
-            .webp({quality:80})
-            .toFile(path.join(this.image_directories["thumb"], `${gallery_item_id}.webp`));
-        await sharp(file_path)
-            .resize(small_size, small_size, {fit: "inside"})
-            .webp({quality:80})
-            .toFile(path.join(this.image_directories["small"], `${gallery_item_id}.webp`));
+        async function createAlternate(destination_file_path, size, fit, quality) {
+            var image = await sharp(file_path);
+            if (size)
+            {
+                const metadata = await image.metadata();
+                size = Math.min(size, metadata.width, metadata.height);
+                await image.resize(size, size, {fit});
+            }
+            await image.webp({quality})
+            await image.toFile(destination_file_path);
+        }
+        await Promise.all([
+            createAlternate(path.join(this.image_directories["thumb"], `${gallery_item_id}.webp`), 256, "cover", 60),
+            createAlternate(path.join(this.image_directories["small"], `${gallery_item_id}.webp`), 1024, "inside", 80),
+            createAlternate(path.join(this.image_directories["large"], `${gallery_item_id}.webp`), undefined, undefined, 100)
+        ]);
+        log.message("gallery", "Rebuilt alternates for item", gallery_item_id);
     },
     buildSQLFromSearch: function (query) {
         var order_by = undefined;
@@ -118,7 +126,6 @@ module.exports = {
         }
         const selected_columns = "items.gallery_item_id, items.hash, items.created, items.last_update"
 
-        console.log({required_tags, excluded_tags, optional_tags});
         if (required_tags.length === 0 && excluded_tags.length === 0 && optional_tags.length === 0)
         {
             return "SELECT DISTINCT * FROM items WHERE missing=0 ORDER BY " + order_by + " LIMIT " + limit + " OFFSET " + ((page - 1) * limit);
@@ -201,7 +208,7 @@ module.exports = {
         if (tag_query_result === undefined || tag_query_result.count == 0)
         {
             log.message("gallery", "Item", current_entry.gallery_item_id, "is untagged, giving it the default tag.");
-            await db.all(`INSERT OR REPLACE INTO item_tags (gallery_item_id, tag) SELECT ${new_entry.gallery_item_id}, 'untagged' WHERE NOT EXISTS (SELECT * FROM item_tags WHERE gallery_item_id=6)`);
+            await db.all(`INSERT OR REPLACE INTO item_tags (gallery_item_id, tag) SELECT ${current_entry.gallery_item_id}, 'untagged' WHERE NOT EXISTS (SELECT * FROM item_tags WHERE gallery_item_id=6)`);
         }
     },
     refreshContent: async function() {

@@ -151,21 +151,37 @@ module.exports = function (defaultContents = undefined) {
                     const pre_section = template.substr(0, start_match.index);
                     const template_after_pre_section = template.substr(pre_section.length + start_match[0].length)
                     const end_match = template_after_pre_section.match(re_end);
-                    const section_body = template_after_pre_section.substr(0, end_match.index);
+                    const section_body_source = template_after_pre_section.substr(0, end_match.index);
                     const post_section = template_after_pre_section.substr(end_match.index + end_match[0].length);
                     const found_param = findParam(params, container_key);
-                    const section_array = Array.from({length: found_param.length}, (_, i) =>
-                            section_body.replace(new RegExp(`\\{\\{\\s*${looper_key}\\s*\\}\\}`, "g"), `{{ ${container_key}.${i} }}`)
-                        );
-                    template = pre_section
-                        + section_array.join("")
-                        + post_section
+                    const looper_re = new RegExp(`{{\\s*${looper_key}(\\.[^\\s]*)?\\s*}}`);
+                    const global_re = new RegExp(looper_re, "g")
+                    var section_body = ""
+                    for (var i = 0; i < found_param.length; ++i)
+                    {
+                        var replaced_body = section_body_source;
+                        const start_match = replaced_body.match(global_re);
+                        const start_count = start_match ? start_match.length : 0;
+                        while (looper_match = replaced_body.match(looper_re))
+                        {
+                            const replacement = `{{ ${container_key}.${i}${looper_match[1] ? looper_match[1] : ""} }}`;
+                            replaced_body = replaced_body.replace(looper_match[0], replacement);
+                            const new_match = replaced_body.match(global_re);
+                            const new_count = new_match ? new_match.length : 0;
+                            if (new_count >= start_count)
+                            {
+                                throw `HTML Template {% for %} loop is growing as it's evaluated!\n\tDeclaration: ${start_match[0]}\n\tWhen replacing "${looper_match[0]}" with "${replacement}"`;
+                            }
+                        }
+                        section_body += replaced_body;
+                    }
+                    template = pre_section + section_body + post_section;
                 }
                 return template;
             }
             template = evalFor(template, params, "");
             template = replaceParams(template, params, "")
-            this.append(template.replace(/\{\{.*\}\}/g, ""));
+            this.append(template.replace(/\{[\{\()].*[\}\)]\}/g, ""));
             return this;
         }
     }

@@ -13,7 +13,7 @@ a:hover, a:active {
 }
 #title, #small-title {
     color: #0f100f;
-    background-color: #0006;
+    background-color: #0004;
     position: sticky;
     top: 0;
 }
@@ -60,7 +60,7 @@ a:hover, a:active {
     width: 15em;
     float: left;
     min-height: 25em;
-    background-color: #0006;
+    background-color: #0004;
     padding: 1em;
     margin-right: 0.5em;
     border-radius: 0.5em;

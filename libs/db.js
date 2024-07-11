@@ -147,29 +147,22 @@ module.exports = {
         var column_list = "";
         if (columns instanceof Array)
         {
-            for (const column of columns)
-            {
-                if (column_list.length > 0)
-                {
-                    column_list += ", ";
-                }
-                column_list += sqlstring.escape(column);
-            }
+            column_list = columns.join(", ");
         }
         else
         {
             column_list = columns;
         }
         var command = "SELECT";
-        if (options.distinct !== undefined)
+        if (options.distinct)
         {
             command += " DISTINCT";
         }
-        if (options.all !== undefined)
+        if (options.all)
         {
             command += " ALL";
         }
-        command += " " + columns + " FROM " + table_name;
+        command += " " + column_list + " FROM " + table_name;
         if (options.where !== undefined)
         {
             command += " WHERE " + options.where;

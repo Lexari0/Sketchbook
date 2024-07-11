@@ -28,12 +28,16 @@ module.exports = {
                 res.end(`<h1>Item ${gallery_item_id} is currently missing</h1><h2>Please notify the gallery owner.<br /><a href="/">Return home</a></h2>`);
                 return true;
             }
-            const tags = (await db.select("item_tags.tag", "items INNER JOIN item_tags", {
+            const tags = (await db.select("item_tags.tag", "item_tags INNER JOIN items ON item_tags.gallery_item_id=items.gallery_item_id", {
                 distinct: true,
                 where: `item_tags.gallery_item_id=${gallery_item_id}`,
-                order_by: "tag",
-            })).map(x => x.tag);
-            var params = {config: structuredClone(config), item, query: await api.getParams(req), tags };
+                order_by: "tag"
+            }));
+            const tags_with_counts = await db.select(["tag", "COUNT(item_tags.tag) AS count"], "item_tags", {
+                where: `tag IN (${tags.map(x => sqlstring.escape(x.tag)).join()})`,
+                order_by: "tag"
+            });
+            var params = {config: structuredClone(config), item, query: {q:"", ...(await api.getParams(req))}, tags: tags_with_counts };
             delete params.config.api;
             delete params.config.webserver;
             const body = html().buildTemplate(template, params).finalize();
@@ -41,12 +45,12 @@ module.exports = {
             res.end(body);
             return true;
         };
-        endpoints[/^\/item\/[0-9]+\/(thumb|small|large)$/] = async (req, res) => {
+        endpoints[/^\/item\/[0-9]+\/(thumb|small|large|source)$/] = async (req, res) => {
             const url = req.url.split("?").shift();
             const split_url = url.split("/").filter(String);
             const gallery_item_id = parseInt(split_url[1]);
             var size = split_url[2];
-            if (size === "large") {
+            if (size === "source") {
                 const entry = (await db.select(["file_path", "missing"], "items", {where: `gallery_item_id=${gallery_item_id}`})).shift();
                 if (entry === undefined)
                 {

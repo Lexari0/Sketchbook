@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const uuid = require("uuid").v4;
 const yaml = require("yaml");
+const log = require(path.join(process.cwd(), "libs/log.js"));
 
 const PATH = "./config.yaml";
 const DEFAULT = {
@@ -24,7 +25,8 @@ const DEFAULT = {
         name: "My Sketchbook Gallery",
         content_path: "content",
         database_path: "gallery.db",
-        items_per_page: 50
+        items_per_page: 50,
+        recommended_tags: []
     },
     api: {
         key: uuid(),
@@ -54,14 +56,47 @@ const DEFAULT = {
     }
 };
 
+function isObject(x) {
+    return (x && typeof x === "object" && !Array.isArray(x));
+}
+
+function merge(target, ...sources) {
+    if (!sources.length)
+    {
+        return target;
+    }
+    const source = sources.shift();
+
+    if (isObject(target) && isObject(source))
+    {
+        for (const key in source)
+        {
+            if (isObject(source[key]))
+            {
+                if (!target[key])
+                {
+                    Object.assign(target, { [key]: {} });
+                }
+                merge(target[key], source[key]);
+            }
+            else
+            {
+                Object.assign(target, { [key]: source[key] })
+            }
+        }
+    }
+
+    return merge(target, ...sources);
+}
+
 if (fs.existsSync(PATH))
 {
-    module.exports = { ...DEFAULT, ...yaml.parse(fs.readFileSync(PATH, "utf-8")) };
+    module.exports = merge(DEFAULT, yaml.parse(fs.readFileSync(PATH, "utf-8")));
 }
 else
 {
     module.exports = DEFAULT;
-    console.log("Creating default config...");
+    log.message("program", "Creating default config...");
 }
 fs.writeFileSync(PATH, yaml.stringify(module.exports), "utf-8");
 
