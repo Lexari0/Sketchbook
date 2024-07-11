@@ -173,7 +173,7 @@ function updateRecentLogs() {
             }
             return json.logs;
         })
-        .then(recent_logs.val)
+        .then(logs => recent_logs.val(logs))
 }
 $(updateRecentLogs);
 $(() => {
@@ -191,7 +191,7 @@ $(() => {
         .then(files => {
             for (const file_name of files)
             {
-                log_file_list.append(`<li><form action="/api/log/file/${file_name}" method="post"><button type="submit" class="text-link">${file_name}</button><input type="hidden" name="plaintext" value="true" /></form></li>`)
+                log_file_list.append($(`<li><form action="/api/log/file/${file_name}" method="post"><button type="submit" class="text-link">${file_name}</button><input type="hidden" name="plaintext" value="true" /></form></li>`));
             }
         })
 });
