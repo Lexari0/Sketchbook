@@ -600,6 +600,16 @@ button.text-link {
     font-size:inherit;
 }
 
+[data-tooltip]:hover::after {
+    display: block;
+    position: absolute;
+    content: attr(data-tooltip);
+    border: 1px solid black;
+    border-radius: 4px;
+    background: #eee;
+    padding: .25em;
+}
+
 footer {
     width: calc(100% - 1em);
     height: 2.5em;

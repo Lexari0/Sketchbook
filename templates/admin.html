@@ -5,23 +5,23 @@
 <script src="/static/jquery-3.7.1.min.js"></script>
 <script src="/static/common.js"></script>
 <script>
-function titleField(name) {
-    return `<div class="info-field" field="${name}"><h3><span class="field-name">${name}</span></h3></div>`;
+function titleField(name, tooltip) {
+    return `<div class="info-field" field="${name}"><h3><span class="field-name" ${tooltip ? "data-tooltip=" + tooltip : ""}>${name}</span></h3></div>`;
 }
-function infoField(name, value) {
-    return `<div class="info-field" field="${name}"><h3><span class="field-name">${name}</span>: <span class="field-value">${value}</span></h3></div>`;
+function infoField(name, value, tooltip) {
+    return `<div class="info-field" field="${name}"><h3><span class="field-name" ${tooltip ? "data-tooltip=" + tooltip : ""}>${name}</span>: <span class="field-value">${value}</span></h3></div>`;
 }
-function textField(name, value, key) {
+function textField(name, value, key, tooltip) {
     key = key ? key : name;
-    return `<div class="info-field" field="${name}"><h3><span class="field-name">${name}</span>: <input type="text" class="field-value" name="${key}" value="${value}"></h3></div>`;
+    return `<div class="info-field" field="${name}"><h3><span class="field-name" ${tooltip ? "data-tooltip=" + tooltip : ""}>${name}</span>: <input type="text" class="field-value" name="${key}" value="${value}"></h3></div>`;
 }
-function checkboxField(name, checked, key) {
+function checkboxField(name, checked, key, tooltip) {
     key = key ? key : name;
-    return `<div class="info-field" field="${name}"><h3><span class="field-name">${name}</span>: <input type="checkbox" class="field-value" name="${key}" ${checked ? "checked" : ""}></h3></div>`;
+    return `<div class="info-field" field="${name}"><h3><span class="field-name" ${tooltip ? "data-tooltip=" + tooltip : ""}>${name}</span>: <input type="checkbox" class="field-value" name="${key}" ${checked ? "checked" : ""}></h3></div>`;
 }
-function dropdownField(name, value, key, values) {
+function dropdownField(name, value, key, values, tooltip) {
     key = key ? key : name;
-    var field = $(`<div class="info-field" field="${name}"><h3><span class="field-name">${name}</span>:<select name="${key}">`);
+    var field = $(`<div class="info-field" field="${name}"><h3><span class="field-name" ${tooltip ? "data-tooltip=" + tooltip : ""}>${name}</span>:<select name="${key}">`);
     var select = field.find("select");
     for (const option of values)
     {
@@ -29,9 +29,9 @@ function dropdownField(name, value, key, values) {
     }
     return field;
 }
-function fileField(name, key) {
+function fileField(name, key, tooltip) {
     key = key ? key : name;
-    return `<div class="info-field" field="${name}"><h3><span class="field-name">${name}</span>: </h3><input type="file" name="${key}"></div>`;
+    return `<div class="info-field" field="${name}"><h3><span class="field-name" ${tooltip ? "data-tooltip=" + tooltip : ""}>${name}</span>: </h3><input type="file" name="${key}"></div>`;
 }
 function submitButton(text = "Update") {
     return `<input type="submit" value="${text}">`
@@ -84,9 +84,8 @@ $(async () => {
         })
         .then(config => {
             const server_software = $("#server-software");
-            const server_owner = $("#server-owner form");
             server_software.append(infoField("Name", config.server.software.name));
-            server_software.append(infoField("Version", config.server.software.version));
+            server_software.append(infoField("Version", config.server.software.version, "Check the source to see if you need to update"));
             server_software.append(infoField("Author", config.server.software.author));
             server_software.append(infoField("License", config.server.software.license));
             const license_field = server_software.find(".info-field[field=License] .field-value")
@@ -94,17 +93,18 @@ $(async () => {
             server_software.append(titleField("Source"));
             const source_field = server_software.find(".info-field[field=Source] .field-name")
             source_field.html(`<a href="${config.server.software.source}">${source_field.html()}</a>`);
-            server_owner.append(textField("Name", config.server.owner.name, "server.owner.name"));
-            server_owner.append(textField("Email", config.server.owner.email, "server.owner.email"));
+            const server_owner = $("#server-owner form");
+            server_owner.append(textField("Name", config.server.owner.name, "server.owner.name", "Your name as the artist who owns this website"));
+            server_owner.append(textField("Email", config.server.owner.email, "server.owner.email", "Your preferred contact email as the artist who owns this website"));
             server_owner.append(submitButton());
             server_owner.submit(event => configFormSubmit(server_owner, event));
             const gallery_config = $("form.gallery-config");
-            gallery_config.append(textField("Name", config.gallery.name, "gallery.name"));
-            gallery_config.append(checkboxField("Distribute Source Content", config.gallery.distribute_source, "gallery.distribute_source"));
+            gallery_config.append(textField("Name", config.gallery.name, "gallery.name", "The title of this website shown in the browser tab and page header"));
+            gallery_config.append(checkboxField("Distribute Source Content", config.gallery.distribute_source, "gallery.distribute_source", "If enabled, viewers can request your source content.&gt;br/&lt;This can use a lot of network bandwidth"));
             gallery_config.append(submitButton());
             gallery_config.submit(event => configFormSubmit(gallery_config, event));
             const api = $("#api form");
-            api.find(".api-keys").append(textField("Key", config.api.key, "api.key"));
+            api.find(".api-keys").append(textField("Key", config.api.key, "api.key", "The API key your server uses to talk to other Sketchbook galleries.&gt;br/&lt;Don't change unless you know what you're doing."));
             const enabled_endpoints = api.find(".enabled-endpoints");
             function addEndpointDropdowns(key, value) {
                 if (typeof(value) === "object")
@@ -131,9 +131,9 @@ $(async () => {
                 gallery.append(`<b class="error">Failed to get gallery info: ${json.error}</b>`);
                 return;
             }
-            gallery.append(infoField("Items", json.item_count));
-            gallery.append(infoField("Tags", json.tag_count));
-            gallery.append(infoField("Last Update", json.last_update));
+            gallery.append(infoField("Items", json.item_count, "How many items are currently in the gallery"));
+            gallery.append(infoField("Tags", json.tag_count, "How many tags are currently in the gallery"));
+            gallery.append(infoField("Last Update", json.last_update, "When the gallery database was last changed"));
         });
     const sql_form = $("#sql form");
     const sql_command = sql_form.find("textarea.command");
@@ -220,7 +220,7 @@ $(() => {
             <div class="api-keys">
             </div>
             <button type="button" class="collapsible"><h3>Enabled Endpoints</h3></button>
-            <div class="enabled-endpoints">
+            <div class="enabled-endpoints" data-tooltip="Check the wiki at the Software Source for information on each API endpoint.&gt;br/&lt;Don't touch unless you know what you're doing.">
             </div>
         </form>
     </div>
@@ -279,10 +279,10 @@ $(() => {
         <p class="warning">This can be dangerous! Only touch if you know what you're doing and made a backup of the database.</p>
         <form class="sql">
             <h4>Command:</h4>
-            <textarea class="command"></textarea>
+            <textarea class="command" rows="3"></textarea>
             <input type="submit" value="Run Command">
             <h4>Response:</h4>
-            <textarea class="response" readonly></textarea>
+            <textarea class="response" rows="20" readonly></textarea>
         </form>
     </div>
 </div>
