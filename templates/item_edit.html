@@ -16,6 +16,7 @@
     }
 
     function addTagToNewList(tag_name, checked) {
+        const new_tag_list = $("#tag-list.new-tags");
         new_tag_list.append(createHTMLForNewTag(tag_name, checked));
         if (checked) {
             toggleAdd(tag_name);
@@ -31,7 +32,6 @@
 
     $(async () => {
         $("input[type=checkbox]").prop("checked", false);
-        const new_tag_list = $("#tag-list.new-tags");
         const new_tag_name = $("input.new-tag-name");
         new_tag_name.prop("value", "");
         $("form.add-tag").submit(function(event) {
