@@ -38,7 +38,8 @@ async function getLogLines(file_path, lines, line_offsets = undefined) {
             line_offsets = await getFileLineOffsets(file_path);
         }
         const total_lines = line_offsets.length;
-        const start_offset = line_offsets[total_lines.length - lines];
+        const start_offset = line_offsets[total_lines - lines];
+        console.log("start_offset: ", start_offset);
         return await new Promise(async (resolve, reject) => {
             console.log("Opening file: ", file_path);
             fs.open(file_path, (err, fd) => {
@@ -54,6 +55,7 @@ async function getLogLines(file_path, lines, line_offsets = undefined) {
                         reject(err);
                         return;
                     }
+                    console.log("stats.size: ", stats.size);
                     const buffer_size = stats.size - start_offset;
                     var buffer = new Buffer(buffer_size);
                     console.log("buffer_size: ", buffer_size);
