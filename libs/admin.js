@@ -50,9 +50,10 @@ module.exports = {
             return false;
         }
         const command = `openssl passwd -6 -salt ${salt} ${password}`;
+        console.log(`command: ${command}`)
         return await new Promise(resolve => 
             exec(command, (error, stdout, stderr) => {
-                console.log(`stdout: ${stdout}\n\npassword_hash: ${password_hash}`);
+                console.log(`stdout: --${stdout}--\n\npassword_hash: --${password_hash}--`);
                 if (error && error.code !== 0)
                 {
                     log.error("Running openssl resulted in an error")
