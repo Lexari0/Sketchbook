@@ -101,6 +101,30 @@ module.exports = {
             db.all("INSERT OR IGNORE INTO tags (tag, description, tag_category_id, editable) SELECT " + built_in_tags[category].map(sqlstring.escape).join(", ") + ", tag_category_id, 0 FROM tag_categories WHERE category=" + sqlstring.escape(category))
         ));
     },
+    getCensoredAlternate: async function(gallery_item_id) {
+        const entry = (await db.select(["file_path", "missing"], "items", {where: `gallery_item_id=${gallery_item_id}`})).shift();
+        if (entry === undefined)
+        {
+            log.error("gallery", `No database entry for item ${gallery_item_id}, so there are no alternates to refresh.`);
+            return;
+        }
+        else if (entry.missing)
+        {
+            log.error("gallery", "Item", gallery_item_id, "is currently missing, so there are no alternates to refresh.");
+            return;
+        }
+        const file_path = path.join(image_directories.small, `${gallery_item_id}.webp`);
+        var image = await sharp(file_path);
+        if (size)
+        {
+            const metadata = await image.metadata();
+            size = Math.min(size, metadata.width, metadata.height);
+            await image.resize(128, 128, {fit});
+            await image.blur(10.0);
+        }
+        await image.webp({quality});
+        return await image.toBuffer();
+    },
     refreshAlternates: async function(gallery_item_id) {
         const entry = (await db.select(["file_path", "missing"], "items", {where: `gallery_item_id=${gallery_item_id}`})).shift();
         if (entry === undefined)

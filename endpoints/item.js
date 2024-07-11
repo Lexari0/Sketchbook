@@ -50,6 +50,21 @@ module.exports = {
         endpoints[/^\/item\/[0-9]+\/(thumb|small|large|source)$/] = async (req, res) => {
             const split_url = req.url.split("?").shift().split("/").filter(String);
             const gallery_item_id = parseInt(split_url[1]);
+            // TODO: Only censor if the user doesn't have access
+            const censored = await getCensoredAlternate(gallery_item_id);
+            if (censored != undefined)
+            {
+                res.writeHead(200, {
+                    "Content-Type": mime.lookup(path.extname(entry.file_path)),
+                    "Content-Length": file_stat.size
+                });
+                censored.pipe(res);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
             var size = split_url[2];
             if (size === "source") {
                 if (!config.gallery.distribute_source)
