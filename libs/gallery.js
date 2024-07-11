@@ -372,7 +372,7 @@ ${required_query.replace(/^/gm,"    ")}
             distinct: true,
             where: `file_path='${file_path}'`
         });
-        return found.length > 0 ? found[0] : undefined;
+        return found.length > 0 ? found[0].gallery_item_id : undefined;
     },
     refreshContent: async function() {
         log.message("gallery", "Refreshing content directory...");
