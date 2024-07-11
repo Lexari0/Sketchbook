@@ -55,8 +55,8 @@ module.exports = {
             if (censored != undefined)
             {
                 res.writeHead(200, {
-                    "Content-Type": mime.lookup(path.extname(entry.file_path)),
-                    "Content-Length": file_stat.size
+                    "Content-Type": mime.lookup(".webp"),
+                    "Content-Length": censored.size
                 });
                 censored.pipe(res);
                 return true;
