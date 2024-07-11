@@ -28,14 +28,14 @@
 <div id="main-body">
 <aside id="sidebar">
     <section id="search">
-        <form action="/search" method="get">
+        <form action="/search" method="get" accept-charset="utf-8">
             <input id="search-bar" type="text" name="q" value="{( query.q )}">
             <br>
             <input id="search-button" type="submit" value="Search">
         </form>
     </section>
     <h3 class="sidebar-header">Tags:</h3>
-    <ul>
+    <ul id="tag-list">
         {% for tag in tags %}
         <li>(<a href="/search?q={{ query.q }}+-{{ tag.tag }}">-</a>/<a href="/search?q={{ query.q }}+{{ tag.tag }}">+</a>) <a href="/search?q={{ tag.tag }}">{{ tag.tag }}</a>: {{ tag.count }}</li>
         {% end %}

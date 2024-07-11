@@ -6,17 +6,54 @@
 <script>
     window.onload = (async () => {
         const response = await fetch("/api/gallery/search?q={{ query.q }}");
-        const items = (await response.json()).r;
-        console.log("items:", items);
+        const json = await response.json();
+        const page_count = Math.ceil(json.item_count / 50);
         const contents = $("#search-contents");
-        if (items === undefined)
+        if (json.items === undefined)
         {
             contents.append("<strong id=\"error\">Failed to perform search! Please contact site owner or try again later.</strong>");
             return;
         }
-        for (const item of items)
+        for (const item of Object.values(json.items))
         {
-            contents.append(`<div id="item"><a href="/item/${item.gallery_item_id}?q={{ query.q }}"><img src="/item/${item.gallery_item_id}/thumb"/></a></div>`);
+            contents.append(`<div id="item"><a href="${item.uri}?q={{ query.q }}"><img src="${item.resolutions.thumb}"/></a></div>`);
+        }
+        const page_links = $("#search-page-links");
+        const query = "{{ query.q }}";
+        const page_re = /page:[0-9]+/g;
+        const pageless_query = query.replace(page_re, "");
+        const page_match = query.match(page_re);
+        const current_page = (!page_match || page_match.length === 0) ? 1 : parseInt(page_match[page_match.length - 1].substring(5));
+        const max_page_links = 11;
+        const first_generated_page_link = current_page - ((max_page_links - 1) / 2 - 1);
+        const last_generated_page_link = current_page + ((max_page_links - 1) / 2 - 1);
+        function makePageQuery(page) {
+            return (pageless_query + `+page:${page}`).replace(/^\++|\++$|/g, "").replace(/\+\++/g, "+");
+        }
+        if (first_generated_page_link > 1)
+        {
+            page_links.append(`<a href=/search?q=${makePageQuery(1)}>1</a>`);
+            if (first_generated_page_link > 2)
+            {
+                page_links.append("&lt;=");
+            }
+        }
+        for (var page = Math.max(1, first_generated_page_link); page < current_page; ++page)
+        {
+            page_links.append(`<a href=/search?q=${makePageQuery(page)}>${page}</a>`);
+        }
+        page_links.append(`<b>${current_page}</b>`);
+        for (var page = current_page + 1; page <= Math.min(last_generated_page_link, page_count); ++page)
+        {
+            page_links.append(`<a href=/search?q=${makePageQuery(page)}>${page}</a>`);
+        }
+        if (last_generated_page_link < page_count)
+        {
+            if (last_generated_page_link < page_count - 1)
+            {
+                page_links.append("=&gt;");
+            }
+            page_links.append(`<a href=/search?q=${makePageQuery(page)}>${page_count}</a>`);
         }
     });
 </script>
@@ -26,20 +63,24 @@
 <div id="main-body">
 <aside id="sidebar">
     <section id="search">
-        <form action="/search" method="get">
+        <form action="/search" method="get" accept-charset="utf-8">
             <input id="search-bar" type="text" name="q" value="{( query.q )}">
             <br>
             <input id="search-button" type="submit" value="Search">
         </form>
     </section>
     <h3 class="sidebar-header">Tags:</h3>
-    <ul>
+    <ul id="tag-list">
         {% for tag in tags %}
         <li>(<a href="/search?q={{ query.q }}+-{{ tag.tag }}">-</a>/<a href="/search?q={{ query.q }}+{{ tag.tag }}">+</a>) <a href="/search?q={{ tag.tag }}">{{ tag.tag }}</a>: {{ tag.count }}</li>
         {% end %}
     </ul>
 </aside>
 <section id="search-contents">
+</section>
+<section id="post-search-contents">
+    <div id="search-page-links">
+    </div>
 </section>
 </div>
 </body>

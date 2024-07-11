@@ -64,6 +64,7 @@ a:hover, a:active {
     padding: 1em;
     margin-right: 0.5em;
     border-radius: 0.5em;
+    margin-bottom: calc(100vh - 31.5em);
 }
 #search-contents {
     display: flex;
@@ -104,4 +105,19 @@ a:hover, a:active {
     max-height: calc(100vh - 4.5em);
     max-width: calc(100vw - 18.5em);
     margin: auto;
+}
+#tag-list li {
+
+}
+#post-search-contents {
+    width: 100%;
+}
+#search-page-links {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5em;
+    background-color: #0004;
+    border-radius: 0.25em;
+    padding: 0.5em;
 }

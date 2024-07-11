@@ -128,9 +128,9 @@ module.exports = {
                     continue;
                 }
             }
-            if (tag.match(/^page:[0-9]+$/))
+            if (tag.match(/^page:[0-9]+$/g))
             {
-                page = Math.min(parseInt(tag.substr(5)), 1);
+                page = Math.max(parseInt(tag.substr(5)), 1);
                 continue;
             }
             if (tag.startsWith("-"))
@@ -160,7 +160,7 @@ module.exports = {
 
         if (required_tags.length === 0 && excluded_tags.length === 0 && optional_tags.length === 0)
         {
-            return "SELECT DISTINCT * FROM items WHERE missing=0 ORDER BY " + order_by + " LIMIT " + limit + " OFFSET " + ((page - 1) * limit);
+            return "SELECT DISTINCT " + selected_columns + ", (SELECT COUNT(*) FROM items) AS item_count FROM items WHERE missing=0 ORDER BY " + order_by + " LIMIT " + limit + " OFFSET " + ((page - 1) * limit);
         }
         const optional_query = optional_tags.length === 0 ? "item_tags" : "SELECT * FROM item_tags WHERE tag IN (" + optional_tags.join(", ") + ")";
         const excluded_query = excluded_tags.length === 0 ? optional_query : "SELECT * FROM (" + optional_query + ") WHERE gallery_item_id NOT IN (SELECT gallery_item_id FROM item_tags WHERE tag IN (" + excluded_tags.join(", ") + "))"

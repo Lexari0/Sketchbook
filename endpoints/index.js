@@ -16,7 +16,7 @@ module.exports = {
                             html().input("", { name: "q", id: "search-bar" })
                                 .br()
                                 .input("", { type: "submit", value: "Search", id: "search-button" }),
-                            { action: "/search", method: "get" }
+                            { action: "/search", method: "get", "accept-charset":"utf-8" }
                         ), { id: "front-query" })
                     )
                 ).finalize());
