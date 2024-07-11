@@ -39,10 +39,6 @@ module.exports = {
                         break;
                     }
                 }
-                if (changed_config[key_layer] == undefined)
-                {
-                    changed_config[last_key_layer] = {};
-                }
                 if (config_obj == undefined || config_obj[last_key_layer] == undefined)
                 {
                     errors.push(`Key referenced invalid path: ${key}`);
