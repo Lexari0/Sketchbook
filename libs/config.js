@@ -26,6 +26,7 @@ const DEFAULT = {
         content_path: "content",
         database_path: "gallery.db",
         items_per_page: 50,
+        distribute_source: false,
         recommended_tags: []
     },
     api: {

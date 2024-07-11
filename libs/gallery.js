@@ -20,8 +20,22 @@ module.exports = {
         if (db.db == null) {
             db.open();
         }
-        await db.createTable("items", ["gallery_item_id INTEGER PRIMARY KEY AUTOINCREMENT", "file_path TEXT", "hash CHARACTER(64)", "created DATETIME DEFAULT CURRENT_TIMESTAMP", "last_update DATETIME DEFAULT CURRENT_TIMESTAMP", "missing INT DEFAULT 0"]);
-        await db.createTable("item_tags", ["tag_entry INTEGER PRIMARY KEY AUTOINCREMENT", "gallery_item_id INTEGER REFERENCES items", "tag TEXT"]);
+        await db.createTable("items", [
+            "gallery_item_id INTEGER PRIMARY KEY AUTOINCREMENT",
+            "name TEXT DEFAULT 'untitled'",
+            "description TEXT",
+            "file_path TEXT",
+            "hash CHARACTER(64)",
+            "source TEXT",
+            "created DATETIME DEFAULT CURRENT_TIMESTAMP",
+            "last_update DATETIME DEFAULT CURRENT_TIMESTAMP",
+            "missing INT DEFAULT 0"
+        ]);
+        await db.createTable("item_tags", [
+            "tag_entry INTEGER PRIMARY KEY AUTOINCREMENT",
+            "gallery_item_id INTEGER REFERENCES items",
+            "tag TEXT"
+        ]);
     },
     refreshAlternates: async function(gallery_item_id) {
         const entry = (await db.select(["file_path", "missing"], "items", {where: `gallery_item_id=${gallery_item_id}`})).shift();

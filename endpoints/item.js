@@ -51,6 +51,10 @@ module.exports = {
             const gallery_item_id = parseInt(split_url[1]);
             var size = split_url[2];
             if (size === "source") {
+                if (!config.gallery.distribute_source)
+                {
+                    return false;
+                }
                 const entry = (await db.select(["file_path", "missing"], "items", {where: `gallery_item_id=${gallery_item_id}`})).shift();
                 if (entry === undefined)
                 {
