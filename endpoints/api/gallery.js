@@ -100,10 +100,14 @@ module.exports = {
                         const final_file_path = path.join(gallery.content_path, file_hash + path.extname(uploaded_file.originalFilename));
                         try
                         {
+                            const old_file_path = await gallery.getFilePathOfItem(gallery_item_id);
+                            if (gallery.isItemMissing(gallery_item_id) === false)
+                            {
+                                fs.unlinkSync(old_file_path);
+                            }
                             await db.update("items", {file_path: final_file_path, hash: await gallery.hashFile(final_file_path)}, {
                                 where: `gallery_item_id=${sqlstring.escape(gallery_item_id)}`,
                                 });
-                            fs.unlinkSync(old_file_path);
                             fs.copyFileSync(temp_file_path, final_file_path);
                             if (!await gallery.updateItem(final_file_path))
                             {
@@ -117,7 +121,6 @@ module.exports = {
                             {
                                 // Failing to delete the temp file is not a big deal
                             }
-                            const old_file_path = await gallery.getFilePathOfItem(gallery_item_id);
                             await gallery.refreshAlternates(gallery_item_id);
                         }
                         catch (err)

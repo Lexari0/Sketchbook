@@ -381,6 +381,13 @@ ${required_query.replace(/^/gm,"    ")}
         });
         return found.length > 0 ? found[0].file_path : undefined;
     },
+    isItemMissing: async function(item_id) {
+        const found = await db.select("missing", "items", {
+            distinct: true,
+            where: `gallery_item_id='${item_id}'`
+        });
+        return found.length > 0 ? found[0].missing : undefined;
+    },
     refreshContent: async function() {
         log.message("gallery", "Refreshing content directory...");
         log.message("gallery", "  Checking existing files...");
