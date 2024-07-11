@@ -54,7 +54,6 @@ module.exports = {
             {
                 config[k] = structuredClone(new_config[k]);
             }
-            config = {...config, ...new_config};
             api.sendResponse(res, 200, {error: "", params})
             return true;
         };
