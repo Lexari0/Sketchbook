@@ -67,6 +67,7 @@ a:hover, a:active {
 }
 #search-contents {
     display: flex;
+    flex-wrap: wrap;
 }
 #search-contents > #item {
     margin: 1em;

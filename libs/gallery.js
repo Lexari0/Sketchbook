@@ -170,11 +170,12 @@ module.exports = {
             if (new_entry === undefined)
             {
                 log.error("gallery", "No entry with the hash of", file_path, "exists after it should have been inserted, cannot give it the default tag.");
-                return
+                return;
             }
-            await db.insert("item_tags", {gallery_item_id: new_entry.gallery_item_id, tag: sqlstring.escape("untagged")});
+            await db.all(`INSERT OR REPLACE INTO item_tags (gallery_item_id, tag) SELECT ${new_entry.gallery_item_id}, 'untagged' WHERE NOT EXISTS (SELECT * FROM item_tags WHERE gallery_item_id=${new_entry.gallery_item_id})`);
             return;
         }
+        await db.all(`DELETE FROM item_tags WHERE gallery_item_id=${current_entry.gallery_item_id} AND tag_entry IN (SELECT a.tag_entry FROM item_tags AS a INNER JOIN item_tags AS b WHERE b.gallery_item_id=a.gallery_item_id AND a.tag="untagged" AND NOT b.tag="untagged");`);
         if (current_entry.hash != file_hash) {
             log.message("gallery", "Updating item:", file_path);
             this.refreshAlternates(current_entry.gallery_item_id);
@@ -200,7 +201,7 @@ module.exports = {
         if (tag_query_result === undefined || tag_query_result.count == 0)
         {
             log.message("gallery", "Item", current_entry.gallery_item_id, "is untagged, giving it the default tag.");
-            await db.insert("item_tags", {gallery_item_id: current_entry.gallery_item_id, tag: sqlstring.escape("untagged")});
+            await db.all(`INSERT OR REPLACE INTO item_tags (gallery_item_id, tag) SELECT ${new_entry.gallery_item_id}, 'untagged' WHERE NOT EXISTS (SELECT * FROM item_tags WHERE gallery_item_id=6)`);
         }
     },
     refreshContent: async function() {
