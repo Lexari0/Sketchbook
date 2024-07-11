@@ -11,8 +11,8 @@
         //{% end %}
     ], to_remove: {}, to_add: {}};
 
-    function createHTMLForNewTag(tag_name) {
-        return `<li><input type="checkbox" onchange="toggleAdd('${tag_name}')" name="add-${tag_name}" value="${tag_name}" checked><label for="add-${tag_name}">${tag_name}</label></li>`
+    function createHTMLForNewTag(tag_name, checked = true) {
+        return `<li><input type="checkbox" onchange="toggleAdd('${tag_name}')" name="add-${tag_name}" value="${tag_name}" ${checked ? "checked" : ""}><label for="add-${tag_name}">${tag_name}</label></li>`
     }
 
     function addTagToNewList(tag_name, check) {
@@ -23,7 +23,7 @@
     }
 
     $(async () => {
-        buildAPIList(".new-tags", "/api/subscriptions/subscribestar/tiers", json => json.tiers.map(tier => tier.tag), createHTMLForNewTag);
+        buildAPIList(".new-tags#tag-list", "/api/subscriptions/subscribestar/tiers", json => json.tiers.map(tier => tier.tag).filter(tag => tag in tag_changes.current), tag_name => createHTMLForNewTag(tag_name, false));
     });
 
     $(async () => {
