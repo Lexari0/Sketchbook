@@ -9,7 +9,7 @@ const html = require(path.join(process.cwd(), "libs/html.js"));
 async function getWifiSSID() {
     return new Promise(resolve => 
         exec("which iwgetid", error => {
-            if (error.code !== 0)
+            if (error && error.code !== 0)
             {
                 console.log("No iwgetid")
                 resolve("");
