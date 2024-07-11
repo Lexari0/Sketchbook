@@ -10,6 +10,7 @@ module.exports = {
             var params = {config: structuredClone(config)};
             delete params.config.api;
             delete params.config.webserver;
+            delete params.config.gallery.edit_ip_whitelist;
             const body = html().buildTemplate(template, params).finalize();
             res.writeHead(200, {"Content-Type": "text/html"});
             res.end(body);

@@ -3,10 +3,19 @@ const mime = require("mime-types");
 const path = require("path");
 const sqlstring = require("sqlstring-sqlite");
 const api = require(path.join(process.cwd(), "libs/api.js"));
+const network = require(path.join(process.cwd(), "libs/network.js"));
 const config = require(path.join(process.cwd(), "libs/config.js"));
 const db = require(path.join(process.cwd(), "libs/db.js"));
 const gallery = require(path.join(process.cwd(), "libs/gallery.js"));
 const html = require(path.join(process.cwd(), "libs/html.js"));
+
+function canEdit(req) {
+    if (config.gallery.edit_ip_whitelist.length === 0)
+    {
+        return network.ipv4.ipInSubnet(req.socket.remoteAddress);
+    }
+    return config.gallery.edit_ip_whitelist.contains(req.socket.remoteAddress);
+}
 
 module.exports = {
     register_endpoints: endpoints => {
@@ -37,9 +46,10 @@ module.exports = {
                 where: `tag IN (${tags.map(x => sqlstring.escape(x.tag)).join()})`,
                 order_by: "tag"
             });
-            var params = {config: structuredClone(config), item, query: {q:"", ...(await api.getParams(req))}, tags: tags_with_counts };
+            var params = {config: structuredClone(config), item, query: {q:"", ...(await api.getParams(req))}, tags: tags_with_counts, can_edit: canEdit(req)};
             delete params.config.api;
             delete params.config.webserver;
+            delete params.config.gallery.edit_ip_whitelist;
             const body = html().buildTemplate(template, params).finalize();
             res.writeHead(200, {"Content-Type": "text/html"});
             res.end(body);

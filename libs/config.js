@@ -1,10 +1,10 @@
+const chokidar = require("chokidar");
 const fs = require("fs");
 const path = require("path");
 const uuid = require("uuid").v4;
 const yaml = require("yaml");
-const log = require(path.join(process.cwd(), "libs/log.js"));
 
-const PATH = "./config.yaml";
+const PATH = path.join(process.cwd(), "config.yaml");
 const DEFAULT = {
     webserver: {
         ip: "0.0.0.0",
@@ -39,7 +39,8 @@ const DEFAULT = {
                 text: "Sourcecode",
                 link: "https://github.com/Lexari0/Sketchbook"
             }
-        ]
+        ],
+        edit_ip_whitelist: []
     },
     api: {
         key: uuid(),
@@ -60,10 +61,11 @@ const DEFAULT = {
         path: "last.log",
         enabled_categories: {
             db: true,
+            config: true,
             gallery: true,
             other: true,
             program: true,
-            sql: true,
+            sql: false,
             webserver: true,
         }
     }
@@ -102,20 +104,43 @@ function merge(target, ...sources) {
     return merge(target, ...sources);
 }
 
-if (fs.existsSync(PATH))
-{
-    var config_file = yaml.parse(fs.readFileSync(PATH, "utf-8"));
-    delete config_file.server.software;
-    module.exports = merge(DEFAULT, config_file);
+function save() {
+    var config = merge({}, module.exports);
+    for (const k of Object.keys(config))
+    {
+        if (config[k] instanceof Function)
+        {
+            delete config[k];
+        }
+    }
+    fs.writeFileSync(PATH, yaml.stringify(config), "utf-8");
 }
-else
-{
-    module.exports = DEFAULT;
-    log.message("program", "Creating default config...");
+function reload() {
+    if (fs.existsSync(PATH))
+    {
+        var config_file = yaml.parse(fs.readFileSync(PATH, "utf-8"));
+        config_file.server.software = {...DEFAULT.server.software};
+        config_file = merge(DEFAULT, config_file);
+        module.exports = config_file;
+    }
+    else
+    {
+        module.exports = {...DEFAULT};
+        log.message("program", "Creating default config...");
+    }
+    save();
+    if (!fs.existsSync(module.exports.gallery.content_path))
+    {
+        fs.mkdirSync(module.exports.gallery.content_path);
+    }
 }
-fs.writeFileSync(PATH, yaml.stringify(module.exports), "utf-8");
+reload();
 
-if (!fs.existsSync(module.exports.gallery.content_path))
-{
-    fs.mkdirSync(module.exports.gallery.content_path);
+const config_watcher = chokidar.watch(PATH, {persistent: false});
+function configChangeHandler() {
+    require(path.join(process.cwd(), "libs/log.js")).message("config", "Config file changed. Reloading...");
+    reload();
 }
+config_watcher.on("add", configChangeHandler);
+config_watcher.on("change", configChangeHandler);
+config_watcher.on("error", error => require(path.join(process.cwd(), "libs/log.js")).error("config", "Config file error:", error));

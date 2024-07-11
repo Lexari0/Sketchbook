@@ -179,6 +179,29 @@ module.exports = function (defaultContents = undefined) {
                 }
                 return template;
             }
+            function evalIf(template, params) {
+                const re_start = /{\?\s*if\s+([^\s]+)\s*\?}/s;
+                const re_end = /{\?\s*end\s*\?}/s;
+                while (start_match = template.match(re_start))
+                {
+                    const condition = start_match[1];
+                    const pre_section = template.substr(0, start_match.index);
+                    const template_after_pre_section = template.substr(pre_section.length + start_match[0].length)
+                    const end_match = template_after_pre_section.match(re_end);
+                    const section_body_source = template_after_pre_section.substr(0, end_match.index);
+                    const post_section = template_after_pre_section.substr(end_match.index + end_match[0].length);
+                    const found_param = findParam(params, condition);
+                    if (found_param)
+                    {
+                        template = pre_section + section_body_source + post_section;
+                    }
+                    else
+                    {
+                        template = pre_section + post_section;
+                    }
+                }
+                return template;
+            }
             function replaceParams(template, params, parentPath) {
                 for (const k of Object.keys(params))
                 {
@@ -193,9 +216,10 @@ module.exports = function (defaultContents = undefined) {
                 return template;
             };
             template = evalImports(template);
-            template = evalFor(template, params, "");
+            template = evalIf(template, params);
+            template = evalFor(template, params);
             template = replaceParams(template, params, "")
-            this.append(template.replace(/{[{\()].*[}\)]}/g, ""));
+            this.append(template.replace(/{[{\(\?\#].*[}\)\?\#]}/g, ""));
             return this;
         }
     }

@@ -314,4 +314,4 @@ content_watcher.on("unlink", file_path => {
     log.message("gallery", "Content was removed:", file_path);
     module.exports.updateItem(file_path);
 });
-content_watcher.on("error", error => { log.error("gallery", "Content file error:", error); });
+content_watcher.on("error", error => log.error("gallery", "Content file error:", error));

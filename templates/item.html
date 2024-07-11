@@ -34,7 +34,14 @@
             <input id="search-button" type="submit" value="Search">
         </form>
     </section>
-    <h3 class="sidebar-header">Tags:</h3>
+    <div class="sidebar-header">
+        <h3>Tags</h3>
+        {? if can_edit ?}
+        <form action="/item/{{ item.gallery_item_id }}/edit" method="get" accept-charset="utf-8">
+            <input type="submit" value="Edit" />
+        </form>
+        {? end ?}
+    </div>
     <ul id="tag-list">
         {% for tag in tags %}
         <li>(<a href="/search?q={{ query.q }}+-{{ tag.tag }}">-</a>/<a href="/search?q={{ query.q }}+{{ tag.tag }}">+</a>) <a href="/search?q={{ tag.tag }}">{{ tag.tag }}</a>: {{ tag.count }}</li>
