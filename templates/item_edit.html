@@ -20,7 +20,7 @@
 
     $(async () => {
         const response = await fetch("/api/subscriptions/subscribestar/tiers");
-        console.log(`GET response: ${response}`);
+        console.log(`GET response: ${JSON.stringify(response)}`);
         if (response.error != "" && response.error != undefined)
         {
             return;
