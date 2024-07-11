@@ -1,3 +1,4 @@
+const formidable = require("formidable");
 const fs = require("fs");
 const path = require("path");
 const sqlstring = require("sqlstring-sqlite");
@@ -85,7 +86,7 @@ module.exports = {
                     form.parse(req, async (err, fields, form) => {
                         if (err)
                         {
-                            reject("Error getting form data: " + JSON.stringify(err));
+                            reject(`Error getting form data: ${err}`);
                             return;
                         }
                         if (form.file.length == 0)
@@ -125,16 +126,16 @@ module.exports = {
                             {
                                 fs.unlinkSync(final_file_path);
                             }
-                            reject("Error while managing files or gallery: " + JSON.stringify(err));
+                            reject(`Error while managing files or gallery: ${err}`);
                             return;
                         }
                         resolve();
                     });
                 });
             }
-            catch (error)
+            catch (err)
             {
-                api.sendResponse(res, 503, {error});
+                api.sendResponse(res, 503, {error: `${err}`});
                 return true;
             }
             api.sendResponse(res, 200, {error: "", gallery_item_id, new_file_path: await gallery.getFilePathOfItem(gallery_item_id)});
