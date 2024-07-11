@@ -61,7 +61,7 @@ module.exports = {
                 res.end(`<h1>Item ${gallery_item_id} is currently missing</h1><h2>Please notify the gallery owner.<br /><a href="/">Return home</a></h2>`);
                 return true;
             }
-            const subscribestar_tags = (await db.select("tag", "item_tags_with_data", {where: `gallery_item_id=${item.gallery_item_id} AND tag LIKE "subscribestar:%"`})).map(x => x.tag);
+            const subscribestar_tags = (await db.select("tag", "item_tags_with_data", {where: `gallery_item_id=${gallery_item_id} AND tag LIKE "subscribestar:%"`})).map(x => x.tag);
             if (subscribestar_tags.length > 0)
             {
                 // TODO: Only send censored version if the viewer doesn't have access
