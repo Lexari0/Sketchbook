@@ -131,8 +131,9 @@ module.exports = {
         for (const k of Object.keys(params))
         {
             const paramPath = (parentPath.length > 0 ? parentPath + "." : "") + k;
-            template = template.replace(new RegExp(`{{\\s*${paramPath}\\s*}}`, "g"), params[k]);
-            template = template.replace(new RegExp(`{\\(\\s*${paramPath}\\s*\\)}`, "g"), decodeURIComponent(`${params[k]}`.replace(/\+/g, " ")));
+            const value = typeof(params[k]) == "string" ? params[k] : JSON.stringify(params[k]);
+            template = template.replace(new RegExp(`{{\\s*${paramPath}\\s*}}`, "g"), value);
+            template = template.replace(new RegExp(`{\\(\\s*${paramPath}\\s*\\)}`, "g"), decodeURIComponent(`${value}`.replace(/\+/g, " ")));
             if (params[k] instanceof Object || params[k] instanceof Array)
             {
                 template = this.replaceParams(template, params[k], paramPath);
