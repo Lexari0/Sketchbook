@@ -11,24 +11,19 @@
         //{% end %}
     ], to_remove: {}, to_add: {}};
 
+    function createHTMLForNewTag(tag_name) {
+        return `<li><input type="checkbox" onchange="toggleAdd('${tag_name}')" name="add-${tag_name}" value="${tag_name}" checked><label for="add-${tag_name}">${tag_name}</label></li>`
+    }
+
     function addTagToNewList(tag_name, check) {
-        new_tag_list.append(`<li><input type="checkbox" onchange="toggleAdd('${tag_name}')" name="add-${tag_name}" value="${tag_name}" checked><label for="add-${tag_name}">${tag_name}</label></li>`);
+        new_tag_list.append(createHTMLForNewTag(tag_name));
         if (check) {
             toggleAdd(tag_name);
         }
     }
 
     $(async () => {
-        const response = await fetch("/api/subscriptions/subscribestar/tiers");
-        console.log(`GET response: ${JSON.stringify(response)}`);
-        if (response.error != "" && response.error != undefined)
-        {
-            return;
-        }
-        for (const tier of response.tiers)
-        {
-            addTagToNewList(tier.tag, false);
-        }
+        buildAPIList(".new-tags", "/api/subscriptions/subscribestar/tiers", json => json.tiers, createHTMLForNewTag);
     });
 
     $(async () => {
@@ -67,7 +62,6 @@
                         method: "POST",
                         body: form_data
                     });
-                    console.log(`POST response: ${response}`);
                 }
                 var url = new URL(window.location.href);
                 var params = {tags_to_remove: [], tags_to_add: [], name: $("input.name").prop("value"), description: $("textarea.description").prop("value")};

@@ -6,7 +6,7 @@ async function buildAPIList(jqueryGetter, api_endpoint, array_getter, html_forma
         const json = await response.json();
         if (json.error.length > 0)
         {
-            console.error("Failed to query /api/gallery/tags:", json.error);
+            console.error("Failed to query ", api_endpoint, ":", json.error);
             return;
         }
         for (const item of array_getter(json))
