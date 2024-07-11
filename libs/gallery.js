@@ -441,7 +441,7 @@ ${required_query.replace(/^/gm,"    ")}
         var censored = false;
         const subscribestar_tags = (await db.select("tag", "item_tags_with_data", {where: `gallery_item_id=${gallery_item_id} AND tag LIKE "subscribestar:%"`})).map(x => x.tag);
         var subscribestar_tiers = await subscribestar.getTiers();
-        if (subscribestar_tiers == undefined)
+        if (subscribestar_tiers != undefined)
         {
             subscribestar_tiers = subscribestar_tiers.filter(tier => subscribestar_tags.includes(tier.tag));
             if (subscribestar_tiers.length > 0)
