@@ -61,7 +61,7 @@ module.exports = {
                 res.end(`<h1>Item ${gallery_item_id} is currently missing</h1><h2>Please notify the gallery owner.<br /><a href="/">Return home</a></h2>`);
                 return true;
             }
-            if (gallery.isItemCensoredForRequest(req))
+            if (await gallery.isItemCensoredForRequest(req))
             {
                 const requested_path = path.resolve(path.join(process.cwd(), "gallery", "censored", `${gallery_item_id}.webp`));
                 if (!fs.existsSync(requested_path))
