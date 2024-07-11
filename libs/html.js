@@ -1,3 +1,6 @@
+const fs = require("fs");
+const path = require("path");
+
 function addGenerator(page, htmlTag, defaultAttributeMap = {}, hasContent = true) {
     if (hasContent)
     {
@@ -116,19 +119,16 @@ module.exports = function (defaultContents = undefined) {
             {
                 throw "html.buildTemplate(...) given non-Object params";
             }
-            function replaceParams(template, params, parentPath) {
-                for (const k of Object.keys(params))
+            function evalImports(template) {
+                const re_import = /{#\s*([^\s]+)\s*#}/s;
+                while (match = template.match(re_import))
                 {
-                    const paramPath = (parentPath.length > 0 ? parentPath + "." : "") + k;
-                    template = template.replace(new RegExp(`{{\\s*${paramPath}\\s*}}`, "g"), params[k]);
-                    template = template.replace(new RegExp(`{\\(\\s*${paramPath}\\s*\\)}`, "g"), decodeURIComponent(`${params[k]}`.replace(/\+/g, " ")));
-                    if (params[k] instanceof Object || params[k] instanceof Array)
-                    {
-                        template = replaceParams(template, params[k], paramPath);
-                    }
+                    const imported_path = match[1];
+                    const imported_template = fs.readFileSync(path.join(process.cwd(), imported_path), "utf-8");
+                    template = template.replace(match[0], imported_template);
                 }
                 return template;
-            };
+            }
             function findParam(params, path) {
                 var split_path = path.split(".");
                 if (split_path.length === 0)
@@ -142,8 +142,8 @@ module.exports = function (defaultContents = undefined) {
                 return findParam(params[split_path.shift()], split_path.join("."));
             }
             function evalFor(template, params) {
-                const re_start = /\{%\s*for\s+([^\s]+)\s+in\s+([^\s]+)\s*%\}/s;
-                const re_end = /\{%\s*end\s*%\}/;
+                const re_start = /{%\s*for\s+([^\s]+)\s+in\s+([^\s]+)\s*%}/s;
+                const re_end = /{%\s*end\s*%}/s;
                 while (start_match = template.match(re_start))
                 {
                     const looper_key = start_match[1];
@@ -179,9 +179,23 @@ module.exports = function (defaultContents = undefined) {
                 }
                 return template;
             }
+            function replaceParams(template, params, parentPath) {
+                for (const k of Object.keys(params))
+                {
+                    const paramPath = (parentPath.length > 0 ? parentPath + "." : "") + k;
+                    template = template.replace(new RegExp(`{{\\s*${paramPath}\\s*}}`, "g"), params[k]);
+                    template = template.replace(new RegExp(`{\\(\\s*${paramPath}\\s*\\)}`, "g"), decodeURIComponent(`${params[k]}`.replace(/\+/g, " ")));
+                    if (params[k] instanceof Object || params[k] instanceof Array)
+                    {
+                        template = replaceParams(template, params[k], paramPath);
+                    }
+                }
+                return template;
+            };
+            template = evalImports(template);
             template = evalFor(template, params, "");
             template = replaceParams(template, params, "")
-            this.append(template.replace(/\{[\{\()].*[\}\)]\}/g, ""));
+            this.append(template.replace(/{[{\()].*[}\)]}/g, ""));
             return this;
         }
     }

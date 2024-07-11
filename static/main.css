@@ -11,25 +11,41 @@ a:link, a:visited {
 a:hover, a:active {
     color: #1a9e6f;
 }
-#title, #small-title {
+#titlebar {
     color: #0f100f;
     background-color: #0004;
-    position: sticky;
     top: 0;
+    width: calc(100% - 2em);
+    display: flex;
+    flex-direction: row;
+    gap: 1em;
+    padding: 1em;
 }
-#title {
+#titlebar.home {
+    flex-direction: column;
+    align-items: center;
+}
+.title {
+    width: 100%;
     font-size: 4em;
-    padding: 1em 1em;
-    margin-top: 0;
-    margin-bottom: 0.75em;
+    margin-top: 2em;
+    margin-bottom: 0.25em;
     text-align: center;
 }
-#small-title {
+.small-title {
     font-size: 2em;
     padding: 0.25em 1em;
-    margin-top: 0;
-    margin-bottom: 0.25em;
+    margin: 0;
     text-align: left;
+}
+.top-links {
+    display: flex;
+    flex-direction: row;
+    gap: 2em;
+    align-items: center;
+}
+.top-links > * {
+    margin: 0;
 }
 #front-query {
     margin: 5vh 30vw;
@@ -55,22 +71,31 @@ a:hover, a:active {
 }
 #main-body {
     margin: 0.5em;
+    margin-bottom: 0em;
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    padding-bottom: 4em;
 }
 #sidebar {
     width: 15em;
     float: left;
-    min-height: 25em;
     background-color: #0004;
     padding: 1em;
     margin-right: 0.5em;
     border-radius: 0.5em;
-    margin-bottom: calc(100vh - 31.5em);
+    height: fit-content;
 }
-#search-contents {
+#content {
+    flex-grow: 1;
+}
+#search-results {
     display: flex;
     flex-wrap: wrap;
+    flex-grow: 1;
+    min-height: calc(100vh - 12em);
 }
-#search-contents > #item {
+#search-results > #item {
     margin: 0.5em;
     width: 15em;
     height: 15em;
@@ -120,4 +145,20 @@ a:hover, a:active {
     background-color: #0004;
     border-radius: 0.25em;
     padding: 0.5em;
+}
+footer {
+    width: calc(100% - 1em);
+    height: 2.5em;
+    padding: 0.5em;
+    background-color: #0004;
+    border-radius: 1em 1em 0 0;
+    text-align: center;
+    position: absolute;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+footer * {
+    margin: 0
 }

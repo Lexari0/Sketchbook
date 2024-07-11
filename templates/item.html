@@ -24,7 +24,7 @@
 </script>
 </head>
 <body>
-<h1 id="small-title">{{ config.gallery.name }} <a href="/">Home</a></h1>
+{# templates/titlebar.html #}
 <div id="main-body">
 <aside id="sidebar">
     <section id="search">
@@ -41,12 +41,17 @@
         {% end %}
     </ul>
 </aside>
-<section id="item-contents">
-    <div class="imgbox">
-    <a href="/item/{{ item.gallery_item_id }}/large">
-        <img src="/item/{{ item.gallery_item_id }}/small" />
-    </a>
+<section id="content">
+    <div id="item-contents">
+        <div class="imgbox">
+            <a href="/item/{{ item.gallery_item_id }}/large">
+                <img src="/item/{{ item.gallery_item_id }}/small" />
+            </a>
+        </div>
     </div>
 </section>
 </div>
+<footer>
+    {# templates/footer_content.html #}
+</footer>
 </body>

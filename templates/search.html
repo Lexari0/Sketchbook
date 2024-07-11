@@ -8,15 +8,15 @@
         const response = await fetch("/api/gallery/search?q={{ query.q }}");
         const json = await response.json();
         const page_count = Math.ceil(json.item_count / 50);
-        const contents = $("#search-contents");
+        const results = $("#search-results");
         if (json.items === undefined)
         {
-            contents.append("<strong id=\"error\">Failed to perform search! Please contact site owner or try again later.</strong>");
+            results.append("<strong id=\"error\">Failed to perform search! Please contact site owner or try again later.</strong>");
             return;
         }
         for (const item of Object.values(json.items))
         {
-            contents.append(`<div id="item"><a href="${item.uri}?q={{ query.q }}"><img src="${item.resolutions.thumb}"/></a></div>`);
+            results.append(`<div id="item"><a href="${item.uri}?q={{ query.q }}"><img src="${item.resolutions.thumb}"/></a></div>`);
         }
         const page_links = $("#search-page-links");
         const query = "{{ query.q }}";
@@ -59,7 +59,7 @@
 </script>
 </head>
 <body>
-<h1 id="small-title">{{ config.gallery.name }} <a href="/">Home</a></h1>
+{# templates/titlebar.html #}
 <div id="main-body">
 <aside id="sidebar">
     <section id="search">
@@ -76,11 +76,16 @@
         {% end %}
     </ul>
 </aside>
-<section id="search-contents">
-</section>
-<section id="post-search-contents">
-    <div id="search-page-links">
+<section id="content">
+    <div id="search-results">
+    </div>
+    <div id="post-search-contents">
+        <div id="search-page-links">
+        </div>
     </div>
 </section>
 </div>
+<footer>
+    {# templates/footer_content.html #}
+</footer>
 </body>

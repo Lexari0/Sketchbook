@@ -1,0 +1,6 @@
+<div id="titlebar">
+  <h1 class="small-title">{{ config.gallery.name }}</h1>
+  <div class="top-links">
+    {% for link in config.gallery.top_links %}<h2><a href="{{ link.link }}">{{ link.text }}</a></h2>{% end %}
+  </div>
+</div>

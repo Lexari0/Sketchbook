@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="/static/main.css" />
+</head>
+<body>
+<div id="titlebar" class="home">
+    <h1 class="title">Lex's Gallery</h1>
+    <div class="top-links">
+      {% for link in config.gallery.top_links %}<h2><a href="{{ link.link }}">{{ link.text }}</a></h2>{% end %}
+    </div>
+</div>
+<div id="front-query">
+    <form action="/search" method="get" accept-charset="utf-8">
+        <input type="text" name="q" id="search-bar"></input>
+        <br />
+        <input type="submit" value="Search" id="search-button"></input>
+    </form>
+</div>
+<footer>
+    {# templates/footer_content.html #}
+</footer>
+</body>
+</html>

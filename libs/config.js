@@ -14,10 +14,12 @@ const DEFAULT = {
         software: {
             name: "Sketchbook",
             version: "1.0",
-            source: "https://github.com/Lexari0/Sketchbook"
+            source: "https://github.com/Lexari0/Sketchbook",
+            author: "Lexario",
+            license: "MIT"
         },
         owner: {
-            name: "",
+            name: "Artist",
             email: ""
         }
     },
@@ -27,7 +29,17 @@ const DEFAULT = {
         database_path: "gallery.db",
         items_per_page: 50,
         distribute_source: false,
-        recommended_tags: []
+        recommended_tags: [],
+        top_links: [
+            {
+                text: "Home",
+                link: "/"
+            },
+            {
+                text: "Sourcecode",
+                link: "https://github.com/Lexari0/Sketchbook"
+            }
+        ]
     },
     api: {
         key: uuid(),
@@ -92,7 +104,9 @@ function merge(target, ...sources) {
 
 if (fs.existsSync(PATH))
 {
-    module.exports = merge(DEFAULT, yaml.parse(fs.readFileSync(PATH, "utf-8")));
+    var config_file = yaml.parse(fs.readFileSync(PATH, "utf-8"));
+    delete config_file.server.software;
+    module.exports = merge(DEFAULT, config_file);
 }
 else
 {
