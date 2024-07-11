@@ -94,6 +94,7 @@ a:hover, a:active {
 }
 #sidebar {
     min-width: 20em;
+    max-width: 20em;
     float: left;
     background-color: #0004;
     padding: 1em;
