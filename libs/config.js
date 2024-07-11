@@ -146,7 +146,7 @@ function reload() {
     else
     {
         module.exports = {...DEFAULT, save, clone};
-        log.message("program", "Creating default config...");
+        console.log("program", "Creating default config...");
     }
     save();
     if (!fs.existsSync(module.exports.gallery.content_path))
