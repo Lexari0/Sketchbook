@@ -3,7 +3,7 @@
 ## Version 1.0
 
 - [x] Create nginx reverse proxy on Pi
--- [ ] Grab server domain from sketchbook config and automatically update `sites-available/sketchbook` file
+-- [x] Grab server domain from sketchbook config and automatically update `sites-available/sketchbook` file
 - [x] Add server domain field to config
 - [x]Tag/category wiki
 -- [x] Tag/category editing

@@ -174,6 +174,7 @@ function save() {
 }
 
 function reload() {
+    const old_domain = config.server.domain;
     if (fs.existsSync(PATH))
     {
         var config_file = yaml.parse(fs.readFileSync(PATH, "utf-8"));
@@ -186,7 +187,7 @@ function reload() {
     else
     {
         module.exports = {...DEFAULT, save, clone};
-        console.log("program", "Creating default config...");
+        require(path.join(process.cwd(), "libs/log.js")).message("program", "Creating default config...");
     }
     save();
     if (!fs.existsSync(module.exports.gallery.content_path))
@@ -195,9 +196,9 @@ function reload() {
     }
     
     const nginx_site_file = "/etc/nginx/sites-available/sketchbook";
-    if (fs.existsSync(nginx_site_file))
+    if (config.server.domain !== old_domain && fs.existsSync(nginx_site_file))
     {
-        log.message("config", "Updating nginx site file");
+        require(path.join(process.cwd(), "libs/log.js")).message("config", "Updating nginx site file");
         var site_config = fs.readFileSync(nginx_site_file);
         site_config = site_config.replace(/^set \$server_domain [^\s]+;$/g, `set $server_domain ${config.server.domain};`);
         fs.writeFileSync(nginx_site_file, site_config);
