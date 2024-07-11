@@ -11,10 +11,13 @@ async function getWifiSSID() {
         exec("which iwgetid", error => {
             if (error !== 0)
             {
+                console.log("No iwgetid")
                 resolve("");
             }
-            exec("iwgetid -r", (error, stdout, stderr) =>
-                resolve(stdout.substring(0, stdout.indexOf("\n")))
+            exec("iwgetid -r", (error, stdout, stderr) => {
+                console.log("iwgetid:", stdout);
+                resolve(stdout.substring(0, stdout.indexOf("\n")));
+            }
             );
         }
         )
