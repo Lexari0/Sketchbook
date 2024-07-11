@@ -40,7 +40,7 @@ function configFormSubmit(form, event) {
     event.preventDefault();
     var fields = {};
     form.find("input").each((i, x) => {
-        if (x.type === "text" || x.type == "select")
+        if (x.type === "text")
         {
             fields[x.name] = x.value;
         }
@@ -50,14 +50,7 @@ function configFormSubmit(form, event) {
         }
     });
     form.find("select").each((i, x) => {
-        if (x.type === "text" || x.type == "select")
-        {
-            fields[x.name] = x.value;
-        }
-        else if (x.type === "checkbox")
-        {
-            fields[x.name] = x.checked;
-        }
+        fields[x.name] = x.value;
     });
     fetch(`/api/config/update`, {
         method:"POST",
