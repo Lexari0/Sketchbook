@@ -68,7 +68,8 @@
 - [ ] SubscribeStar API integration
 -- [ ] Show "upgrade subscription" link on censored images if viewer has OAuth access token, but not the correct subscription tier
 - [ ] Admin panel improvements
---  [ ] Check for updates (display change logs)
+-- [ ] Check for updates (display change logs)
+-- [ ] "Update" button which effectively unpacks the latest version to the current folder
 - [ ] Add `meta:hidden` tag which prevents an item from being listed in search or viewed by non-admins
 -- [ ] Apply the `meta:hidden` tag to items by default
 -- [ ] `meta:hidden` should be ignored by `meta:untagged`
@@ -85,8 +86,6 @@
 -- [ ] Recent log messages (live)
 -- [ ] Update WiFi credentials form
 --- [ ] Revert if connection fails for 1 minute
--- [ ] "Restart" and "Update" buttons (need to figure out linux permissions)
----  [ ] Check for updates (display change logs)
 -- [ ] "Refresh SSL Certificate" button to manually run certbot
 
 ## Future
