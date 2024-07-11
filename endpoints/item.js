@@ -58,7 +58,7 @@ module.exports = {
                     "Content-Type": mime.lookup(".webp"),
                     "Content-Length": censored.length
                 });
-                censored.pipe(res);
+                res.end(censored);
                 return true;
             }
             else
