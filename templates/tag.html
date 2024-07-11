@@ -9,6 +9,10 @@
         buildTagList("/api/gallery/tags?q={{ tag.tag }}",
             tag => `<li><a class="tag-link" href="/tag/${tag.tag}" tag="${tag.tag}">${tag.tag}</a>: ${tag.count}</li>`
         );
+        buildAPIList(".tag-examples",
+            `http://golem.local:8090/api/gallery/search?q=${encodeURIComponent("{{ tag.tag }}")}&count=8&simple`,
+            json => Object.values(json.items),
+            item => `<a href="${item.uri}"><img src="${item.resolutions.thumb}" /></a>`);
     });
 </script>
 </head>
@@ -53,6 +57,10 @@
             <i class="missing">No description...</i>
             {? end ?}
         </p>
+    </div>
+    <div id="tag-examples">
+    <h2>Examples:</h2>
+    <div class="tag-examples"></div>
     </div>
 </section>
 </div>

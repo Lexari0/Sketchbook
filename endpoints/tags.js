@@ -80,8 +80,17 @@ module.exports = {
                     description: sqlstring.escape(decodeURIComponent(params.description)),
                     tag_category_id: `(SELECT tag_category_id FROM (SELECT tag_category_id FROM tag_categories UNION ALL VALUES(0)) WHERE tag_category_id IN (${sqlstring.escape(params.category)}, 0) LIMIT 1)`
                 };
+                const new_tag_name_taken = (await db.select("*", "tags", {where: `tag=${tag_updates.tag}`})).length !== 0;
+                if (new_tag_name_taken)
+                {
+                    res.writeHead(302, {
+                        "Location": `/tag/${tag_name}/edit?error=${encodeURIComponent(`New tag name "${tag_updates.tag}" already exists!`)}&${Object.keys(params).filter(k => k != "submitting").map(k => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`).join("&")}`
+                    });
+                    res.end();
+                }
                 if (Object.values(tag_updates).filter(String).length > 0)
                 {
+                    await db.all(`INSERT OR IGNORE INTO tags (tag) VALUES (${sqlstring.escape(tag_name)})`);
                     await db.update("tags", tag_updates, {where: `tag=${sqlstring.escape(tag_name)}`});
                 }
                 res.writeHead(302, {

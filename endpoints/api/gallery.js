@@ -130,6 +130,7 @@ module.exports = {
             const query = await api.getParams(req);
             const use_like = query.like && query.like.length > 0;
             const like = use_like ? query.like.replace(/\\/g, "\\\\").replace(/_/g, "\\_").replace(/%/g, "\\%") + "%" : undefined;
+            const item = parseInt(query.item);
             const count = parseInt(query.count);
             const category = query.category;
             var where = [];
@@ -141,6 +142,10 @@ module.exports = {
             {
                 where.push(`tag_categories.category=${sqlstring.escape(category)}`);
             }
+            if (!isNaN(item))
+            {
+                where.push(`tag_id IN (SELECT tag_id FROM item_tags WHERE gallery_item_id=${sqlstring.escape(item)})`);
+            }
             if (where.length === 0)
             {
                 where = undefined;
@@ -151,11 +156,13 @@ module.exports = {
             }
             // TODO: Use query.q to search for items and count tags on those items
             const limit = Math.max(Math.min(isNaN(count) ? 20 : count, 100), 1);
-            const tags = await db.select(["tags.tag", "tags.description", "tag_categories.category", "(SELECT COUNT(*) FROM item_tags WHERE item_tags.tag_id=tags.tag_id) AS count"], "tags LEFT JOIN tag_categories on tags.tag_category_id=tag_categories.tag_category_id", {
-                where,
-                order_by: "count DESC, tags.tag",
-                limit: limit
-            });
+            const tags = await db.select(["tag", "description", "category", "(SELECT COUNT(*) FROM item_tags WHERE item_tags.tag_id=tags_with_categories.tag_id) AS count"],
+                "tags_with_categories", {
+                    where,
+                    order_by: "count DESC, tag",
+                    limit: limit
+                }
+            );
             api.sendResponse(res, 200, {error: "", like: use_like ? query.like : "", count: limit, tags});
             return true;
         };

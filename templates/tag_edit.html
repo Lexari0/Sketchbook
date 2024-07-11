@@ -7,6 +7,19 @@
 <script>
     var tag_changes = {to_remove: {}, to_add: {}};
     $(async () => {
+        const url_params = new URLSearchParams(window.location.search);
+        if (url_params.has("error"))
+        {
+            $(".error").text(decodeURIComponent(url_params.get("error")));
+        }
+        if (url_params.has("name"))
+        {
+            $(".name").val(decodeURIComponent(url_params.get("name")));
+        }
+        if (url_params.has("description"))
+        {
+            $(".description").text(decodeURIComponent(url_params.get("description")));
+        }
         $("input[type=checkbox]").prop("checked", false);
         const new_tag_list = $("#tag-list.new-tags");
         const new_tag_name = $("input.new-tag-name");
@@ -17,7 +30,11 @@
         }
         buildAPIList("select.tag-category", "/api/gallery/tags/categories?count=1000", json => json.categories, category => `<option category-id="${category.id}" style="color: ${category.color ? category.color : "#000"}">${category.category}</option>`)
             .then(() => {
-                const default_option = tag_category.find("option[category-id={{ tag.tag_category_id }}]");
+                if (url_params.has("category"))
+                {
+                    default_option_index = url_params.get("category");
+                }
+                const default_option = tag_category.find(`option[category-id=${url_params.has("category") ? url_params.get("category") : "{{ tag.tag_category_id }}"}]`);
                 tag_category.prop("selectedIndex", default_option.length == 0 ? 0 : default_option.index());
             })
             .then(updateSelectedColor);
