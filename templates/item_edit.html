@@ -31,21 +31,17 @@
             toggleAdd(tag_name);
             new_tag_name.prop("value", "");
         });
-        $("form.submit-changes").submit(function(event) {
+        $("form.submit-changes").submit(async function(event) {
             var files = $("input.file")[0].files;
             if (files.length > 0)
             {
-                var reader = new FileReader();
-                reader.onload = async e => {
-                    var form_data = new FormData();
-                    form_data.append("file", e.target.result);
-                    const response = await fetch("/api/gallery/item/{{ item.gallery_item_id }}/new_file", {
-                        method: "POST",
-                        body: form_data
-                    });
-                    console.log(`POST response: ${response}`);
-                };
-                reader.readAsBinaryString(files[0]);
+                var form_data = new FormData();
+                form_data.append("file", files[0]);
+                const response = await fetch("/api/gallery/item/{{ item.gallery_item_id }}/new_file", {
+                    method: "POST",
+                    body: form_data
+                });
+                console.log(`POST response: ${response}`);
             }
             event.preventDefault();
             var url = new URL(window.location.href);
