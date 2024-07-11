@@ -33,7 +33,7 @@ module.exports = {
     },
     getRequestCookies: function(req) {
         var cookies = {};
-        for (const cookie of (!req.headers ? [] : req.headers.cookie.split(";")))
+        for (const cookie of (!req.headers || !req.headers.cookie ? [] : req.headers.cookie.split(";")))
         {
             var split_cookie = cookie.split("=");
             cookies[split_cookie.shift().trim()] = split_cookie.shift().trim();
