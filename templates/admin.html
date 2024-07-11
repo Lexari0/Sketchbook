@@ -6,22 +6,22 @@
 <script src="/static/common.js"></script>
 <script>
 function titleField(name, tooltip) {
-    return `<div class="info-field" field="${name}"><h3><span class="field-name" ${tooltip ? "data-tooltip='" + tooltip + "'" : ""}>${name}</span></h3></div>`;
+    return `<div class="info-field" field="${name}"><h3><span class="field-name" ${tooltip ? "data-tooltip='" + tooltip.replace(/'/g, "&#39;") + "'" : ""}>${name}</span></h3></div>`;
 }
 function infoField(name, value, tooltip) {
-    return `<div class="info-field" field="${name}"><h3><span class="field-name" ${tooltip ? "data-tooltip='" + tooltip + "'" : ""}>${name}</span>: <span class="field-value">${value}</span></h3></div>`;
+    return `<div class="info-field" field="${name}"><h3><span class="field-name" ${tooltip ? "data-tooltip='" + tooltip.replace(/'/g, "&#39;") + "'" : ""}>${name}</span>: <span class="field-value">${value}</span></h3></div>`;
 }
 function textField(name, value, key, tooltip) {
     key = key ? key : name;
-    return `<div class="info-field" field="${name}"><h3><span class="field-name" ${tooltip ? "data-tooltip='" + tooltip + "'" : ""}>${name}</span>: <input type="text" class="field-value" name="${key}" value="${value}"></h3></div>`;
+    return `<div class="info-field" field="${name}"><h3><span class="field-name" ${tooltip ? "data-tooltip='" + tooltip.replace(/'/g, "&#39;") + "'" : ""}>${name}</span>: <input type="text" class="field-value" name="${key}" value="${value}"></h3></div>`;
 }
 function checkboxField(name, checked, key, tooltip) {
     key = key ? key : name;
-    return `<div class="info-field" field="${name}"><h3><span class="field-name" ${tooltip ? "data-tooltip='" + tooltip + "'" : ""}>${name}</span>: <input type="checkbox" class="field-value" name="${key}" ${checked ? "checked" : ""}></h3></div>`;
+    return `<div class="info-field" field="${name}"><h3><span class="field-name" ${tooltip ? "data-tooltip='" + tooltip.replace(/'/g, "&#39;") + "'" : ""}>${name}</span>: <input type="checkbox" class="field-value" name="${key}" ${checked ? "checked" : ""}></h3></div>`;
 }
 function dropdownField(name, value, key, values, tooltip) {
     key = key ? key : name;
-    var field = $(`<div class="info-field" field="${name}"><h3><span class="field-name" ${tooltip ? "data-tooltip='" + tooltip + "'" : ""}>${name}</span>:<select name="${key}">`);
+    var field = $(`<div class="info-field" field="${name}"><h3><span class="field-name" ${tooltip ? "data-tooltip='" + tooltip.replace(/'/g, "&#39;") + "'" : ""}>${name}</span>:<select name="${key}">`);
     var select = field.find("select");
     for (const option of values)
     {
@@ -31,7 +31,7 @@ function dropdownField(name, value, key, values, tooltip) {
 }
 function fileField(name, key, tooltip) {
     key = key ? key : name;
-    return `<div class="info-field" field="${name}"><h3><span class="field-name" ${tooltip ? "data-tooltip='" + tooltip + "'" : ""}>${name}</span>: </h3><input type="file" name="${key}"></div>`;
+    return `<div class="info-field" field="${name}"><h3><span class="field-name" ${tooltip ? "data-tooltip='" + tooltip.replace(/'/g, "&#39;") + "'" : ""}>${name}</span>: </h3><input type="file" name="${key}"></div>`;
 }
 function submitButton(text = "Update") {
     return `<input type="submit" value="${text}">`
@@ -100,11 +100,11 @@ $(async () => {
             server_owner.submit(event => configFormSubmit(server_owner, event));
             const gallery_config = $("form.gallery-config");
             gallery_config.append(textField("Name", config.gallery.name, "gallery.name", "The title of this website shown in the browser tab and page header"));
-            gallery_config.append(checkboxField("Distribute Source Content", config.gallery.distribute_source, "gallery.distribute_source", "If enabled, viewers can request your source content.&lt;br/&gt;This can use a lot of network bandwidth"));
+            gallery_config.append(checkboxField("Distribute Source Content", config.gallery.distribute_source, "gallery.distribute_source", "If enabled, viewers can request your source content. This can use a lot of network bandwidth"));
             gallery_config.append(submitButton());
             gallery_config.submit(event => configFormSubmit(gallery_config, event));
             const api = $("#api form");
-            api.find(".api-keys").append(textField("Key", config.api.key, "api.key", "The API key your server uses to talk to other Sketchbook galleries.&lt;br/&gt;Don't change unless you know what you're doing."));
+            api.find(".api-keys").append(textField("Key", config.api.key, "api.key", "The API key your server uses to talk to other Sketchbook galleries. Don't change unless you know what you're doing."));
             const enabled_endpoints = api.find(".enabled-endpoints");
             function addEndpointDropdowns(key, value) {
                 if (typeof(value) === "object")
@@ -220,7 +220,7 @@ $(() => {
             <div class="api-keys">
             </div>
             <button type="button" class="collapsible"><h3>Enabled Endpoints</h3></button>
-            <div class="enabled-endpoints" data-tooltip="Check the wiki at the Software Source for information on each API endpoint.&lt;br/&gt;Don't touch unless you know what you're doing.">
+            <div class="enabled-endpoints" data-tooltip="Check the wiki at the Software Source for information on each API endpoint. Don't touch unless you know what you're doing.">
             </div>
         </form>
     </div>
