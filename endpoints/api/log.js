@@ -39,35 +39,28 @@ async function getLogLines(file_path, lines, line_offsets = undefined) {
         }
         const total_lines = line_offsets.length;
         const start_offset = line_offsets[total_lines - lines];
-        console.log("start_offset: ", start_offset);
         return await new Promise(async (resolve, reject) => {
-            console.log("Opening file: ", file_path);
             fs.open(file_path, (err, fd) => {
                 if (err != undefined)
                 {
                     reject(err);
                     return;
                 }
-                console.log("fstat...");
                 fs.fstat(fd, function(err, stats) {
                     if (err != undefined)
                     {
                         reject(err);
                         return;
                     }
-                    console.log("stats.size: ", stats.size);
                     const buffer_size = stats.size - start_offset;
                     var buffer = new Buffer(buffer_size);
-                    console.log("buffer_size: ", buffer_size);
-                    console.log("read...");
                     fs.read(fd, buffer, 0, buffer_size, start_offset, (err, bytes_read, buffer) => {
                         if (err != undefined)
                         {
                             reject(err);
                             return;
                         }
-                        console.log("bytes_read: ", bytes_read);
-                        resolve(buffer);
+                        resolve(buffer.toString());
                     });
                 });
             });
@@ -89,12 +82,9 @@ module.exports = {
             }
             const params = await api.getParams(req);
             const file_path = log.getActiveFile();
-            console.log("Getting line_offsets");
             const line_offsets = await getFileLineOffsets(file_path);
             const total_lines = line_offsets.length;
-            console.log("total_lines: ", total_lines);
             const lines = Math.max(0, Math.min(params.lines == undefined ? 20 : params.lines, total_lines));
-            console.log("Getting ", lines, " lines...");
             const logs = await getLogLines(file_path, lines, line_offsets);
             if (logs === undefined)
             {
