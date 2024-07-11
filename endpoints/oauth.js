@@ -8,7 +8,7 @@ const subscribestar = require(path.join(process.cwd(), "libs/subscribestar.js"))
 const config = require(path.join(process.cwd(), "libs/config.js"));
 
 const oauth_template = fs.readFileSync(path.join(process.cwd(), "templates/oauth.html"), "utf-8");
-async function sendOAuthPage(res, code, params)
+async function sendOAuthPage(res, code, params, req)
 {
     const body = await html.buildTemplate(oauth_template, params, req);
     res.writeHead(code, {"Content-Type": "text/html"});
@@ -35,7 +35,7 @@ const PLATFORMS = {
         }
         catch
         {
-            await sendOAuthPage(res, 503, {platform: "SubscribeStar", error: "Server side error getting POST response from SubscribeStar"});
+            await sendOAuthPage(res, 503, {platform: "SubscribeStar", error: "Server side error getting POST response from SubscribeStar"}, req);
             return true;
         }
         return false;
@@ -59,7 +59,7 @@ module.exports = {
                 }
                 if (!await PLATFORMS[platform](req, res))
                 {
-                    await sendOAuthPage(res, 200, {platform});
+                    await sendOAuthPage(res, 200, {platform}, req);
                 }
                 return true;
             }
