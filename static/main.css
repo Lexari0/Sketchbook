@@ -70,7 +70,7 @@ a:hover, a:active {
     flex-wrap: wrap;
 }
 #search-contents > #item {
-    margin: 1em;
+    margin: 0.5em;
     width: 15em;
     height: 15em;
     border-radius: 0.25em;
