@@ -83,52 +83,65 @@ module.exports = {
             }
             const split_url = req.url.split("?").shift().split("/").filter(String);
             const gallery_item_id = parseInt(split_url[3]);
-            await new Promise((resolve, reject) => {
-                var form = new formidable.IncomingForm();
-                form.parse(req, async (err, fields, form) => {
-                    if (err)
-                    {
-                        reject(err);
-                        return;
-                    }
-                    const uploaded_file = form.file[0];
-                    const temp_file_path = uploaded_file.filepath;
-                    const file_hash = await gallery.hashFile(temp_file_path);
-                    const final_file_path = path.join(gallery.content_path, file_hash + path.extname(uploaded_file.originalFilename));getFilePathOfItem
-                    try
-                    {
-                        fs.copyFileSync(temp_file_path, final_file_path);
-                        if (!await gallery.updateItem(final_file_path))
+            try
+            {
+                await new Promise((resolve, reject) => {
+                    var form = new formidable.IncomingForm();
+                    form.parse(req, async (err, fields, form) => {
+                        if (err)
                         {
-                            throw "Failed to update item in gallery.";
+                            reject(err);
+                            return;
                         }
+                        if (form.file.length == 0)
+                        {
+                            reject("Missing field: 'file'");
+                            return;
+                        }
+                        const uploaded_file = form.file[0];
+                        const temp_file_path = uploaded_file.filepath;
+                        const file_hash = await gallery.hashFile(temp_file_path);
+                        const final_file_path = path.join(gallery.content_path, file_hash + path.extname(uploaded_file.originalFilename));getFilePathOfItem
                         try
                         {
-                            fs.unlinkSync(temp_file_path);
+                            fs.copyFileSync(temp_file_path, final_file_path);
+                            if (!await gallery.updateItem(final_file_path))
+                            {
+                                throw "Failed to update item in gallery.";
+                            }
+                            try
+                            {
+                                fs.unlinkSync(temp_file_path);
+                            }
+                            catch
+                            {
+                                // Failing to delete the temp file is not a big deal
+                            }
+                            const old_file_path = await gallery.getFilePathOfItem(gallery_item_id);
+                            fs.unlinkSync(old_file_path);
+                            await db.update("items", {file_path: final_file_path, hash: await gallery.hashFile(final_file_path)}, {
+                                where: `gallery_item_id='${gallery_item_id}'`,
+                                });
+                            await gallery.refreshAlternates(gallery_item_id);
                         }
-                        catch
+                        catch (err)
                         {
-                            // Failing to delete the temp file is not a big deal
+                            if (fs.existsSync(final_file_path))
+                            {
+                                fs.unlinkSync(final_file_path);
+                            }
+                            reject(err);
+                            return;
                         }
-                        const old_file_path = await gallery.getFilePathOfItem(gallery_item_id);
-                        fs.unlinkSync(old_file_path);
-                        await db.update("items", {file_path: final_file_path, hash: await gallery.hashFile(final_file_path)}, {
-                            where: `gallery_item_id='${gallery_item_id}'`,
-                            });
-                        await gallery.refreshAlternates(gallery_item_id);
-                    }
-                    catch (err)
-                    {
-                        if (fs.existsSync(final_file_path))
-                        {
-                            fs.unlinkSync(final_file_path);
-                        }
-                        reject(err);
-                        return;
-                    }
-                    resolve();
+                        resolve();
+                    });
                 });
-            });
+            }
+            catch (error)
+            {
+                api.sendResponse(res, 400, {error});
+                return true;
+            }
             api.sendResponse(res, 200, {error: "", gallery_item_id, new_file_path: await gallery.getFilePathOfItem(gallery_item_id)});
             return true;
         };

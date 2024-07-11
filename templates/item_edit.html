@@ -32,6 +32,21 @@
             new_tag_name.prop("value", "");
         });
         $("form.submit-changes").submit(function(event) {
+            var file = $("input.file").prop("value");
+            if (file.files.length > 0)
+            {
+                var reader = new FileReader();
+                reader.onload = async e => {
+                    var form_data = new FormData();
+                    form_data.append("file", e.target.result);
+                    const response = await fetch("/api/item/{{ item.gallery_item_id }}/new_file", {
+                        method: "POST",
+                        body: form_data
+                    });
+                    console.log(`POST response: ${response}`);
+                };
+                reader.readasBinaryString(file.files[0]);
+            }
             event.preventDefault();
             var url = new URL(window.location.href);
             var params = {tags_to_remove: [], tags_to_add: [], name: $("input.name").prop("value"), description: $("textarea.description").prop("value")};
@@ -50,7 +65,7 @@
                 }
             }
             url.search = "submitting&" + Object.keys(params).map(k => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`).join("&");
-            window.location.href = url.toString();
+            //window.location.href = url.toString(); // temp commented out to test file uploads via console output
         });
     });
 
