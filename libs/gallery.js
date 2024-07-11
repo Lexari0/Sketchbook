@@ -54,10 +54,10 @@ const built_in_tags = {
 module.exports = {
     content_path,
     image_directories: {
-        censored: path.join(process.cwd(), "gallery/censored"),
-        thumb: path.join(process.cwd(), "gallery/thumb"),
-        small: path.join(process.cwd(), "gallery/small"),
-        large: path.join(process.cwd(), "gallery/large")
+        censored: path.join(process.cwd(), "gallery", "censored"),
+        thumb: path.join(process.cwd(), "gallery", "thumb"),
+        small: path.join(process.cwd(), "gallery", "small"),
+        large: path.join(process.cwd(), "gallery", "large")
     },
     prepareTables: async function() {
         if (db.db == null) {
@@ -122,7 +122,7 @@ module.exports = {
             return;
         }
         const source_image = sharp(file_path);
-        async function createAlternate(destination_file_path, options = {quality: 80}) {
+        async function createAlternate(destination_file_path, options = {quality: 80, fit: "cover"}) {
             var image = source_image.clone();
             if (options.size)
             {
@@ -135,25 +135,13 @@ module.exports = {
                 image.blur(options.blur);
             }
             image.webp({quality: options.quality})
-            image.toFile(destination_file_path);
-        }
-        async function createCensoredAlternate(destination_file_path, size, fit, quality) {
-            var image = source_image.clone()
-            if (size)
-            {
-                const metadata = await image.metadata();
-                size = Math.min(size, metadata.width, metadata.height);
-                image.resize(size, size, {fit});
-                image.blur(50.0);
-            }
-            image.webp({quality})
-            image.toFile(destination_file_path);
+            await image.toFile(destination_file_path);
         }
         await Promise.all([
-            createAlternate(path.join(this.image_directories.thumb, `${gallery_item_id}.webp`), {size: 256, fit: "cover", quality: 60}),
+            createAlternate(path.join(this.image_directories.thumb, `${gallery_item_id}.webp`), {size: 256, quality: 60}),
             createAlternate(path.join(this.image_directories.small, `${gallery_item_id}.webp`), {size: 1024, fit: "inside", quality: 80}),
             createAlternate(path.join(this.image_directories.large, `${gallery_item_id}.webp`), {quality: 100}),
-            createAlternate(path.join(this.image_directories.censored, `${gallery_item_id}.webp`), {size: 256, fit: "cover", quality: 20, blur: 50}),
+            createAlternate(path.join(this.image_directories.censored, `${gallery_item_id}.webp`), {size: 1024, fit: "inside", quality: 20, blur: 50})
         ]);
         log.message("gallery", "Rebuilt alternates for item", gallery_item_id);
     },
