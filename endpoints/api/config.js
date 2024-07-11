@@ -50,8 +50,11 @@ module.exports = {
                 if (errors.length == 0)
                 {
                     const value = typeof(config_obj[last_key_layer]) === "boolean" ? params[key] == "true" : params[key];
-                    config_obj[last_key_layer] = value;
-                    changed_config_obj[last_key_layer] = value;
+                    if (config_obj[last_key_layer] != value)
+                    {
+                        config_obj[last_key_layer] = value;
+                        changed_config_obj[last_key_layer] = value;
+                    }
                 }
             }
             if (errors.length > 0)
