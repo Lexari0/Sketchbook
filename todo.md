@@ -20,11 +20,10 @@
 -- [x] SQL command entry (if /api/sql endpoint is enabled; warn that this is dangerous)
 - [x] New image upload
 - [x] Update image upload
-- [ ] SubscribeStar API integration
+- [x] SubscribeStar API integration
 -- [x] Creator OAuth setup in /admin
 -- [x] Censor "premium" items
 -- [x] Show "connect to SubscribeStar" link on censored images if viewer doesn't have active OAuth access token
--- [ ] Show "upgrade subscription" link on censored images if viewer has OAuth access token, but not the correct subscription tier
 - [x] Admin password should query the "sketchbook" user's password on the system using `openssl passwd` instead of leaving it plaintext in the config
 
 ## Beta Release
@@ -66,6 +65,8 @@
 
 ## Public Release
 
+- [ ] SubscribeStar API integration
+-- [ ] Show "upgrade subscription" link on censored images if viewer has OAuth access token, but not the correct subscription tier
 - [ ] Admin panel improvements
 --  [ ] Check for updates (display change logs)
 - [ ] Add `meta:hidden` tag which prevents an item from being listed in search or viewed by non-admins
