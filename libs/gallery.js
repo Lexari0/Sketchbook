@@ -224,7 +224,7 @@ module.exports = {
         {
             order_by = "created DESC";
         }
-        const limit = 50;
+        const limit = Math.max(1, config.gallery.items_per_page);
         // Minor optimization; skips optional query step
         if (optional_tags.length == 1)
         {
