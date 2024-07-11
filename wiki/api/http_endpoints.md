@@ -2,7 +2,16 @@
 
 ## HTTP Endpoints
 
-### `GET` `/api/server`
+All HTTP endpoints will respond with a JSON object containing an `error` string (which will be empty if there was no error).
+
+API endpoints can be enabled and disabled via the `api` object within `config.yaml`.
+
+- A value of `"any"` will permit an endpoint to be used for any request over `GET` or `POST` HTTP protocols.
+- A value of `"key"` will permit an endpoint to be used by a request containing a permitted `key` in the request body and only allows for `POST` requests.
+  - To permit a user or aggregate's `key`, add it to the `api.permitted_keys` list in `config.yaml`.
+- A value of `"none"` disallows any requests to the endpoint.
+
+### `/api/server`
 
 Provides information about the active server software. Useful for determining what other API endpoints are available based on the software name and version
 
@@ -25,7 +34,7 @@ Parameters: None
 }
 ```
 
-### `GET` `/api/gallery`
+### `/api/gallery`
 
 Provides information about the gallery, such as how many items exist and when it was last updated.
 
@@ -43,7 +52,7 @@ Parameters: None
 }
 ```
 
-### `GET` `/api/gallery/item/<id>`
+### `/api/gallery/item/<id>`
 
 Provides information on a specific item in the gallery.
 
@@ -75,7 +84,7 @@ Paramters: None
 }
 ```
 
-### `GET` `/api/gallery/items`
+### `/api/gallery/items`
 
 Provides a list of items in the gallery.
 
@@ -105,7 +114,7 @@ Parameters:
 }
 ```
 
-### `GET` `/api/gallery/search`
+### `/api/gallery/search`
 
 Queries the gallery with a given search criteria and responds with posts which match that criteria
 
