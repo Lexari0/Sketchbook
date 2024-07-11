@@ -23,7 +23,7 @@
     }
 
     $(async () => {
-        for (const tag_name of mapAPICall("/api/subscriptions/subscribestar/tiers", json => json.tiers.map(tier => tier.tag).filter(tag => tag_changes.current.includes(tag))))
+        for (const tag_name of mapAPICall("/api/subscriptions/subscribestar/tiers", json => json.tiers.map(tier => tier.tag).filter(tag => !tag_changes.current.includes(tag))))
         {
             addTagToNewList(tag_name, false);
         }
