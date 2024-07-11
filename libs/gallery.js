@@ -370,7 +370,7 @@ ${required_query.replace(/^/gm,"    ")}
     getItemIDOfFile: async function(file_path) {
         const found = await db.select("gallery_item_id", "items", {
             distinct: true,
-            where: `file_path='${file_path}'`
+            where: `file_path=${sqlstring.escape(file_path)}`
         });
         return found.length > 0 ? found[0].gallery_item_id : undefined;
     },

@@ -101,7 +101,7 @@ module.exports = {
                         try
                         {
                             await db.update("items", {file_path: final_file_path, hash: await gallery.hashFile(final_file_path)}, {
-                                where: `gallery_item_id='${gallery_item_id}'`,
+                                where: `gallery_item_id=${sqlstring.escape(gallery_item_id)}`,
                                 });
                             fs.unlinkSync(old_file_path);
                             fs.copyFileSync(temp_file_path, final_file_path);
