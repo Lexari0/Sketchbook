@@ -25,7 +25,7 @@
 -- [x] Censor "premium" items
 -- [x] Show "connect to SubscribeStar" link on censored images if viewer doesn't have active OAuth access token
 -- [ ] Show "upgrade subscription" link on censored images if viewer has OAuth access token, but not the correct subscription tier
-- [ ] Admin password should query the "sketchbook" user's password on the system using `openssl passwd` instead of leaving it plaintext in the config
+- [x] Admin password should query the "sketchbook" user's password on the system using `openssl passwd` instead of leaving it plaintext in the config
 
 ## Beta Release
 
