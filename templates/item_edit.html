@@ -13,6 +13,10 @@
         $("form.add-tag").submit(function(event) {
             event.preventDefault();
             const tag_name = new_tag_name.prop("value").replace(/^\s+|\s+$/, "").replace(/\s+/g, "_");
+            if (tag_name.length === 0)
+            {
+                return;
+            }
             if (bad_match = tag_name.match(/[:{}<>=]/g))
             {
                 $("form.add-tag .error").text(`${bad_match.join()} ${bad_match.length === 1 ? "is an illegal or reserved character" : "are illegal or reserved characters"} in tags!`);
