@@ -67,6 +67,20 @@ module.exports = {
                 config[k] = structuredClone(new_config[k]);
             }
             config.save();
+            function removeEmptyObjects(object) {
+                for (const key of Object.keys(object))
+                {
+                    if (typeof(object[key]) === "object")
+                    {
+                        removeEmptyObjects(object[key]);
+                        if (Object.keys(object[key]).length == 0)
+                        {
+                            delete object[key];
+                        }
+                    }
+                }
+            }
+            removeEmptyObjects(changed_config);
             api.sendResponse(res, 200, {error: "", params, changed_config})
             return true;
         };
