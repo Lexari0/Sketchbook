@@ -3,7 +3,7 @@ const fs = require("fs");
 
 module.exports = {
     register_endpoints: endpoints => {
-        endpoints[/^\/static\/.+$/] = (req, res) => {
+        endpoints[/^\/static\/.+$/] = async (req, res) => {
             const url = req.url.split("?").shift();
             const requested_path = path.resolve(path.join(process.cwd(), url));
             const relative_path = path.relative(process.cwd(), url);
@@ -16,7 +16,7 @@ module.exports = {
             }
             return false;
         };
-        endpoints["/favicon.ico"] = (req, res) => {
+        endpoints["/favicon.ico"] = async (req, res) => {
             const requested_path = path.resolve(path.join(process.cwd(), "static/favicon.ico"));
             if (fs.existsSync(requested_path))
             {

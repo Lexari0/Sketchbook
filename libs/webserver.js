@@ -17,35 +17,46 @@ for (const item of fs.readdirSync(path.join(process.cwd(), "endpoints"), {withFi
     }
 }
 
-const requestListener = function (req, res) {
+const requestListener = async function (req, res) {
     try {
-        const url = req.url.split("?").shift();
-        if (url in endpoints)
-        {
-            endpoints[url](req, res);
+        console.log("[Request] ", req.method, req.url);
+        var url_split = req.url.split("?")
+        const url_page = url_split.shift();
+        const url_query = url_split.shift();
+        if (url_page.endsWith("/")) {
+            res.writeHead(302, {
+                "Location": url_page.replace(/\/+$/, "") + (url_query ? "?" + url_query : "")
+            });
+            res.end();
         }
-        else
-        {
-            var handled = false;
-            for (const key of Object.keys(endpoints))
+        else {
+            if (url_page in endpoints)
             {
-                if (key.length < 3 || !key.startsWith("/") || !key.endsWith("/")) {
-                    continue;
-                }
-                if (url.match(key.substring(1, key.length - 1))) {
-                    handled = endpoints[key](req, res);
-                    if (handled) {
-                        break;
+                await endpoints[url_page](req, res);
+            }
+            else
+            {
+                var handled = false;
+                for (const key of Object.keys(endpoints))
+                {
+                    if (key.length < 3 || !key.startsWith("/") || !key.endsWith("/")) {
+                        continue;
+                    }
+                    if (url_page.match(key.substring(1, key.length - 1))) {
+                        handled = await endpoints[key](req, res);
+                        if (handled) {
+                            break;
+                        }
                     }
                 }
-            }
-            if (!handled)
-            {
-                res.writeHead(404);
-                res.end("Page not found: " + url);
+                if (!handled)
+                {
+                    res.writeHead(404);
+                    res.end("Page not found: " + url_page);
+                }
             }
         }
-        console.log("Request:", req.url, "->", res.statusCode);
+        console.log("[Response]", req.method, req.url, "->", res.statusCode);
     } catch (e) {
         try {
             res.writeHead(502);
@@ -53,7 +64,7 @@ const requestListener = function (req, res) {
         } catch {
             console.error("Failed to send 502...");
         }
-        console.error("Request:", req.url, "->", res.statusCode, "\n\n", e);
+        console.error("[Response]", req.method, ":", req.url, "->", res.statusCode, "\n\n", e);
     }
 };
 

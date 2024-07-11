@@ -4,7 +4,7 @@ const config = require(path.join(process.cwd(), "libs/config.js"));
 
 module.exports = {
     register_endpoints: endpoints => {
-        endpoints["/"] = (req, res) => {
+        endpoints["/"] = async (req, res) => {
             res.writeHead(200, {"Content-Type": "text/html"});
             res.write(html().DOCTYPE().html(
                     html().head(
