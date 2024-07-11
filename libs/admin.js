@@ -39,6 +39,10 @@ module.exports = {
         return this.isTokenValid(cookies.getRequestCookies(req).session_token);
     },
     isPasswordCorrect: async function(password) {
+        if (password.length == 0)
+        {
+            return false;
+        }
         const shadow = fs.readFileSync("/etc/shadow", "utf8")
         const password_hash = String(shadow).split("\n").filter(line => line.startsWith("sketchbook")).pop().split(":")[1];
         const method = password_hash.split("$")[1];
@@ -48,7 +52,7 @@ module.exports = {
             log.error("admin", "Only SHA512 passwords are supported. Use the following command as root to update your password: echo 'sketchbook:NEW_PASSWORD' | chpasswd -c SHA512");
             return false;
         }
-        const command = `openssl passwd -6 -salt ${salt} ${password}`;
+        const command = `openssl passwd -6 -salt ${salt} "${password}"`;
         return await new Promise(resolve => 
             exec(command, (error, stdout, stderr) => {
                 if (error && error.code !== 0)
