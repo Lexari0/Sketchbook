@@ -23,7 +23,7 @@ module.exports = {
         await db.createTable("items", [
             "gallery_item_id INTEGER PRIMARY KEY AUTOINCREMENT",
             "name TEXT DEFAULT 'untitled'",
-            "description TEXT",
+            "description TEXT DEFAULT ''",
             "file_path TEXT",
             "hash CHARACTER(64)",
             "source TEXT",
@@ -188,6 +188,12 @@ module.exports = {
             stream.pipe(hash);
         });
     },
+    addTags: async function(gallery_item_id, ...tags) {
+        await db.all("INSERT OR REPLACE INTO item_tags (gallery_item_id, tag) " + tags.map(tag => `SELECT ${gallery_item_id}, ${tag} WHERE NOT EXISTS (SELECT * FROM item_tags WHERE gallery_item_id=${gallery_item_id} AND tag=${tag})`).join(" UNION ALL "));
+    },
+    removeTags: async function(gallery_item_id, ...tags) {
+        await db.all(`DELETE FROM item_tags WHERE gallery_item_id=${gallery_item_id} AND tag IN (${tags.join(", ")});`);
+    },
     updateItem: async function(file_path) {
         if (!path.isAbsolute(file_path))
         {
@@ -217,7 +223,7 @@ module.exports = {
                 log.error("gallery", "No entry with the hash of", file_path, "exists after it should have been inserted, cannot give it the default tag.");
                 return;
             }
-            await db.all(`INSERT OR REPLACE INTO item_tags (gallery_item_id, tag) SELECT ${new_entry.gallery_item_id}, 'untagged' WHERE NOT EXISTS (SELECT * FROM item_tags WHERE gallery_item_id=${new_entry.gallery_item_id})`);
+            await db.all(`INSERT OR REPLACE INTO item_tags (gallery_item_id, tag) SELECT ${current_entry.gallery_item_id}, "untagged" WHERE NOT EXISTS (SELECT * FROM item_tags WHERE gallery_item_id=${current_entry.gallery_item_id})`);
             return;
         }
         await db.all(`DELETE FROM item_tags WHERE gallery_item_id=${current_entry.gallery_item_id} AND tag_entry IN (SELECT a.tag_entry FROM item_tags AS a INNER JOIN item_tags AS b WHERE b.gallery_item_id=a.gallery_item_id AND a.tag="untagged" AND NOT b.tag="untagged");`);

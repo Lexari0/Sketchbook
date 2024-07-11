@@ -146,9 +146,20 @@ a:hover, a:active {
     max-width: calc(100vw - 18.5em);
     margin: auto;
 }
+#item-info {
+    max-width: calc(100vw - 18.5em);
+    background-color: #0004;
+    padding: 1em;
+    border-radius: 0.5em;
+    height: fit-content;
+}
+#item-name, #item-description {
+    margin: 0;
+}
 #tag-list {
     list-style: none;
     padding-left: 1em;
+    margin: 0;
 }
 #post-search-contents {
     width: 100%;
@@ -161,6 +172,35 @@ a:hover, a:active {
     background-color: #0004;
     border-radius: 0.25em;
     padding: 0.5em;
+}
+#item-preview, div.existing-tags, div.new-tags {
+    padding: 0.5em;
+    background-color: #0004;
+    border-radius: 0.25em;
+    margin: 0 0.5em;
+}
+#item-preview {
+    height: fit-content;
+}
+div.existing-tags, div.new-tags {
+    min-height: calc(100vh - 11em);
+}
+div.existing-tags, div.new-tags {
+    flex-grow: 1;
+}
+#item-preview img {
+    width: 512px;
+}
+#item-preview form {
+    max-width: 512px;
+}
+#item-preview input, #item-preview textarea {
+    min-width: 504px;
+    max-width: 504px;
+}
+#item-preview input.button {
+    width: 512px;
+    max-width: 512px;
 }
 footer {
     width: calc(100% - 1em);

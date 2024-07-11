@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<head>
+<title>{{ config.gallery.name }} - Editing #{{ item.gallery_item_id }}</title>
+<link rel="stylesheet" type="text/css" href="/static/main.css" />
+<script src="/static/jquery-3.7.1.min.js"></script>
+<script>
+    var tag_changes = {to_remove: {}, to_add: {}};
+    window.onload = (async () => {
+        $("input[type=checkbox]").prop("checked", false);
+        const new_tag_list = $("#tag-list.new-tags");
+        const new_tag_name = $("input.new-tag-name");
+        new_tag_name.prop("value", "");
+        $("form.add-tag").submit(function(event) {
+            event.preventDefault();
+            const tag_name = new_tag_name.prop("value");
+            new_tag_list.append(`<li><input type="checkbox" onchange="toggleAdd('${tag_name}')" name="add-${tag_name}" value="${tag_name}" checked><label for="add-${tag_name}">${tag_name}</label></li>`);
+            toggleAdd(tag_name);
+            new_tag_name.prop("value", "");
+        });
+        $("form.submit-changes").submit(function(event) {
+            event.preventDefault();
+            console.log("Do submission");
+            var url = new URL(window.location.href);
+            var params = {tags_to_remove: [], tags_to_add: [], name: $("input.name").prop("value"), description: $("textarea.description").prop("value")};
+            for (const k of Object.keys(tag_changes.to_remove))
+            {
+                if (tag_changes.to_remove[k])
+                {
+                    params.tags_to_remove.push(k)
+                }
+            }
+            for (const k of Object.keys(tag_changes.to_add))
+            {
+                if (tag_changes.to_add[k])
+                {
+                    params.tags_to_add.push(k)
+                }
+            }
+            url.search = "submitting&" + Object.keys(params).map(k => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`).join("&");
+            window.location.href = url.toString();
+        });
+    });
+
+    function toggleAdd(tag) {
+        console.log(tag_changes.to_add[tag] ? "Unmarking": "Marking", "tag for add:", tag);
+        tag_changes.to_add[tag] = !tag_changes.to_add[tag];
+    }
+    function toggleRemoval(tag) {
+        console.log(tag_changes.to_remove[tag] ? "Unmarking": "Marking", "tag for removal:", tag);
+        tag_changes.to_remove[tag] = !tag_changes.to_remove[tag];
+    }
+</script>
+</head>
+<body>
+{# templates/titlebar.html #}
+<div id="main-body">
+    <div id="item-preview">
+        <img src="/item/{{ item.gallery_item_id }}/small" />
+        <form class="submit-changes">
+            <div class="form-field">Name:</div><input class="name" type="text" name="name" value="{{ item.name }}"><br />
+            <div class="form-field">Description:</div><textarea class="description" name="description" rows="5">{{ item.description }}</textarea><br />
+            <input class="button" type="submit" value="Update Item">
+        </form>
+    </div>
+    <div class="existing-tags">
+        <h2>Tags to Remove</h2>
+        <ul id="tag-list" class="existing-tags">
+            {% for tag in tags %}
+            <li><input type="checkbox" onchange="toggleRemoval('{{ tag.tag }}')" name="remove-{{ tag.tag }}" value="{{ tag.tag }}"><label for="remove-{{ tag.tag }}">{{ tag.tag }}</label></li>
+            {% end %}
+        </ul>
+    </div>
+    <div class="new-tags">
+        <h2>Tags to Add</h2>
+        <form class="add-tag">
+            <input class="new-tag-name" type="text">
+            <input type="submit" value="Add">
+        </form>
+        <ul id="tag-list" class="new-tags">
+        </ul>
+    </div>
+</div>
+<footer>
+    {# templates/footer_content.html #}
+</footer>
+</body>

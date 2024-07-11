@@ -159,6 +159,8 @@ module.exports = function (defaultContents = undefined) {
                     var section_body = ""
                     for (var i = 0; i < found_param.length; ++i)
                     {
+                        console.log("Loop", i, "of", found_param.length, "for", found_param);
+                        console.log("section_body_source:", section_body_source);
                         var replaced_body = section_body_source;
                         const start_match = replaced_body.match(global_re);
                         const start_count = start_match ? start_match.length : 0;
@@ -173,6 +175,8 @@ module.exports = function (defaultContents = undefined) {
                                 throw `HTML Template {% for %} loop is growing as it's evaluated!\n\tDeclaration: ${start_match[0]}\n\tWhen replacing "${looper_match[0]}" with "${replacement}"`;
                             }
                         }
+                        console.log("New replaced_body:", replaced_body);
+                        console.log("section_body_source:", section_body_source);
                         section_body += replaced_body;
                     }
                     template = pre_section + section_body + post_section;

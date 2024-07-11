@@ -6,7 +6,6 @@
 <script>
     const urlParams = new URLSearchParams(window.location.search);
     window.onload = (async () => {
-        updateSearchBar();
         const response = await fetch("/api/gallery/search?q=" + urlParams.get("q").replace(" ", "+"));
         const items = (await response.json()).r;
         console.log("items:", items);
@@ -55,6 +54,11 @@
                 <img src="/item/{{ item.gallery_item_id }}/small" />
             </a>
         </div>
+    </div>
+    <div id="item-info">
+        <h3 id="item-name">{{ item.name }}</h3>
+        <hr>
+        <p id="item-description">{{ item.description }}</p>
     </div>
 </section>
 </div>
