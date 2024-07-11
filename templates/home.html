@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+<title>{{ config.gallery.name }}</title>
 <link rel="stylesheet" type="text/css" href="/static/main.css" />
 </head>
 <body>
 <div id="titlebar" class="home">
-    <h1 class="title">Lex's Gallery</h1>
+    <h1 class="title">{{ config.gallery.name }}</h1>
     <div class="top-links">
       {% for link in config.gallery.top_links %}<h2><a href="{{ link.link }}">{{ link.text }}</a></h2>{% end %}
     </div>
