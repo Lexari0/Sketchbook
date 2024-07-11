@@ -429,6 +429,8 @@ ${required_query.replace(/^/gm,"    ")}
         {
             return true;
         }
+        const split_url = req.url.split("?").shift().split("/").filter(String);
+        const gallery_item_id = parseInt(split_url[1]);
         const subscribestar_tags = (await db.select("tag", "item_tags_with_data", {where: `gallery_item_id=${gallery_item_id} AND tag LIKE "subscribestar:%"`})).map(x => x.tag);
         const user_cookies = cookies.getRequestCookies(req);
         const subscribestar_access_token = user_cookies.subscribestar_access_token;
