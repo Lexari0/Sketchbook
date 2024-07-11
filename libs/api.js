@@ -2,6 +2,7 @@ const https = require("https");
 const path = require("path");
 const admin = require(path.join(process.cwd(), "libs/admin.js"));
 const config = require(path.join(process.cwd(), "libs/config.js"));
+const log = require(path.join(process.cwd(), "libs/log.js"));
 
 module.exports = {
     key: config.api.key,
