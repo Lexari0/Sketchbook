@@ -32,6 +32,7 @@ const PLATFORMS = {
                 grant_type: "authorization_code",
                 redirect_uri: subscribestar.getRedirectURI()
             });
+            console.log(`OAuth response: ${post_response}`);
             subscribestar.updateOauth(post_response);
         }
         catch
