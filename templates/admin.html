@@ -116,7 +116,7 @@ $(async () => {
                     return;
                 }
                 const endpoint = "/api/" + (key.endsWith("._") ? key.substring(0, key.length - 2) : key).replace(/\./g, "/");
-                enabled_endpoints.append(dropdownField(endpoint, value, "api.enabled_endpoints." + key, ["any", "key", "admin"]));
+                enabled_endpoints.append(dropdownField(endpoint, value, "api.enabled_endpoints." + key, ["any", "key", "admin", "none"]));
             }
             addEndpointDropdowns("", config.api.enabled_endpoints);
             api.append(submitButton());

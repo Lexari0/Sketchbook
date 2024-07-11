@@ -58,6 +58,7 @@
 - [ ] Allow "sketchbook" user to restart nginx systemctl service
 - [ ] Create, start, and enable "sketchbook" systemctl service which runs `node /home/sketchbook/index.js` as "sketchbook"
 - [ ] Create nginx file `sites-available/sketchbook` (owned by sketchbook:sketchbook) reverse proxy to internal port 8090
+-- [ ] DDoS prevention for nginx config: https://blog.nginx.org/blog/mitigating-ddos-attacks-with-nginx-and-nginx-plus
 - [ ] If port 80 is forwarded to this device: 
 -- [ ] Ask to enable nginx reverse proxy ("yes" suggested if user doesn't have another webserver on the network)
 -- [ ] "Yes" will create a symbolic link from nginx's `sites-enabled/sketchbook` to `sites-available/sketchbook` and run certbot for the domain: `certbot --agree-tos --nginx -d ${domain} -m ${email} -n` (should return 0)
