@@ -21,7 +21,8 @@ const DEFAULT = {
         owner: {
             name: "Artist",
             email: ""
-        }
+        },
+        domain: ""
     },
     gallery: {
         name: "My Sketchbook Gallery",
