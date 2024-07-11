@@ -160,12 +160,13 @@ module.exports = {
             log.message("subscribestar", "Viewer has no access_token, censor");
             return true;
         }
-        const user = (await this.sendGraphQLRequest("{ user { id } }", true, viewer_access_token)).user;
-        const viewer_id = user.id;
-        const profile = await this.getProfile();
+        const viewer_user = (await this.sendGraphQLRequest("{ user { id } }", true, viewer_access_token)).user;
+        const viewer_id = viewer_user.id;
+        const creator_user = (await this.sendGraphQLRequest("{ user { id } }")).user;
+        const creator_id = creator_user.id;
         console.log("viewer_id: ", viewer_id);
-        console.log("profile: ", JSON.stringify(profile));
-        if (profile.id == viewer_id)
+        console.log("creator_id: ", creator_id);
+        if (creator_id == viewer_id)
         {
             log.message("subscribestar", "Viewer is owner, visible");
             return false;
