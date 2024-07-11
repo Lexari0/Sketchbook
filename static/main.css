@@ -458,6 +458,10 @@ div.admin-panel, div.oauth-results-container {
     max-width: max(34% - 3em, 30em);
 }
 
+div.admin-panel img.title {
+    height: 5em;
+}
+
 div.existing-tags h2,
 div.new-tags h2,
 div.edit-tag-info h2,
