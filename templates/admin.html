@@ -49,6 +49,16 @@ function configFormSubmit(form, event) {
             fields[x.name] = x.checked;
         }
     });
+    form.find("select").each((i, x) => {
+        if (x.type === "text" || x.type == "select")
+        {
+            fields[x.name] = x.value;
+        }
+        else if (x.type === "checkbox")
+        {
+            fields[x.name] = x.checked;
+        }
+    });
     fetch(`/api/config/update`, {
         method:"POST",
         body: Object.keys(fields).map(key => `${key}=${fields[key]}`).join("\n")
