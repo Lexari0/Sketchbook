@@ -160,7 +160,9 @@ function clone() {
 }
 
 function save() {
-    fs.writeFileSync(PATH, yaml.stringify(module.exports.clone()), "utf-8");
+    var config_file = module.exports.clone();
+    delete config_file.server.software;
+    fs.writeFileSync(PATH, yaml.stringify(config_file), "utf-8");
 }
 
 function reload() {
