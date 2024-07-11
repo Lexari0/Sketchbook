@@ -70,6 +70,19 @@ const DEFAULT = {
             echo: "key"
         }
     },
+    subscribestar: {
+        client_id: undefined,
+        client_secret: undefined,
+        adult: false,
+        auth_token: {
+            access_token: undefined,
+            token_type: undefined,
+            expires_in: undefined,
+            issued_at: undefined,
+            expires_at: undefined,
+            refresh_token: undefined
+        }
+    },
     logging: {
         path: "last.log",
         enabled_categories: {

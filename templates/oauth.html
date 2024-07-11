@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<head>
+<title>{{ config.gallery.name }} - OAuth ({{ platform }})</title>
+<link rel="stylesheet" type="text/css" href="/static/main.css" />
+<script src="/static/jquery-3.7.1.min.js"></script>
+<script>
+    const query = "{{ query.q }}";
+</script>
+<script src="/static/common.js"></script>
+</head>
+<body>
+{# templates/titlebar.html #}
+<div id="main-body">
+<section id="content">
+    <div class="oauth-results-container">
+        <div id="oauth-results">
+            <h2>OAuth Result - {{ platform }}</h2>
+            <hr />
+            <p>
+            {? if req.error ?}
+                Success!
+            {? else ?}
+                Failed ({{ req.error }}): {{ req.error_description }}
+            {? end ?}
+            </p>
+            <p><a href="/admin">Return to Admin Panel</a></p>
+        </div>
+    </div>
+</section>
+</div>
+<footer>
+    {# templates/footer_content.html #}
+</footer>
+</body>

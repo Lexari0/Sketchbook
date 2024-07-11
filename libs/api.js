@@ -1,3 +1,4 @@
+const https = require("https");
 const path = require("path");
 const admin = require(path.join(process.cwd(), "libs/admin.js"));
 const config = require(path.join(process.cwd(), "libs/config.js"));
@@ -86,6 +87,52 @@ module.exports = {
             });
         }
         return req.params;
+    },
+    sendPOST: function(hostname, path, params = {}, data, content_type) {
+        return new Promise((resolve, reject) => {
+            var options = {
+                hostname: hostname,
+                port: 443,
+                path: path,
+                method: "POST"
+            };
+            if (params.length > 0)
+            {
+                path += "?" + "&".join(Object.keys(params).map(key => encodeURIComponent(toString(key)) + (params[key] ? "=" + encodeURIComponent(toString(params[key])) : "")))
+            }
+            if (data != undefined)
+            {
+                if (content_type == undefined)
+                {
+                    if (typeof(data) == "string")
+                    {
+                        content_type = "application/json";
+                    }
+                    else
+                    {
+                        content_type = "application/octet-stream";
+                    }
+                }
+                data = Buffer.from(data, "utf8")
+                options.headers = {
+                    "Content-Type": content_type,
+                    "Content-Length": data.length
+                };
+            }
+            const req = https.request(options, (res) => {
+                res.setEncoding("utf8");
+                var responseBody = "";
+                res.on("data", (chunk) => {
+                    responseBody += chunk;
+                });
+                res.on("end", () => {
+                    resolve(JSON.parse(responseBody));
+                })
+            });
+            req.on("error", (err) => reject(err));
+            req.write(data);
+            req.end();
+        });
     },
     sendResponse: function(res, code, data) {
         res.writeHead(code, {"Content-Type": "application/json"});

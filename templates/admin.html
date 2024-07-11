@@ -134,6 +134,7 @@ $(async () => {
             </div>
         </div>
     </div>
+    <!--
     <div class="admin-panel" id="wifi">
         <h2>WiFi:</h2>
         <p><b>Note:</b> This is only intended to work if running on a Raspberry Pi with WiFi functionality (eg: <a href="https://www.raspberrypi.com/products/raspberry-pi-zero-2-w/">Raspberry Pi Zero 2 W</a>).</p>
@@ -144,6 +145,15 @@ $(async () => {
                 <input type="text" name="SSID" value="{{ ssid }}" readonly>
             </h3>
         </form>
+    </div>
+    -->
+    <div class="admin-panel" id="subscribestar">
+        <h2>SubscribeStar:</h2>
+        <p>Client ID: {{ config.subscribestar.client_id }}</p>
+        <p>OAuth Token: {{ config.subscribestar.auth_token.access_token }}</p>
+        <a href="https://www.subscribestar.com/oauth2/authorize?client_id={{ config.subscribestar.client_id }}&redirect_uri=https%3A%2F%2F{{ config.server.domain }}%2Foauth%2Fsubscribestar&response_type=code&scope=content_provider_profile.read+content_provider_profile.subscriptions.read+user.read">
+            Grant OAuth
+        </a>
     </div>
     <div class="admin-panel" id="sql">
         <h2>SQL:</h2>
