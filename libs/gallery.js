@@ -116,7 +116,7 @@ module.exports = {
         const file_path = path.join(this.image_directories.small, `${gallery_item_id}.webp`);
         var image = await sharp(file_path);
         await image.blur(10.0);
-        await image.resize(1024, {fit: "cover"});
+        await image.resize(1024, 1024, {fit: "cover"});
         await image.webp({quality: 10});
         return await image.toBuffer();
     },
