@@ -16,21 +16,21 @@ module.exports = {
                 this.sendResponse(res, 405, {error: "Incorrect method: \"" + req.method + "\". Only POST is allowed for this API endpoint."});
                 return false;
             }
-            if (endpoint_enabled === "key")
+            if (!await admin.isRequestAdmin(req))
             {
-                const params = await this.getParams(req);
-                if (!("key" in params)) {
-                    this.sendResponse(res, 401, {error: "Missing \"key\" parameter in request body."});
-                    return false;
+                if (endpoint_enabled === "key")
+                {
+                    const params = await this.getParams(req);
+                    if (!("key" in params)) {
+                        this.sendResponse(res, 401, {error: "Missing \"key\" parameter in request body."});
+                        return false;
+                    }
+                    if (!this.keyIsValid(params.key)) {
+                        this.sendResponse(res, 403, {error: "Provided API key is not permitted access."});
+                        return false;
+                    }
                 }
-                if (!this.keyIsValid(params.key)) {
-                    this.sendResponse(res, 403, {error: "Provided API key is not permitted access."});
-                    return false;
-                }
-            }
-            else if (endpoint_enabled === "admin")
-            {
-                if (!await admin.isRequestAdmin(req))
+                else if (endpoint_enabled === "admin")
                 {
                     this.sendResponse(res, 403, {error: "Endpoint is admin-only."});
                     return false;
