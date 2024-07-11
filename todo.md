@@ -49,7 +49,7 @@
 - [ ] Requests initial config information:
 -- [ ] Server domain
 --- [ ] DNS lookup (`host -4 -t A ${domain} | cut -d' ' -f4`) to confirm it points to this machine's public IP (`curl ifconfig.co -4`) with `[[ diff <(command1) <(command2) ]]`
---- [ ] Check port 443 is forwarded to this device, provide an error and link to setup guide if not
+--- [ ] Check port 443 is forwarded to this device (), provide an error and link to setup guide if not
 --- [ ] Check port 80 is forwarded to this device, provide a warning (might be intentional) and link to setup guide if not
 -- [ ] Artist name
 -- [ ] Website name (default: My Sketchbook Gallery)
