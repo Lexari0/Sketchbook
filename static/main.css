@@ -103,12 +103,12 @@ a:hover, a:active {
 }
 #content {
     flex-grow: 1;
+    min-height: calc(100vh - 12em);
 }
 #search-results {
     display: flex;
     flex-wrap: wrap;
     flex-grow: 1;
-    min-height: calc(100vh - 12em);
 }
 #search-results > #item {
     margin: 0.5em;
