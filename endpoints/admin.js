@@ -175,7 +175,7 @@ module.exports = {
                         }
                         const uploaded_file = form.file[0];
                         const temp_file_path = uploaded_file.filepath;
-                        const file_hash = gallery.hashFile(temp_file_path);
+                        const file_hash = await gallery.hashFile(temp_file_path);
                         const final_file_path = path.join(process.cwd(), "content", file_hash + path.extname(uploaded_file.originalFilename));
                         fs.rename(temp_file_path, final_file_path, reject);
                         if (!await gallery.updateItem(final_file_path))
