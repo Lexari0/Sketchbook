@@ -71,15 +71,17 @@ function configFormSubmit(form, event) {
 $(async () => {
     fetch("/api/config")
         .then(response => response.json())
+        .then(json => {
+            if (json.error.length > 0)
+            {
+                $("#admin-main-body").append(`<b class="error">Failed to get server config: ${json.error}</b>`);
+                return;
+            }
+            return json.config;
+        })
         .then(config => {
             const server_software = $("#server-software");
             const server_owner = $("#server-owner form");
-            if (json.error.length > 0)
-            {
-                server_software.append(`<b class="error">Failed to get server software info: ${json.error}</b>`);
-                server_owner.append(`<b class="error">Failed to get server owner info: ${json.error}</b>`);
-                return;
-            }
             server_software.append(infoField("Name", config.server.software.name));
             server_software.append(infoField("Version", config.server.software.version));
             server_software.append(infoField("Author", config.server.software.author));
