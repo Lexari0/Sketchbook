@@ -29,7 +29,7 @@
 ## Beta Release
 
 - [ ] Config wiki/documentation
-- [ ] API endpoints wiki/documentation
+- [x] API endpoints wiki/documentation
 - [ ] Database wiki/documentation
 - [ ] Admin panel improvements
 -- [ ] "Restart" and "Update" buttons
