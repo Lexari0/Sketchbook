@@ -85,17 +85,17 @@ Parameters:
 ```json
 {
   "page_count": 3,
-  "items": [
-    42: {
+  "items": {
+    "42": {
       "_comment": "Contents identical to response from /api/gallery/item/42"
     },
-    43: {
+    "43": {
       "_comment": "Contents identical to response from /api/gallery/item/43"
     },
-    19: {
+    "19": {
       "_comment": "Contents identical to response from /api/gallery/item/19"
     }
-  ]
+  }
 }
 ```
 
@@ -113,16 +113,16 @@ Parameters:
 ```json
 {
   "page_count": 2,
-  "items": [
-    519: {
+  "items": {
+    "519": {
       "_comment": "Contents identical to response from /api/gallery/item/519"
     },
-    580: {
+    "580": {
       "_comment": "Contents identical to response from /api/gallery/item/580"
     },
-    926: {
+    "926": {
       "_comment": "Contents identical to response from /api/gallery/item/926"
     }
-  ]
+  }
 }
 ```
