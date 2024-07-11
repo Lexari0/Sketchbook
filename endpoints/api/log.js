@@ -17,7 +17,7 @@ async function getFileLineOffsets(file_path) {
             var current_offset = 0;
             readline_interface.on("line", (line) => {
                 offsets.push(current_offset);
-                current_offset += line.length;
+                current_offset += line.length + 1;
             });
             readline_interface.on("error", reject);
             readline_interface.on("close", () => resolve(offsets));
