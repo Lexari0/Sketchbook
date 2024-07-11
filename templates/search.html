@@ -63,7 +63,7 @@
         /*{? if config.gallery.recommended_tags.length ?}*/
         /*{? else ?}*/
         buildTagList(
-            "/api/gallery/tags" + (query ? `?q=${query}` + tag_count ? `&count=${tag_count}` : "" : ""),
+            "/api/gallery/tags" + (query ? `?q=${query}` : ""),
             tag => `<li>(<a href="/tag/${tag.tag}">?</a>/<a href="/search?q=${query}+-${tag.tag}">-</a>/<a href="/search?q=${query}+${tag.tag}">+</a>) <a class="tag-link" href="/search?q=${tag.tag}" tag="${tag.tag}">${tag.tag}</a>: ${tag.count}</li>`
         )
         /*{? end ?}*/

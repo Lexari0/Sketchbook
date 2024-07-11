@@ -37,26 +37,33 @@ function setupTagAutocomplete() {
     var selection_start;
     async function createAutoComplete() {
         const search_string = tag_search_bar.val();
+        console.log("Attempting autocomplete:", search_string);
         if (search_string.length < 1)
         {
+            console.log("Length too short");
             return;
         }
-        if (search_string[Math.min(selection_start, search_string.length - 1)].match(/\s/))
+        const clamped_selected_index = Math.max(Math.min(selection_start - 1, search_string.length - 1), 0);
+        const selected_character = search_string.substring(clamped_selected_index, clamped_selected_index + 1);
+        console.log({search_string, selection_start, clamped_selected_index, selected_character});
+        if (selected_character.match(/\s/))
         {
+            console.log("Last character is whitespace");
             return;
         }
         const search_front = search_string.substring(0, selection_start);
-        const front_last_tag_match = search_front.match(/[^-~\s]+$/).shift();
-        const search_front_to_tag = search_string.substring(0, selection_start - (front_last_tag_match ? front_last_tag_match.length : 0));
-        const search_back = search_string.substring(selection_start);
-        const back_first_tag_match = search_back ? search_back.match(/^[^-~\s]+/).shift() : "";
-        const search_back_from_tag = search_string.substring(selection_start + (back_first_tag_match ? back_first_tag_match.length : 0));
-        const last_tag_match = search_string.substring(search_front_to_tag.length, search_string.length - search_back_from_tag.length);
-        if (!last_tag_match || last_tag_match.length <= 2)
+        const front_last_tag_match = search_front.match(/[^-~\s]+$/);
+        const search_front_to_tag = search_string.substring(0, selection_start - (front_last_tag_match ? front_last_tag_match[0].length : 0));
+        const search_back = search_string.substring(selection_start - 1);
+        const back_first_tag_match = search_back ? search_back.match(/^[^-~\s]+/) : undefined;
+        const search_back_from_tag = search_string.substring(selection_start + (back_first_tag_match ? back_first_tag_match[0].length : 0));
+        const typed_tag_match = search_string.substring(search_front_to_tag.length, search_string.length - search_back_from_tag.length);
+        if (!typed_tag_match || typed_tag_match.length <= 2)
         {
+            console.log("Partial tag too short");
             return;
         }
-        const api_url = `/api/gallery/tags?like=${last_tag_match}`;
+        const api_url = `/api/gallery/tags?like=${typed_tag_match}`;
         const response = await fetch(api_url);
         const json = await response.json();
         autocomplete.css("display", "block");
@@ -67,10 +74,8 @@ function setupTagAutocomplete() {
             console.log("Adding autocomplete:", tag.tag);
             const new_autocomplete_option = $(`<div class="autocomplete-entry"><a class="autocomplete-tag">${tag.tag}</a><a class="autocomplete-tag-count">${tag.count}</a></div>`)
             new_autocomplete_option.click(() => {
-                const current_search = tag_search_bar.val().replace(/\s+$/, "");
-                const last_tag_match = current_search.match(/[^-~\s]+$/).shift();
-                console.log({current_search, last_tag_match, tag: tag.tag});
-                const new_search = current_search.substring(0, current_search.length - (last_tag_match ? last_tag_match.length : 0)) + tag.tag;
+                console.log({search_front_to_tag, tag:tag.tag, search_back_from_tag, back_first_tag_match});
+                const new_search = (search_front_to_tag ? search_front_to_tag : "") + tag.tag + " " + search_back_from_tag;
                 tag_search_bar.val(new_search);
                 autocomplete.css("display", "none");
                 autocomplete.html("");
@@ -92,13 +97,14 @@ function setupTagAutocomplete() {
             autocomplete.css("display", "none");
             autocomplete.html();
         }
-        else if (["ArrowUp", "ArrowDown", "Enter"].includes(event.originalEvent.key))
+        else if (event.originalEvent.key.match(/ArrowUp|ArrowDown|Enter|Escape/))
         {
             if (autocomplete.css("display") != "none" || autocomplete.children().length == 0)
             {
                 const current_selected = autocomplete.find(".autocomplete-entry-selected");
                 if (event.originalEvent.key.startsWith("Arrow"))
                 {
+                    event.preventDefault();
                     var next_option;
                     if (event.originalEvent.key === "ArrowUp")
                     {
@@ -129,13 +135,18 @@ function setupTagAutocomplete() {
                     }
                     next_option.prop("class", "autocomplete-entry-selected");
                 }
-                else
+                else if (event.originalEvent.key === "Enter")
                 {
                     if (current_selected.length)
                     {
                         event.preventDefault();
                         current_selected.click();
                     }
+                }
+                else if (event.originalEvent.key === "Escape")
+                {
+                    autocomplete.css("display", "none");
+                    autocomplete.html();
                 }
             }
         }
