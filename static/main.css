@@ -567,6 +567,20 @@ div.new-tags {
     width: 512px;
     max-width: 512px;
 }
+.collapsible {
+    background-color: #0003;
+    cursor: pointer;
+    padding: 18px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;
+}
+
+.active, .collapsible:hover {
+    background-color: #0004;
+}
 
 footer {
     width: calc(100% - 1em);

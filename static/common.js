@@ -1,3 +1,18 @@
+$(function() {
+    const collapsible = document.getElementsByClassName("collapsible");
+    for (const element of collapsible) {
+        const content = this.nextElementSibling;
+        content.style.padding = "0 18px";
+        content.style.display = "none";
+        content.style.overflow = "hidden";
+        content.style.backgroundColor = "#0004";
+        element.addEventListener("click", function() {
+            this.classList.toggle("active");
+            content.style.display = content.style.display === "block" ? "none" : "block";
+        });
+    } 
+});
+
 function getCookies() {
     var cookies = {};
     if (document.cookie.length > 0)
