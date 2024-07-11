@@ -66,6 +66,10 @@ const DEFAULT = {
                     add_tag: "admin",
                     remove_tag: "admin"
                 },
+                config: {
+                    _: "admin",
+                    update: "admin"
+                },
                 items: "any",
                 refresh: "key",
                 search: "any",
@@ -147,7 +151,7 @@ function clone() {
     var config = {};
     for (const k of Object.keys(module.exports))
     {
-        if (typeof this[k] !== "function")
+        if (typeof(module.exports[k]) !== "function")
         {
             config[k] = structuredClone(module.exports[k]);
         }
