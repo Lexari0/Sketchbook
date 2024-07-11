@@ -69,12 +69,12 @@ function configFormSubmit(form, event) {
 }
 
 $(async () => {
-    fetch("/api/config")
+    fetch("/api/config", { method:"POST" })
         .then(response => response.json())
         .then(json => {
             if (json.error.length > 0)
             {
-                $("#admin-main-body").append(`<b class="error">Failed to get server config: ${json.error}</b>`);
+                $("#admin-main-body").prepend(`<b class="error">Failed to get server config: ${json.error}</b>`);
                 return;
             }
             return json.config;
