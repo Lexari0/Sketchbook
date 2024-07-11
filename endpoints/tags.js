@@ -2,19 +2,12 @@ const fs = require("fs");
 const mime = require("mime-types");
 const path = require("path");
 const sqlstring = require("sqlstring-sqlite");
+const admin = require(path.join(process.cwd(), "libs/admin.js"));
 const api = require(path.join(process.cwd(), "libs/api.js"));
 const network = require(path.join(process.cwd(), "libs/network.js"));
 const config = require(path.join(process.cwd(), "libs/config.js"));
 const db = require(path.join(process.cwd(), "libs/db.js"));
 const html = require(path.join(process.cwd(), "libs/html.js"));
-
-function canEdit(req) {
-    if (config.gallery.edit_ip_whitelist.length === 0)
-    {
-        return network.ipv4.ipInSubnet(req.socket.remoteAddress);
-    }
-    return config.gallery.edit_ip_whitelist.contains(req.socket.remoteAddress);
-}
 
 module.exports = {
     register_endpoints: endpoints => {
@@ -23,10 +16,10 @@ module.exports = {
                 distinct: true,
                 order_by: "count, tag",
             });
-            var params = {config: structuredClone(config), tags: tags_with_counts, can_edit: canEdit(req)};
+            var params = {config: structuredClone(config), tags: tags_with_counts, can_edit: admin.isRequestAdmin(req)};
             delete params.config.api;
             delete params.config.webserver;
-            delete params.config.gallery.edit_ip_whitelist;
+            delete params.config.gallery.admin;
             const template = fs.readFileSync(path.join(process.cwd(), "templates/tags.html"), "utf-8")
             const body = html().buildTemplate(template, params).finalize();
             res.writeHead(200, {"Content-Type": "text/html"});
@@ -59,10 +52,10 @@ module.exports = {
             {
                 tag.color = "#000";
             }
-            var params = {config: structuredClone(config), tag, can_edit: tag.editable && canEdit(req)};
+            var params = {config: structuredClone(config), tag, can_edit: tag.editable && admin.isRequestAdmin(req)};
             delete params.config.api;
             delete params.config.webserver;
-            delete params.config.gallery.edit_ip_whitelist;
+            delete params.config.gallery.admin;
             const template = fs.readFileSync(path.join(process.cwd(), "templates/tag.html"), "utf-8")
             const body = html().buildTemplate(template, params).finalize();
             res.writeHead(200, {"Content-Type": "text/html"});
@@ -72,7 +65,7 @@ module.exports = {
         endpoints[/^\/tag\/[^/?]+\/edit$/] = async (req, res) => {
             const split_url = req.url.split("?").shift().split("/").filter(String);
             const tag_name = split_url[1];
-            if (!canEdit(req))
+            if (!admin.isRequestAdmin(req))
             {
                 res.writeHead(401);
                 res.end(`<h1>You cannot edit tags.</h1><h2><a href="/tags">Return to Tag List</a></h2>`);
@@ -131,7 +124,7 @@ module.exports = {
             var template_params = {config: structuredClone(config), tag, can_edit: true};
             delete template_params.config.api;
             delete template_params.config.webserver;
-            delete template_params.config.gallery.edit_ip_whitelist;
+            delete template_params.config.gallery.admin;
             const template = fs.readFileSync(path.join(process.cwd(), "templates/tag_edit.html"), "utf-8")
             const body = html().buildTemplate(template, template_params).finalize();
             res.writeHead(200, {"Content-Type": "text/html"});
@@ -160,10 +153,10 @@ module.exports = {
             {
                 category.description = category.description.replace(/\n/g, "<br />");
             }
-            var params = {config: structuredClone(config), category, can_edit: category.editable && canEdit(req)};
+            var params = {config: structuredClone(config), category, can_edit: category.editable && admin.isRequestAdmin(req)};
             delete params.config.api;
             delete params.config.webserver;
-            delete params.config.gallery.edit_ip_whitelist;
+            delete params.config.gallery.admin;
             const template = fs.readFileSync(path.join(process.cwd(), "templates/tag_category.html"), "utf-8")
             const body = html().buildTemplate(template, params).finalize();
             res.writeHead(200, {"Content-Type": "text/html"});
@@ -173,7 +166,7 @@ module.exports = {
         endpoints[/^\/tags\/category\/[^/?]+\/edit$/] = async (req, res) => {
             const split_url = req.url.split("?").shift().split("/").filter(String);
             const category_name = split_url[2];
-            if (!canEdit(req))
+            if (!admin.isRequestAdmin(req))
             {
                 res.writeHead(401);
                 res.end(`<h1>You cannot edit tag categories.</h1><h2><a href="/tags">Return to Tag List</a></h2>`);
@@ -230,7 +223,7 @@ module.exports = {
             var template_params = {config: structuredClone(config), category, can_edit: true};
             delete template_params.config.api;
             delete template_params.config.webserver;
-            delete template_params.config.gallery.edit_ip_whitelist;
+            delete template_params.config.gallery.admin;
             const template = fs.readFileSync(path.join(process.cwd(), "templates/tag_category_edit.html"), "utf-8")
             const body = html().buildTemplate(template, template_params).finalize();
             res.writeHead(200, {"Content-Type": "text/html"});

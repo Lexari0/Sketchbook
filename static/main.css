@@ -382,7 +382,9 @@ div.new-tags {
 }
 
 div.edit-tag-info,
-div.edit-tag-category-info {
+div.edit-tag-category-info,
+div.admin-login,
+div.admin-panel {
     padding: 0.5em;
     background-color: #0004;
     border-radius: 0.25em;
@@ -401,7 +403,11 @@ div.edit-tag-category-info h2 {
 div.edit-tag-info input[type=submit],
 div.edit-tag-info select,
 div.edit-tag-category-info input[type=submit],
-div.edit-tag-category-info select {
+div.edit-tag-category-info select,
+div.admin-login input[type=submit],
+div.admin-login select,
+div.admin-panel input[type=submit],
+div.admin-panel select {
     min-width: 100%;
     max-width: 100%;
 }
@@ -440,7 +446,11 @@ p.color {
 div.edit-tag-info input[type=text],
 div.edit-tag-info textarea,
 div.edit-tag-category-info input[type=text],
-div.edit-tag-category-info textarea {
+div.edit-tag-category-info textarea,
+div.admin-login input[type=text],
+div.admin-login textarea,
+div.admin-panel input[type=text],
+div.admin-panel textarea {
     min-width: calc(100% - 8px);
     max-width: calc(100% - 8px);
 }

@@ -51,7 +51,7 @@ module.exports = {
             var params = {config: structuredClone(config), item, query: {q:"", ...(await api.getParams(req))}, tags: tags_with_counts, can_edit: canEdit(req)};
             delete params.config.api;
             delete params.config.webserver;
-            delete params.config.gallery.edit_ip_whitelist;
+            delete params.config.gallery.admin;
             const template = fs.readFileSync(path.join(process.cwd(), "templates/item.html"), "utf-8")
             const body = html().buildTemplate(template, params).finalize();
             res.writeHead(200, {"Content-Type": "text/html"});
@@ -153,7 +153,7 @@ module.exports = {
             var template_params = {config: structuredClone(config), item, tags: tags};
             delete template_params.config.api;
             delete template_params.config.webserver;
-            delete template_params.config.gallery.edit_ip_whitelist;
+            delete template_params.config.gallery.admin;
             const template = fs.readFileSync(path.join(process.cwd(), "templates/item_edit.html"), "utf-8")
             const body = html().buildTemplate(template, template_params).finalize();
             res.writeHead(200, {"Content-Type": "text/html"});

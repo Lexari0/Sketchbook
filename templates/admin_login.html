@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<head>
+<title>{{ config.gallery.name }} - Admin Login</title>
+<link rel="stylesheet" type="text/css" href="/static/main.css" />
+<script src="/static/jquery-3.7.1.min.js"></script>
+<script src="/static/common.js"></script>
+<script>
+$(async () => {
+    const url_params = new URLSearchParams(window.location.search);
+    if (url_params.has("error"))
+    {
+        $(".error").text(decodeURIComponent(url_params.get("error")));
+    }
+});
+</script>
+</head>
+<body>
+{# templates/titlebar.html #}
+<div id="main-body">
+    <div class="admin-login">
+        <h2>Admin Login:</h2>
+        <form action="/admin/login" method="post">
+            <b class="error"></b>
+            <div class="form-field">Password:</div><input class="password" type="password" name="password" value=""><br />
+            <input class="button" type="submit" value="Log In">
+        </form>
+    </div>
+</div>
+<footer>
+    {# templates/footer_content.html #}
+</footer>
+</body>

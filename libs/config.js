@@ -40,11 +40,17 @@ const DEFAULT = {
                 link: "/tags"
             },
             {
+                text: "Admin",
+                link: "/admin"
+            },
+            {
                 text: "Sourcecode",
                 link: "https://github.com/Lexari0/Sketchbook"
             }
         ],
-        edit_ip_whitelist: []
+        admin: {
+            password: ""
+        }
     },
     api: {
         key: uuid(),
