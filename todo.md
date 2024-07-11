@@ -28,7 +28,7 @@
 
 ## Beta Release
 
-- [ ] Config wiki/documentation
+- [x] Config wiki/documentation
 - [x] API endpoints wiki/documentation
 - [x] Search wiki/documentation
 - [ ] Database wiki/documentation
