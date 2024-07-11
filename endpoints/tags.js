@@ -93,7 +93,7 @@ module.exports = {
             {
                 const tag_updates = {
                     tag: sqlstring.escape(decodeURIComponent(params.name)),
-                    description: params.description ? sqlstring.escape(decodeURIComponent(params.description)) : undefined,
+                    description: params.description ? sqlstring.escape(decodeURIComponent(params.description)) : null,
                     tag_category_id: `(SELECT tag_category_id FROM (SELECT tag_category_id FROM tag_categories UNION ALL VALUES(0)) WHERE tag_category_id IN (${sqlstring.escape(params.category)}, 0) LIMIT 1)`
                 };
                 const new_tag_name_taken = decodeURIComponent(params.name) !== tag_name && (await db.select("*", "tags", {where: `tag=${tag_updates.tag}`})).length !== 0;
