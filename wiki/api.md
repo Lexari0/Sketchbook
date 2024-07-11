@@ -183,33 +183,89 @@ Parameters: None
 
 ### `/api/gallery/item/<id>`
 
-Provides information on a specific item in the gallery.
+Provides information on a specific item in the gallery. The response includes an `item` object and a `visibility` object.
 
-Paramters: None
+`item` contains metadata about the item itself, such as tags, relevant URIs, and if the content is `missing`. Items with `missing` being `1` cannot be served as its files are unavailable, but its metadata is currently retained.
+
+`visibility` contains information relevant to criteria required to view the content. For example, an artist may restrict access to certain content to a subscription or payment platform like [SubscribeStar](https://subscribestar.com/). `visibility.censored` will be `true` if the content is unviewable based on the request's Parameters
+
+Paramters:
+
+- `simple` (optional): If provided, no database or external API (eg: visibility) lookups are performed. Useful for only getting relevant URIs.
+- `subscribestar_access_token` (optional): API Bearer Token for SubscribeStar. Used to determine if the requester has access to view content restricted by a SubscribeStar subscription.
 
 #### Example Response
 
+Endpoint: `/api/gallery/item/1`
+
 ```json
 {
-  "1": {
-    "name": "untitled",
-    "uploaded_on": "2024-06-20 11:12:04"
-    "last_edited": "2024-06-21 20:17:40"
-    "source": "https://some_dogs_gallery/4",
-    "missing": 0,
-    "tags": [
-      "dog",
-      "cat",
-      "plaid_shirt"
-    ],
+  "error": "",
+  "item": {
     "resolutions": {
       "thumb": "/item/1/thumb",
       "small": "/item/1/small",
       "large": "/item/1/large"
     },
-    "uri": "/item/1"
+    "uri": "/item/1",
+    "name": "untitled",
+    "description": "",
+    "uploaded_on": "2024-07-01 19:37:47",
+    "last_edited": "2024-07-04 13:07:55",
+    "source": null,
+    "missing": 0,
+    "tags": [
+      "dog",
+      "cat",
+      "plaid_shirt"
+    ]
   },
-  "error": ""
+  "visibility": {
+    "censored": false,
+    "platforms": []
+  }
+}
+```
+
+### `/api/gallery/item/<id>/new_file`
+
+Form submission destination for replacing the source file of an item in the gallery. Used by the `/item/<id>/edit` pages to allow for updating of content.
+
+Paramters:
+
+- `simple` (optional): If provided, no database or external API (eg: visibility) lookups are performed. Useful for only getting relevant URIs.
+- `subscribestar_access_token` (optional): API Bearer Token for SubscribeStar. Used to determine if the requester has access to view content restricted by a SubscribeStar subscription.
+
+#### Example Response
+
+Endpoint: `/api/gallery/item/1`
+
+```json
+{
+  "error": "",
+  "item": {
+    "resolutions": {
+      "thumb": "/item/1/thumb",
+      "small": "/item/1/small",
+      "large": "/item/1/large"
+    },
+    "uri": "/item/1",
+    "name": "untitled",
+    "description": "",
+    "uploaded_on": "2024-07-01 19:37:47",
+    "last_edited": "2024-07-04 13:07:55",
+    "source": null,
+    "missing": 0,
+    "tags": [
+      "dog",
+      "cat",
+      "plaid_shirt"
+    ]
+  },
+  "visibility": {
+    "censored": false,
+    "platforms": []
+  }
 }
 ```
 

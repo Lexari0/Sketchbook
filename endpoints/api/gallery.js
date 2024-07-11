@@ -201,15 +201,15 @@ module.exports = {
             const query = await api.getParams(req);
             const page = "page" in query ? Math.max(parseInt(query.page), 1) : 1;
             const item_count = (await db.select(["COUNT(*) AS item_count"], "items")).shift().item_count;
-            const page_count = Math.ceil(item_count / 50);
+            const page_count = Math.ceil(item_count / config.gallery.items_per_page);
             const items_query_result = (await db.select(
                     ["gallery_item_id", "name", "created AS uploaded_on", "last_update AS last_edited", "source", "missing"],
                     "items",
                     {
                         where: "since" in query ? `last_update>${sqlstring.escape(query.since)}` : undefined,
                         order_by: "last_update",
-                        limit: 50,
-                        offset: (page - 1) * 50
+                        limit: config.gallery.items_per_page,
+                        offset: (page - 1) * config.gallery.items_per_page
                     }
                 ));
             var items = {};

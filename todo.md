@@ -66,6 +66,7 @@
 
 ## Public Release
 
+- [ ] Prevent adding an item to the gallery database if an entry already exists with the same hash
 - [ ] SubscribeStar API integration
 -- [ ] Show "upgrade subscription" link on censored images if viewer has OAuth access token, but not the correct subscription tier
 - [ ] Admin panel improvements
