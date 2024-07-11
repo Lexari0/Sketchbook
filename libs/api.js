@@ -75,21 +75,13 @@ module.exports = {
                     }
                 });
                 req.on("end", () => {
-                    var section = undefined;
+                    const boundary_match = /multipart\/form-data;(.+;)*\s*boundary=(.+)/.exec(req.headers["content-type"]);
+                    const boundary = boundary_match ? boundary_match[2] : undefined;
                     for (const url_param of body.split(/[&\n]/))
                     {
                         // Hack to deal with forms which submit files
-                        if (section != undefined)
+                        if (boundary != undefined && url_param.startsWith(boundary))
                         {
-                            if (url_param == section + "--")
-                            {
-                                section = undefined;
-                            }
-                            continue;
-                        }
-                        if (/^-----------------------------[0-9]+$/g.exec(url_param) != null)
-                        {
-                            section = url_param;
                             break;
                         }
                         var split_param = url_param.split("=");
