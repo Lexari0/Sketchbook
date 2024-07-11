@@ -12,7 +12,7 @@ async function sendOAuthPage(res, code, platform, params, req, token, lifetime, 
     var options = {"Content-Type": "text/html"};
     if (token)
     {
-        options["Set-Cookie"] = [`${platform.toLowerCase()}_auth_token=${token}; Path=/; Max-Age=${lifetime}`];
+        options["Set-Cookie"] = [`${platform.toLowerCase()}_access_token=${token}; Path=/; Max-Age=${lifetime}`];
         if (refresh_token)
         {
             options["Set-Cookie"].push(`${platform.toLowerCase()}_refresh_token=${refresh_token}; Path=/; Max-Age=${lifetime * 2}`)
