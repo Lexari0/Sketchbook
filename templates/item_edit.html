@@ -15,7 +15,7 @@
             const tag_name = new_tag_name.prop("value").replace(/^\s+|\s+$/, "").replace(/\s+/g, "_");
             if (bad_match = tag_name.match(/[:{}<>=]/g))
             {
-                $("form.add-tag .error").text(`${bad_match.join()} ${bad_match.length === 0 ? "is an illegal or reserved character" : "are illegal or reserved characters"} in tags!`);
+                $("form.add-tag .error").text(`${bad_match.join()} ${bad_match.length === 1 ? "is an illegal or reserved character" : "are illegal or reserved characters"} in tags!`);
                 return;
             }
             $("form.add-tag .error").text("");
