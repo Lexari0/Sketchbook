@@ -458,7 +458,7 @@ div.admin-panel, div.oauth-results-container {
     max-width: max(34% - 3em, 30em);
 }
 
-div.admin-panel img.title {
+div.admin-panel img.header {
     height: 5em;
 }
 
