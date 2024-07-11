@@ -1,17 +1,21 @@
+async function mapAPICall(api_endpoint, mapper) {
+    const response = await fetch(api_endpoint);
+    const json = await response.json();
+    if (json.error.length > 0)
+    {
+        console.error("Failed to query ", api_endpoint, ":", json.error);
+        return [];
+    }
+    return mapper(json);
+}
+
 async function buildAPIList(jqueryGetter, api_endpoint, array_getter, html_formatter) {
     const tag_list = $(jqueryGetter);
     if (tag_list.length > 0)
     {
-        const response = await fetch(api_endpoint);
-        const json = await response.json();
-        if (json.error.length > 0)
+        for (const html_tag of mapAPICall(api_endpoint, array_getter).map(html_formatter))
         {
-            console.error("Failed to query ", api_endpoint, ":", json.error);
-            return;
-        }
-        for (const item of array_getter(json))
-        {
-            tag_list.append(html_formatter(item));
+            tag_list.append(html_tag);
         }
     }
 }
