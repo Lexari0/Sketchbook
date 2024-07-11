@@ -130,7 +130,7 @@ module.exports = {
             {
                 try
                 {
-                    api.sendResponse(res, 200, fs.readFileSync(file_path));
+                    api.sendResponse(res, 200, fs.readFileSync(file_path).toString());
                 }
                 catch (err)
                 {
