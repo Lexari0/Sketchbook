@@ -23,15 +23,15 @@
                 const last = bad_matches.pop();
                 if (bad_matches.length === 0)
                 {
-                    $("form.add-tag .error").text(`${last} is an illegal or reserved character in tags!`);
+                    $("form.add-tag .error").text(`${last} is an illegal or reserved character in tags!`).append("<br />");
                 }
                 else
                 {
-                    $("form.add-tag .error").text(`${bad_matches.map(x => `'${x}'`).join()}${bad_matches.length > 1 ? "," : ""} and '${last}' are illegal or reserved characters in tags!`);
+                    $("form.add-tag .error").text(`${bad_matches.map(x => `'${x}'`).join()}${bad_matches.length > 1 ? "," : ""} and '${last}' are illegal or reserved characters in tags!<br />`).append("<br />");
                 }
                 return;
             }
-            $("form.add-tag .error").text("");
+            $("form.add-tag .error").html("");
             new_tag_list.append(`<li><input type="checkbox" onchange="toggleAdd('${tag_name}')" name="add-${tag_name}" value="${tag_name}" checked><label for="add-${tag_name}">${tag_name}</label></li>`);
             toggleAdd(tag_name);
             new_tag_name.prop("value", "");
