@@ -43,24 +43,21 @@ module.exports = {
         const password_hash = String(shadow).split("\n").filter(line => line.startsWith("sketchbook")).pop().split(":")[1];
         const method = password_hash.split("$")[1];
         const salt = password_hash.split("$")[2];
-        console.log(`Hash method: ${method}`);
         if (method !== "6")
         {
             log.error("admin", "Only SHA512 passwords are supported. Use the following command as root to update your password: echo 'sketchbook:NEW_PASSWORD' | chpasswd -c SHA512");
             return false;
         }
         const command = `openssl passwd -6 -salt ${salt} ${password}`;
-        console.log(`command: ${command}`)
         return await new Promise(resolve => 
             exec(command, (error, stdout, stderr) => {
-                console.log(`stdout: --${stdout}--\n\npassword_hash: --${password_hash}--`);
                 if (error && error.code !== 0)
                 {
                     log.error("Running openssl resulted in an error")
                     resolve(false);
                     return;
                 }
-                resolve(stdout == password_hash);
+                resolve(stdout.trim() == password_hash);
             })
         );
     }
