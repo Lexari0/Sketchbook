@@ -99,7 +99,7 @@ $(async () => {
             gallery_config.append(textField("Name", config.gallery.name, "gallery.name"));
             gallery_config.append(checkboxField("Distribute Source Content", config.gallery.distribute_source, "gallery.distribute_source"));
             gallery_config.append(submitButton());
-            gallery_config.submit(event => configFormSubmit(server_owner, event));
+            gallery_config.submit(event => configFormSubmit(gallery_config, event));
             const api = $("#api form");
             api.find(".api-keys").append(textField("Key", config.api.key, "api.key"));
             const enabled_endpoints = api.find(".enabled-endpoints");
@@ -117,7 +117,7 @@ $(async () => {
             }
             addEndpointDropdowns("", config.api.enabled_endpoints);
             api.append(submitButton());
-            api.submit(event => configFormSubmit(server_owner, event));
+            api.submit(event => configFormSubmit(api, event));
         });
     fetch("/api/gallery")
         .then(response => response.json())
