@@ -4,7 +4,7 @@ const config = require(path.join(process.cwd(), "libs/config.js"));
 module.exports = {
     key: config.api.key,
     requestIsValid: async function(req, res, endpoint_enabled) {
-        if (endpoint_enabled === "none") {
+        if (endpoint_enabled == null || endpoint_enabled === "none") {
             this.sendResponse(res, 503, {error: "Endpoint is disabled."});
             return false;
         }
@@ -38,12 +38,15 @@ module.exports = {
             var url = req.url.split("?");
             const url_page = url.shift();
             const url_params = url.shift();
-            for (const url_param of url_params.split("&"))
+            if (url_params)
             {
-                var split_param = url_param.split("=");
-                const k = split_param.shift();
-                const v = split_param.shift();
-                req.params[k] = v !== undefined ? v : null;
+                for (const url_param of url_params.split("&"))
+                {
+                    var split_param = url_param.split("=");
+                    const k = split_param.shift();
+                    const v = split_param.join("=");
+                    req.params[k] = v !== undefined ? v : null;
+                }
             }
         }
         else if (req.method === "POST") {
@@ -63,7 +66,7 @@ module.exports = {
                     {
                         var split_param = url_param.split("=");
                         const k = split_param.shift();
-                        const v = split_param.shift();
+                        const v = split_param.join("=");
                         req.params[k] = v !== undefined ? v : null;
                     }
                     resolve(req.params);

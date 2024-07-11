@@ -8,12 +8,22 @@ const DEFAULT = {
         ip: "0.0.0.0",
         port: 80
     },
+    server: {
+        software: {
+            name: "Sketchbook",
+            version: "1.0",
+            source: "https://github.com/Lexari0/Sketchbook"
+        },
+        owner: {
+            name: "",
+            email: ""
+        }
+    },
     gallery: {
         name: "My Sketchbook Gallery",
         content_path: "content",
         database_path: "gallery.db",
-        items_per_page: 50,
-        valid_aggregators: []
+        items_per_page: 50
     },
     api: {
         key: uuid(),

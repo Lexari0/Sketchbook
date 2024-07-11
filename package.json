@@ -22,6 +22,7 @@
   "homepage": "https://github.com/Lexari0/Sketchbook#readme",
   "dependencies": {
     "sqlite3": "^5.1.7",
+    "sqlstring-sqlite": "^0.1.1",
     "uuid": "^9.0.1",
     "yaml": "^2.3.4"
   }

@@ -23,7 +23,7 @@ const requestListener = async function (req, res) {
         var url_split = req.url.split("?")
         const url_page = url_split.shift();
         const url_query = url_split.shift();
-        if (url_page.endsWith("/")) {
+        if (url_page !== "/" && url_page.endsWith("/")) {
             res.writeHead(302, {
                 "Location": url_page.replace(/\/+$/, "") + (url_query ? "?" + url_query : "")
             });

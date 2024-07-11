@@ -16,6 +16,6 @@ module.exports = {
             }
             api.sendResponse(res, 200, {error: "", q: query.q, r: await db.all(query.q) });
             return true;
-        }
+        };
     }
 };

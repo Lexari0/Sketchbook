@@ -106,6 +106,30 @@ module.exports = function (defaultContents = undefined) {
         DOCTYPE: function (doctype = "html") {
             this.append(`<!DOCTYPE ${doctype}>`);
             return this;
+        },
+        buildTemplate: function (template, params) {
+            if (typeof template != "string")
+            {
+                throw "html.buildTemplate(...) given non-String template";
+            }
+            if (!(params instanceof Object))
+            {
+                throw "html.buildTemplate(...) given non-Object params";
+            }
+            function replaceParams(template, params, parentPath) {
+                for (const k of Object.keys(params))
+                {
+                    const paramPath = (parentPath.length > 0 ? parentPath + "." : "") + k;
+                    template = template.replace(new RegExp(`{{\\s*${paramPath}\\s*}}`, "g"), params[k]);
+                    if (params[k] instanceof Object || params[k] instanceof Array)
+                    {
+                        template = replaceParams(template, params[k], paramPath);
+                    }
+                }
+                return template;
+            };
+            this.append(replaceParams(template, params, ""));
+            return this;
         }
     }
     addGenerator(page, "html");
