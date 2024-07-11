@@ -40,7 +40,7 @@ module.exports = {
                 group_by: "tag"
             });
             item.description = item.description.replace(/\n/g, "<br />");
-            const params = {item, tags: tags_with_counts};
+            const params = {item, tags: tags_with_counts, censored: await gallery.isItemCensoredForRequest(req)};
             const template = fs.readFileSync(path.join(process.cwd(), "templates/item.html"), "utf-8")
             const body = await html.buildTemplate(template, params, req);
             res.writeHead(200, {"Content-Type": "text/html"});
