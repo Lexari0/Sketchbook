@@ -39,7 +39,7 @@
                 reader.onload = async e => {
                     var form_data = new FormData();
                     form_data.append("file", e.target.result);
-                    const response = await fetch("/api/item/{{ item.gallery_item_id }}/new_file", {
+                    const response = await fetch("/api/gallery/item/{{ item.gallery_item_id }}/new_file", {
                         method: "POST",
                         body: form_data
                     });
