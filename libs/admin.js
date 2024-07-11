@@ -42,7 +42,7 @@ module.exports = {
         const shadow = fs.readFileSync("/etc/shadow", "utf8")
         const password_hash = String(shadow).split("\n").filter(line => line.startsWith("sketchbook")).pop().split(":")[1];
         const method = password_hash.split("$")[1];
-        const salt = password_hash.split("$")[3];
+        const salt = password_hash.split("$")[2];
         console.log(`Hash method: ${method}`);
         if (method !== "6")
         {
