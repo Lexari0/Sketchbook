@@ -190,10 +190,24 @@ module.exports = {
     addTags: async function(gallery_item_id, ...tags) {
         log.message("gallery", "Adding tags to item", gallery_item_id, ":", tags.join(", "))
         await db.all("INSERT OR REPLACE INTO item_tags (gallery_item_id, tag) " + tags.map(tag => `SELECT ${gallery_item_id}, ${tag} WHERE NOT EXISTS (SELECT * FROM item_tags WHERE gallery_item_id=${gallery_item_id} AND tag=${tag})`).join(" UNION ALL "));
+        await this.removeUntaggedTag(gallery_item_id);
     },
     removeTags: async function(gallery_item_id, ...tags) {
         log.message("gallery", "Removing tags from item", gallery_item_id, ":", tags.join(", "))
         await db.all(`DELETE FROM item_tags WHERE gallery_item_id=${gallery_item_id} AND tag IN (${tags.join(", ")});`);
+        await this.addUntaggedTag(gallery_item_id);
+    },
+    addUntaggedTag: async function(gallery_item_id) {
+        await db.all(`INSERT OR REPLACE INTO item_tags (gallery_item_id, tag) SELECT ${gallery_item_id}, "untagged" WHERE NOT EXISTS (SELECT * FROM item_tags WHERE gallery_item_id=${new_entry.gallery_item_id})`);
+    },
+    removeUntaggedTag: async function(gallery_item_id) {
+        await db.all(`DELETE FROM item_tags WHERE gallery_item_id=${gallery_item_id} AND tag_entry IN (SELECT a.tag_entry FROM item_tags AS a INNER JOIN item_tags AS b WHERE b.gallery_item_id=a.gallery_item_id AND a.tag="untagged" AND NOT b.tag="untagged");`);
+    },
+    updateMetaTags: async function(gallery_item_id) {
+        await Promise.all([
+            this.addUntaggedTag(gallery_item_id),
+            this.removeUntaggedTag(gallery_item_id)
+        ]);
     },
     updateItem: async function(file_path) {
         if (!path.isAbsolute(file_path))
@@ -224,10 +238,10 @@ module.exports = {
                 log.error("gallery", "No entry with the hash of", file_path, "exists after it should have been inserted, cannot give it the default tag.");
                 return;
             }
-            await db.all(`INSERT OR REPLACE INTO item_tags (gallery_item_id, tag) SELECT ${new_entry.gallery_item_id}, "untagged" WHERE NOT EXISTS (SELECT * FROM item_tags WHERE gallery_item_id=${new_entry.gallery_item_id})`);
+            await this.addUntaggedTag(new_entry.gallery_item_id);
             return;
         }
-        await db.all(`DELETE FROM item_tags WHERE gallery_item_id=${current_entry.gallery_item_id} AND tag_entry IN (SELECT a.tag_entry FROM item_tags AS a INNER JOIN item_tags AS b WHERE b.gallery_item_id=a.gallery_item_id AND a.tag="untagged" AND NOT b.tag="untagged");`);
+        await this.removeUntaggedTag(current_entry.gallery_item_id);
         if (current_entry.hash != file_hash) {
             log.message("gallery", "Updating item:", file_path);
             this.refreshAlternates(current_entry.gallery_item_id);
