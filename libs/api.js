@@ -95,7 +95,7 @@ module.exports = {
         }
         return req.params;
     },
-    sendPOST: function(hostname, page, data, content_type) {
+    sendPOST: function(hostname, page, data, content_type, headers) {
         return new Promise((resolve, reject) => {
             // if (Object.keys(params).length > 0)
             // {
@@ -105,7 +105,8 @@ module.exports = {
                 hostname: hostname,
                 port: 443,
                 path: page,
-                method: "POST"
+                method: "POST",
+                headers: headers ? headers : {}
             };
             console.log("Sending POST request: " + path.join(hostname, page));
             if (data != undefined)
@@ -120,11 +121,9 @@ module.exports = {
                 {
                     content_type = "application/octet-stream";
                 }
-                options.headers = {
-                    "Content-Type": content_type,
-                    "Content-Length": data.length
-                };
+                options.headers["Content-Length"] = data.length
             }
+            options.headers["Content-Type"] = content_type;
             const req = https.request(options, (res) => {
                 res.setEncoding("utf8");
                 var responseBody = "";

@@ -72,7 +72,12 @@ const DEFAULT = {
                 tags: "any"
             },
             sql: "admin",
-            echo: "key"
+            echo: "key",
+            subscriptions: {
+                subscribestar: {
+                    tiers: "any"
+                }
+            }
         }
     },
     subscribestar: {
@@ -100,6 +105,7 @@ const DEFAULT = {
             program: true,
             sql: false,
             webserver: true,
+            subscribestar: true
         }
     }
 };
