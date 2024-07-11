@@ -177,10 +177,18 @@ module.exports = {
                         const temp_file_path = uploaded_file.filepath;
                         const file_hash = await gallery.hashFile(temp_file_path);
                         const final_file_path = path.join(process.cwd(), "content", file_hash + path.extname(uploaded_file.originalFilename));
-                        fs.rename(temp_file_path, final_file_path, reject);
-                        if (!await gallery.updateItem(final_file_path))
+                        try
                         {
-                            reject("Failed to update gallery");
+                            fs.renameSync(temp_file_path, final_file_path);
+                            if (!await gallery.updateItem(final_file_path))
+                            {
+                                throw "Failed to update item in gallery.";
+                            }
+                        }
+                        catch (err)
+                        {
+                            reject(err);
+                            return;
                         }
                         resolve(await gallery.getItemIDOfFile(final_file_path));
                     });
@@ -190,7 +198,7 @@ module.exports = {
             {
                 res.writeHead(503);
                 res.end(`Failed to upload file: ${error}`);
-                return;
+                return true;
             }
             res.writeHead(302, {
                 "Location": `/item/${item_id}/edit`
