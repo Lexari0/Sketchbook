@@ -1,0 +1,45 @@
+body {
+    margin: 0;
+    background-color: #3c6e51;
+    font-family: "Monaco", monospace;
+    position: relative;
+    min-height: 100vh;
+}
+#title {
+    font-size: 4em;
+    padding: 1em 1em;
+    margin-top: 0;
+    margin-bottom: 0.75em;
+    color: #0f100f;
+    background-color: #0004;
+    position: sticky;
+    top: 0;
+    text-align: center;
+}
+#small-title {
+    font-size: 2em;
+    padding: 0.25em 1em;
+    margin-top: 0;
+    margin-bottom: 0.25em;
+    color: #0f100f;
+    background-color: #0004;
+    position: sticky;
+    top: 0;
+    text-align: left;
+}
+#front-query {
+    margin: 5vh 30vw;
+    padding: 0.5em;
+    text-align: center;
+}
+#front-query input#search-bar {
+    margin: 0.5em 0;
+    text-align: center;
+    font-size: 2em;
+    width: 90%;
+}
+#front-query input#search-button {
+    margin: 0.5em 0;
+    font-size: 2em;
+    width: 80%;
+}

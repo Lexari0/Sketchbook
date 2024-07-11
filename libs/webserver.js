@@ -19,31 +19,40 @@ for (const item of fs.readdirSync(path.join(process.cwd(), "endpoints"), {withFi
 
 const requestListener = function (req, res) {
     try {
-        if (req.url in endpoints)
+        const url = req.url.split("?").shift();
+        if (url in endpoints)
         {
-            endpoints[req.url](req, res);
+            endpoints[url](req, res);
         }
         else
         {
             var handled = false;
             for (const key of Object.keys(endpoints))
             {
-                if (key instanceof RegExp && req.url.match(key)) {
-                    handled = true;
-                    endpoints[key](req,res);
-                    break;
+                if (key.length < 3 || !key.startsWith("/") || !key.endsWith("/")) {
+                    continue;
+                }
+                if (url.match(key.substring(1, key.length - 1))) {
+                    handled = endpoints[key](req, res);
+                    if (handled) {
+                        break;
+                    }
                 }
             }
             if (!handled)
             {
                 res.writeHead(404);
-                res.end("Page not found: " + req.url);
+                res.end("Page not found: " + url);
             }
         }
         console.log("Request:", req.url, "->", res.statusCode);
     } catch (e) {
-        res.writeHead(502);
-        res.end("Internal server error... Contact server host or try again later.");
+        try {
+            res.writeHead(502);
+            res.end("Internal server error... Contact server host or try again later.");
+        } catch {
+            console.error("Failed to send 502...");
+        }
         console.error("Request:", req.url, "->", res.statusCode, "\n\n", e);
     }
 };

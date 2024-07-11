@@ -8,6 +8,7 @@ const DEFAULT = {
         port: 80
     },
     gallery: {
+        name: "My Sketchbook Gallery",
         content_path: "content",
         database_path: "gallery.db",
         items_per_page: 50,
