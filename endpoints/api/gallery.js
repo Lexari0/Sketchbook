@@ -85,7 +85,7 @@ module.exports = {
                     form.parse(req, async (err, fields, form) => {
                         if (err)
                         {
-                            reject(JSON.stringify(err));
+                            reject("Error getting form data: " + JSON.stringify(err));
                             return;
                         }
                         if (form.file.length == 0)
@@ -125,7 +125,7 @@ module.exports = {
                             {
                                 fs.unlinkSync(final_file_path);
                             }
-                            reject(JSON.stringify(err));
+                            reject("Error while managing files or gallery: " + JSON.stringify(err));
                             return;
                         }
                         resolve();
