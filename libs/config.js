@@ -57,6 +57,10 @@ const DEFAULT = {
         key: uuid(),
         permitted_keys: [],
         enabled_endpoints: {
+            config: {
+                _: "admin",
+                update: "admin"
+            },
             server: "any",
             gallery: {
                 _: "any",
@@ -65,10 +69,6 @@ const DEFAULT = {
                     new_file: "admin",
                     add_tag: "admin",
                     remove_tag: "admin"
-                },
-                config: {
-                    _: "admin",
-                    update: "admin"
                 },
                 items: "any",
                 refresh: "key",
