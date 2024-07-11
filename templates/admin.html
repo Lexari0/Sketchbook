@@ -136,18 +136,13 @@ $(async () => {
     </div>
     <div class="admin-panel" id="wifi">
         <h2>WiFi:</h2>
-        <p><b>Note:</b> These settings are only intended to work if running on a Raspberry Pi with WiFi functionality (eg: <a href="https://www.raspberrypi.com/products/raspberry-pi-zero-2-w/">Raspberry Pi Zero 2 W</a>).</p>
-        <p>Current: {{ ssid }}</p>
+        <p><b>Note:</b> This is only intended to work if running on a Raspberry Pi with WiFi functionality (eg: <a href="https://www.raspberrypi.com/products/raspberry-pi-zero-2-w/">Raspberry Pi Zero 2 W</a>).</p>
+        <p><a href="https://learn.sparkfun.com/tutorials/headless-raspberry-pi-setup/wifi-with-dhcp">How to change WiFi settings</a></p>
         <form action="/admin/update_wifi" method="post">
             <h3>
                 <label for="SSID">SSID:</label>
-                <input type="text" name="SSID" value="{{ ssid }}">
+                <input type="text" name="SSID" value="{{ ssid }}" readonly>
             </h3>
-            <h3>
-                <label for="Password">Password:</label>
-                <input type="password" name="password">
-            </h3>
-            <input type="submit" value="Update">
         </form>
     </div>
     <div class="admin-panel" id="sql">

@@ -8,12 +8,12 @@ const PATH = path.join(process.cwd(), "config.yaml");
 const DEFAULT = {
     webserver: {
         ip: "0.0.0.0",
-        port: 80
+        port: 8090
     },
     server: {
         software: {
             name: "Sketchbook",
-            version: "1.0",
+            version: "0.1",
             source: "https://github.com/Lexari0/Sketchbook",
             author: "Lexario",
             license: "MIT"
@@ -21,7 +21,8 @@ const DEFAULT = {
         owner: {
             name: "Artist",
             email: ""
-        }
+        },
+        domain: ""
     },
     gallery: {
         name: "My Sketchbook Gallery",
