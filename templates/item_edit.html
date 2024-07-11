@@ -18,20 +18,23 @@
                 return;
             }
             var bad_matches = [...new Set(tag_name.match(/[:{}<>="'`]/g))]
+            const error_msg = $("form.add-tag .error")
             if (bad_matches.length > 0)
             {
                 const last = bad_matches.pop();
                 if (bad_matches.length === 0)
                 {
-                    $("form.add-tag .error").text(`${last} is an illegal or reserved character in tags!`).append("<br />");
+                    error_msg.text(`${last} is an illegal or reserved character in tags!`)
+                    error_msg.append("<br />");
                 }
                 else
                 {
-                    $("form.add-tag .error").text(`${bad_matches.map(x => `'${x}'`).join()}${bad_matches.length > 1 ? "," : ""} and '${last}' are illegal or reserved characters in tags!<br />`).append("<br />");
+                    error_msg.text(`${bad_matches.map(x => `'${x}'`).join()}${bad_matches.length > 1 ? "," : ""} and '${last}' are illegal or reserved characters in tags!`);
+                    error_msg.append("<br />");
                 }
                 return;
             }
-            $("form.add-tag .error").html("");
+            error_msg.html("");
             new_tag_list.append(`<li><input type="checkbox" onchange="toggleAdd('${tag_name}')" name="add-${tag_name}" value="${tag_name}" checked><label for="add-${tag_name}">${tag_name}</label></li>`);
             toggleAdd(tag_name);
             new_tag_name.prop("value", "");
