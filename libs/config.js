@@ -62,8 +62,9 @@ const DEFAULT = {
                 _: "any",
                 item: "any",
                 items: "any",
-                tags: "any",
-                search: "any"
+                refresh: "key",
+                search: "any",
+                tags: "any"
             },
             sql: "admin",
             echo: "key"
