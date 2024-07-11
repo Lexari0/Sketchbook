@@ -20,7 +20,7 @@ module.exports = {
         return false;
     },
     getRedirectURI: function() {
-        return "http://" + path.join(config.server.domain, "/oauth/subscribestar");
+        return "https://" + path.join(config.server.domain, "/oauth/subscribestar");
     },
     clearOauth: function() {
         for (const key of Object.keys(config.subscribestar.auth_token))
