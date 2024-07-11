@@ -46,14 +46,21 @@ module.exports = {
         console.log(`[${category}]`, ...message);
         for (const file of file_paths)
         {
-            fs.appendFile(file, `[${category}] ${message.join(" ")}\n`, printFileWriteError);
+            fs.appendFile(file, `[${category}] ${message.map(x => `${x}`).join(" ")}\n`, printFileWriteError);
+        }
+    },
+    warning: function (category, ...message) {
+        console.error(`<${category}>`, ...message);
+        for (const file of file_paths)
+        {
+            fs.appendFile(file, `<${category}> ${message.map(x => `${x}`).join(" ")}\n`, printFileWriteError);
         }
     },
     error: function (category, ...message) {
         console.error(`{${category}}`, ...message);
         for (const file of file_paths)
         {
-            fs.appendFile(file, `{${category}} ${message.join(" ")}\n`, printFileWriteError);
+            fs.appendFile(file, `{${category}} ${message.map(x => `${x}`).join(" ")}\n`, printFileWriteError);
         }
     }
 };

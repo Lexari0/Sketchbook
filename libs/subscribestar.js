@@ -1,6 +1,7 @@
 const path = require("path");
 const api = require(path.join(process.cwd(), "libs/api.js"));
 const config = require(path.join(process.cwd(), "libs/config.js"));
+const log = require(path.join(process.cwd(), "libs/log.js"));
 
 const api_host = "www.subscribestar." + (config.subscribestar.adult ? "adult" : "com");
 
