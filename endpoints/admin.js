@@ -1,22 +1,24 @@
 const fs = require("fs");
 const path = require("path");
+const exec = require("child_process").exec;
 const admin = require(path.join(process.cwd(), "libs/admin.js"));
 const api = require(path.join(process.cwd(), "libs/api.js"));
 const config = require(path.join(process.cwd(), "libs/config.js"));
 const html = require(path.join(process.cwd(), "libs/html.js"));
 
-function getWifiSSID() {
-    const supplicant_path = "/etc/wpa_supplicant/wpa_supplicant.conf";
-    if (!fs.existsSync(supplicant_path))
-    {
-        return undefined;
-    }
-    const matches = fs.readFileSync(supplicant_path).match(/ssid=(\".+\"|[^\s]+)/g);
-    if (matches.length === 0)
-    {
-        return undefined;
-    }
-    return matches[0].substring(5);
+async function getWifiSSID() {
+    return new Promise(resolve => 
+        exec("which iwgetid", error => {
+            if (error !== 0)
+            {
+                resolve("");
+            }
+            exec("iwgetid -r", (error, stdout, stderr) =>
+                resolve(stdout.substring(0, stdout.indexOf("\n")))
+            );
+        }
+        )
+    );
 }
 
 module.exports = {
@@ -31,7 +33,7 @@ module.exports = {
                 return true;
             }
             const template = fs.readFileSync(path.join(process.cwd(), "templates/admin_login.html"), "utf-8")
-            const body = await html.buildTemplate(template, {ssid: getWifiSSID()}, req);
+            const body = await html.buildTemplate(template, {ssid: await getWifiSSID()}, req);
             res.writeHead(200, {"Content-Type": "text/html"});
             res.end(body);
             return true;
