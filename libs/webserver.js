@@ -20,7 +20,7 @@ for (const item of fs.readdirSync(path.join(process.cwd(), "endpoints"), {withFi
 
 const requestListener = async function (req, res) {
     try {
-        log.message("webserver", "[Request] ", req.method, req.url);
+        log.message("webserver", "[Request] ", req.method, req.url, `(${req.socket.remoteAddress})`);
         var url_split = req.url.split("?")
         const url_page = url_split.shift();
         const url_query = url_split.shift();
@@ -62,7 +62,7 @@ const requestListener = async function (req, res) {
                 }
             }
         }
-        log.message("webserver", "[Response]", req.method, req.url, "->", res.statusCode);
+        log.message("webserver", "[Response]", req.method, req.url, `(${req.socket.remoteAddress}) ->`, res.statusCode);
     } catch (e) {
         try {
             res.writeHead(502);
