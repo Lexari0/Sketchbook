@@ -1,7 +1,7 @@
 $(function() {
     const collapsible = document.getElementsByClassName("collapsible");
     for (const element of collapsible) {
-        const content = this.nextElementSibling;
+        const content = element.nextElementSibling;
         content.style.padding = "0 18px";
         content.style.display = "none";
         content.style.overflow = "hidden";
