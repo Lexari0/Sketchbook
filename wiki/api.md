@@ -485,6 +485,45 @@ Parameters:
 }
 ```
 
+### `/api/log/current`
+
+Provides recent lines from the current session's active log file. Used on the `/admin` page to display recent log messages
+
+Parameters:
+
+- `lines` (optional): Number of lines to get.
+
+#### Example Response
+
+```json
+{
+  "error": "",
+  "total_lines": 544,
+  "lines": 20,
+  "logs": "[webserver] [Response] GET /static/main.css..."
+}
+```
+
+### `/api/log/file/<filename>`
+
+Provides the final lines from the provided session's log file.
+
+Parameters:
+
+- `lines` (optional): Number of lines to get.
+- `plaintext` (optional): If provided, the raw log file will be provided instead of a JSON representation. This is not intended to be machine-readable.
+
+#### Example Response
+
+```json
+{
+  "error": "",
+  "total_lines": 544,
+  "lines": 20,
+  "logs": "[webserver] [Response] GET /static/main.css..."
+}
+```
+
 ### `/api/server`
 
 Provides information about the active server software. Useful for determining what other API endpoints are available based on the software name and version.
@@ -505,5 +544,67 @@ Parameters: None
     "name": "Lexario",
     "email": "lexario.makes@gmail.com"
   }
+}
+```
+
+### `/api/sql`
+
+Runs the provided SQL query on the gallery database. This is very powerful, but can also be dangerous, so a backup of the database should be made *before* interacting directly with the database. For example, `DELETE * FROM items;` will effectively reset the gallery, but leave significant junk data behind.
+
+The result of the query (eg: `SELECT`) is contained in the `r` object of the response.
+
+Parameters:
+
+- `q`: SQL query to run.
+
+#### Example Response
+
+Parameters: `q=SELECT * FROM tags LIMIT 2;`
+
+```json
+{
+  "error": "",
+  "q": "SELECT * FROM tags LIMIT 2;",
+  "r": [
+    {
+      "tag_id": 1,
+      "tag": "untagged",
+      "description": "Item has no other tags.",
+      "tag_category_id": 4,
+      "editable": 0
+    },
+    {
+      "tag_id": 169,
+      "tag": "night_in_the_woods",
+      "description": null,
+      "tag_category_id": 3,
+      "editable": 1
+    }
+  ]
+}
+```
+
+### `/api/subscriptions/subscribestar/tiers`
+
+Gets the tiers of the linked SubscribeStar creator profile.
+
+Parameters: None
+
+#### Example Response
+
+```json
+{
+  "error": "",
+  "tiers": [
+    {
+      "cost": 500,
+      "title": "Bronze",
+      "description": "Test",
+      "hidden": false,
+      "id": 53575,
+      "removed": false,
+      "tag": "subscribestar:bronze"
+    }
+  ]
 }
 ```
