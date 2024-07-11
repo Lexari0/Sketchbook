@@ -7,7 +7,17 @@ const log = require(path.join(process.cwd(), "libs/log.js"));
 
 module.exports = {
     defaultTemplateParameterGetter: async function (req) {
-        var params = {config: config.clone(), can_edit: admin.isRequestAdmin(req), is_admin: admin.isRequestAdmin(req)};
+        var params = {
+            req: {
+                host: req.host,
+                method: req.method,
+                path: req.path,
+                protocol: req.protocol
+            },
+            config: config.clone(),
+            can_edit: admin.isRequestAdmin(req),
+            is_admin: admin.isRequestAdmin(req)
+        };
         if (req)
         {
             params.query = await api.getParams(req);
@@ -15,6 +25,7 @@ module.exports = {
         delete params.config.api;
         delete params.config.webserver;
         delete params.config.gallery.admin;
+        delete params.config.subscribestar.client_secret;
         return params;
     },
     evalImports: function(template) {
