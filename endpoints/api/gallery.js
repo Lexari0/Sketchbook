@@ -108,7 +108,6 @@ module.exports = {
                 return true;
             }
             const query_results = await gallery.search(decodeURIComponent(query.q));
-            console.log({query_results});
             var search_results = {};
             for (const search_result of query_results.items)
             {

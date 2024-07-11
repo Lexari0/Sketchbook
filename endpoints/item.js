@@ -111,7 +111,6 @@ module.exports = {
             const gallery_item_id = parseInt(split_url[1]);
             if ("submitting" in params)
             {
-                console.log("Got submission!", {params});
                 if (params.tags_to_add && params.tags_to_add.length > 0)
                 {
                     await gallery.addTags(gallery_item_id, ...decodeURIComponent(params.tags_to_add).split(",").map(tag => sqlstring.escape(tag)));

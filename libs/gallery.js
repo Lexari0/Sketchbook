@@ -169,7 +169,6 @@ module.exports = {
     },
     search: async function (query) {
         const result = await db.all(this.buildSQLFromSearch(query));
-        console.log({result});
         if (result.length === 0)
         {
             return {item_count: 0, items: []};
