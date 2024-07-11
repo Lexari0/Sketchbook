@@ -10,8 +10,9 @@ async function getFileLineOffsets(file_path) {
     try
     {
         var read_stream = fs.createReadStream(file_path);
+        var out_stream = new Stream;
         return await new Promise((resolve, reject) => {
-            var readline_interface = readline.createInterface(read_stream, new Stream);
+            var readline_interface = readline.createInterface(read_stream, out_stream);
             var offsets = [];
             var current_offset = 0;
             readline_interface.on("line", (line) => {
@@ -19,7 +20,7 @@ async function getFileLineOffsets(file_path) {
                 current_offset += line.length;
             });
             readline_interface.on("error", reject);
-            readline_interface.on("end", () => resolve(offsets));
+            readline_interface.on("close", () => resolve(offsets));
         });
     }
     catch (err)
