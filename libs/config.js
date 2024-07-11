@@ -71,8 +71,8 @@ const DEFAULT = {
         }
     },
     subscribestar: {
-        client_id: undefined,
-        client_secret: undefined,
+        client_id: "",
+        client_secret: "",
         adult: false,
         auth_token: {
             access_token: undefined,
