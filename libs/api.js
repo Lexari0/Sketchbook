@@ -123,7 +123,10 @@ module.exports = {
                 res.setEncoding("utf8");
                 var responseBody = "";
                 res.on("data", (chunk) => {
-                    responseBody += chunk;
+                    if (chunk != undefined)
+                    {
+                        responseBody += chunk;
+                    }
                 });
                 res.on("end", () => {
                     resolve(JSON.parse(responseBody));
