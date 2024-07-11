@@ -428,7 +428,7 @@ ${required_query.replace(/^/gm,"    ")}
     isItemCensoredForRequest: async function(gallery_item_id, req) {
         if (admin.isRequestAdmin(req))
         {
-            return true;
+            return false;
         }
         const user_cookies = cookies.getRequestCookies(req);
         return await this.isItemCensoredWithCookies(gallery_item_id, user_cookies);
