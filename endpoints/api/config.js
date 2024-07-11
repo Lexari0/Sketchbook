@@ -17,20 +17,31 @@ module.exports = {
             }
             const params = await api.getParams(req);
             var new_config = config.clone();
+            var changed_config = {};
             var errors = [];
             for (const key of Object.keys(params))
             {
                 var key_layers = key.split(".");
                 const last_key_layer = key_layers.pop();
                 var config_obj = new_config;
+                var changed_config_obj = changed_config;
                 for (const key_layer of key_layers)
                 {
+                    if (changed_config[key_layer] === undefined)
+                    {
+                        changed_config[key_layer] = {};
+                    }
                     config_obj = config_obj[key_layer];
+                    changed_config_obj = changed_config[key_layer];
                     if (typeof(config_obj) !== "object")
                     {
                         config_obj = undefined;
                         break;
                     }
+                }
+                if (changed_config[key_layer] == undefined)
+                {
+                    changed_config[last_key_layer] = {};
                 }
                 if (config_obj == undefined || config_obj[last_key_layer] == undefined)
                 {
@@ -43,6 +54,7 @@ module.exports = {
                 if (errors.length == 0)
                 {
                     config_obj[last_key_layer] = params[key];
+                    changed_config_obj[last_key_layer] = params[key];
                 }
             }
             if (errors.length > 0)
@@ -52,9 +64,10 @@ module.exports = {
             }
             for (const k of Object.keys(params).map(key => key.substring(0, key.indexOf(" "))))
             {
+                console.log(`Cloning config key: ${k} (${new_config[k]})`)
                 config[k] = structuredClone(new_config[k]);
             }
-            api.sendResponse(res, 200, {error: "", params})
+            api.sendResponse(res, 200, {error: "", params, changed_config})
             return true;
         };
     }
