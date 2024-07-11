@@ -10,12 +10,13 @@
       {% for link in config.gallery.top_links %}<h2><a href="{{ link.link }}">{{ link.text }}</a></h2>{% end %}
     </div>
 </div>
+<div id="main-body">
 <div id="front-query">
     <form action="/search" method="get" accept-charset="utf-8">
         <input type="text" name="q" id="search-bar"></input>
-        <br />
         <input type="submit" value="Search" id="search-button"></input>
     </form>
+</div>
 </div>
 <footer>
     {# templates/footer_content.html #}
