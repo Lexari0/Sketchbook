@@ -105,7 +105,7 @@ module.exports = {
             return undefined;
         }
         [].map(x => x.y);
-        return response.content_provider_profile.tiers.nodes.map(tier => {return {...tier, tag: this.getTagForTier(tier.title)}}).sort((a, b) => a.cost > b.cost);
+        return response.content_provider_profile.tiers.nodes.sort((a, b) => a.cost - b.cost).map(tier => {return {...tier, tag: this.getTagForTier(tier.title)}});
     },
     getTier: async function(tier_id) {
         const tiers = await this.getTiers();

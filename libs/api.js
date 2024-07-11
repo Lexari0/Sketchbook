@@ -104,14 +104,14 @@ module.exports = {
                 method: "POST",
                 headers: headers ? headers : {}
             };
-            console.log("Sending POST request: " + path.join(hostname, page));
+            log.message("api", "Sending POST request: " + path.join(hostname, page));
             if (data != undefined)
             {
                 if (typeof(data) == "object")
                 {
                     data = JSON.stringify(data);
                     content_type = "application/json";
-                    console.log(`POST JSON data: ${data}`);
+                    log.message("api", `POST JSON data: ${data}`);
                 }
                 if (content_type == undefined)
                 {
