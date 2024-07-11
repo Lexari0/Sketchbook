@@ -107,11 +107,11 @@ $(async () => {
                 {
                     for (const subkey of Object.keys(value))
                     {
-                        addEndpointDropdowns(`${key}.${subkey}`, value[subkey]);
+                        addEndpointDropdowns(`${key}${key.length > 0 ? "." : ""}${subkey}`, value[subkey]);
                     }
                     return;
                 }
-                const endpoint = "/api/" + (key.endsWith("._") ? key.substring(0, key.length - 2) : key).replace(/./g, "/");
+                const endpoint = "/api/" + (key.endsWith("._") ? key.substring(0, key.length - 2) : key).replace(/\./g, "/");
                 enabled_endpoints.append(dropdownField(endpoint, value, key, ["any", "key", "admin"]));
             }
             addEndpointDropdowns("", config.api.enabled_endpoints);
