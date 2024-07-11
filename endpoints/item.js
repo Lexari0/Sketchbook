@@ -56,7 +56,7 @@ module.exports = {
             {
                 res.writeHead(200, {
                     "Content-Type": mime.lookup(".webp"),
-                    "Content-Length": censored.size
+                    "Content-Length": censored.length
                 });
                 censored.pipe(res);
                 return true;
