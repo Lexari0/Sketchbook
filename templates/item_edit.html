@@ -5,7 +5,35 @@
 <script src="/static/jquery-3.7.1.min.js"></script>
 <script src="/static/common.js"></script>
 <script>
-    var tag_changes = {to_remove: {}, to_add: {}};
+    var tag_changes = {current: [
+    //{% for tag in tags %}
+        tag,
+    //{% end %}
+    ], to_remove: {}, to_add: {}};
+
+    function addTagToNewList(tag_name, check) {
+        new_tag_list.append(`<li><input type="checkbox" onchange="toggleAdd('${tag_name}')" name="add-${tag_name}" value="${tag_name}" checked><label for="add-${tag_name}">${tag_name}</label></li>`);
+        if (check) {
+            toggleAdd(tag_name);
+        }
+    }
+
+    $(async () => {
+        const response = await fetch("/api/subscriptions/subscribestar/tiers", {
+            method: "GET",
+            body: form_data
+        });
+        console.log(`GET response: ${response}`);
+        if (response.error != "" && response.error != undefined)
+        {
+            return;
+        }
+        for (const tier of response.tiers)
+        {
+            addTagToNewList(tier.tag, false);
+        }
+    });
+
     $(async () => {
         $("input[type=checkbox]").prop("checked", false);
         const new_tag_list = $("#tag-list.new-tags");
@@ -27,8 +55,7 @@
                 return;
             }
             error_msg.html("");
-            new_tag_list.append(`<li><input type="checkbox" onchange="toggleAdd('${tag_name}')" name="add-${tag_name}" value="${tag_name}" checked><label for="add-${tag_name}">${tag_name}</label></li>`);
-            toggleAdd(tag_name);
+            addTagToNewList(tag_name, true);
             new_tag_name.prop("value", "");
         });
         $("form.submit-changes").submit(function(event) {
