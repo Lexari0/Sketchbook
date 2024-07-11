@@ -33,8 +33,7 @@ module.exports = {
         return active_token;
     },
     isRequestAdmin: function(req) {
-        const cookies = cookies.getRequestCookies(req);
-        return this.isTokenValid(cookies.session_token);
+        return this.isTokenValid(cookies.getRequestCookies(req).session_token);
     },
     isPasswordCorrect: function(password) {
         return config.gallery.admin.password && config.gallery.admin.password.length > 0 && config.gallery.admin.password === password;
