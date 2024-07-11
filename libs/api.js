@@ -80,7 +80,7 @@ module.exports = {
                     for (const url_param of body.split(/[&\n]/))
                     {
                         // Hack to deal with forms which submit files
-                        if (boundary != undefined && url_param.startsWith(boundary))
+                        if (boundary != undefined && url_param.startsWith("--" + boundary))
                         {
                             break;
                         }
