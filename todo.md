@@ -11,18 +11,15 @@
 - [ ] API endpoints wiki/documentation
 - [ ] Database wiki/documentation
 - [ ] Create nginx reverse proxy on Pi
-- [ ] Add an "admin" panel (must be local or whitelisted to view)
--- [ ] Show software info (name, version, etc. from config)
--- [ ] "Whitelist this address" button if none is set
--- [ ] Show address whitelist and "Clear whitelist" button if one is set
--- [ ] Check boxes for config books
+- [x] Add an "admin" panel (must be logged in to view)
+-- [x] Show software info (name, version, etc. from config)
+-- [ ] Check boxes for config bools
 -- [ ] Drop downs for config options (eg: apis enabled)
--- [ ] Text inputs for config fields (eg: owner and email)
+-- [x] Text inputs for config fields (eg: owner and email)
 -- [ ] Config options should all have hover tooltip descriptions
 -- [ ] Links to log files
 --- [ ] Recent log messages
--- [ ] SQL command entry (if /api/sql endpoint is enabled; warn that this is dangerous)
--- [ ] Force reset database (warn that this is dangerous)
+-- [x] SQL command entry (if /api/sql endpoint is enabled; warn that this is dangerous)
 -- [ ] Update WiFi credentials form
 --- [ ] Revert if connection fails for 1 minute
 -- [ ] "Restart" and "Update" buttons

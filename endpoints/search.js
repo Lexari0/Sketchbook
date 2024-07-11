@@ -10,7 +10,7 @@ module.exports = {
     register_endpoints: endpoints => {
         endpoints["/search"] = async (req, res) => {
             const template = fs.readFileSync(path.join(process.cwd(), "templates/search.html"), "utf-8")
-            var params = {};
+            var params = {query: await api.getParams(req)};
             const query = (params.query.q ? decodeURIComponent(params.query.q) : "").split(/\++/g);
             const searched_tags = query.map(tag => tag.replace(/^[~-]/, ""));
             if (config.gallery.recommended_tags.length > 0)

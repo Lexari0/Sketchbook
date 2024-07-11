@@ -21,6 +21,41 @@ a:active {
     color: #1a9e6f;
 }
 
+.error {
+    color: #a00;
+    animation-name: error;
+    animation-duration: 0.2s;
+    animation-iteration-count: 4;
+    animation-direction: alternate-reverse;
+    animation-timing-function: ease;
+}
+
+@keyframes error {
+  from {
+    color: #f00;
+    }
+  to {
+    color: #a00;
+    }
+}
+
+.warning {
+    animation-name: warning;
+    animation-duration: 4s;
+    animation-iteration-count: infinite;
+    animation-direction: alternate-reverse;
+    animation-timing-function: ease;
+}
+
+@keyframes warning {
+  from {
+    color: #fd0;
+    }
+  to {
+    color: #c80;
+    }
+}
+
 #titlebar {
     color: #0f100f;
     background-color: #0004;
@@ -162,13 +197,18 @@ input#search-button {
     flex: 1;
 }
 
-#main-body {
+#main-body,
+#admin-main-body {
     margin: 0.5em;
     margin-bottom: 0em;
     display: flex;
-    flex-direction: row;
     height: 100%;
     padding-bottom: 4em;
+    flex-direction: row;
+}
+
+#admin-main-body {
+    flex-wrap: wrap;
 }
 
 .sidebar-header {
@@ -400,9 +440,10 @@ div.admin-panel {
     padding: 0.5em;
     background-color: #0004;
     border-radius: 0.25em;
-    margin: 0 0.5em;
+    margin: 0.5em 0.5em;
     height: fit-content;
-    width: max(50%, 50em);
+    min-width: max(34% - 3em, 30em);
+    max-width: max(34% - 3em, 30em);
 }
 
 div.existing-tags h2,
@@ -460,11 +501,22 @@ div.edit-tag-info textarea,
 div.edit-tag-category-info input[type=text],
 div.edit-tag-category-info textarea,
 div.admin-login input[type=text],
+div.admin-login input[type=password],
 div.admin-login textarea,
 div.admin-panel input[type=text],
+div.admin-panel input[type=password],
 div.admin-panel textarea {
     min-width: calc(100% - 8px);
     max-width: calc(100% - 8px);
+}
+
+.admin-panel h1, .admin-panel h2, .admin-panel h3, .admin-panel h4 {
+    margin: 0.25em 0;
+}
+
+.admin-panel input[type=submit] {
+    padding: 0.25em 0.5em;
+    font-size: 1.25em;
 }
 
 form.add-tag {

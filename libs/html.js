@@ -7,7 +7,7 @@ const log = require(path.join(process.cwd(), "libs/log.js"));
 
 module.exports = {
     defaultTemplateParameterGetter: async function (req) {
-        var params = {config: structuredClone(config), can_edit: admin.isRequestAdmin(req), is_admin: admin.isRequestAdmin(req)};
+        var params = {config: config.clone(), can_edit: admin.isRequestAdmin(req), is_admin: admin.isRequestAdmin(req)};
         if (req)
         {
             params.query = await api.getParams(req);

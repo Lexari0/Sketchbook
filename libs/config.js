@@ -64,7 +64,7 @@ const DEFAULT = {
                 tags: "any",
                 search: "any"
             },
-            sql: "none",
+            sql: "admin",
             echo: "key"
         }
     },
@@ -117,28 +117,35 @@ function merge(target, ...sources) {
     return merge(target, ...sources);
 }
 
-function save() {
-    var config = merge({}, module.exports);
-    for (const k of Object.keys(config))
+function clone() {
+    var config = {};
+    for (const k of Object.keys(module.exports))
     {
-        if (config[k] instanceof Function)
+        if (typeof this[k] !== "function")
         {
-            delete config[k];
+            config[k] = structuredClone(module.exports[k]);
         }
     }
-    fs.writeFileSync(PATH, yaml.stringify(config), "utf-8");
+    return config;
 }
+
+function save() {
+    fs.writeFileSync(PATH, yaml.stringify(module.exports.clone()), "utf-8");
+}
+
 function reload() {
     if (fs.existsSync(PATH))
     {
         var config_file = yaml.parse(fs.readFileSync(PATH, "utf-8"));
         config_file.server.software = {...DEFAULT.server.software};
         config_file = merge(DEFAULT, config_file);
+        config_file.save = save;
+        config_file.clone = clone;
         module.exports = config_file;
     }
     else
     {
-        module.exports = {...DEFAULT};
+        module.exports = {...DEFAULT, save, clone};
         log.message("program", "Creating default config...");
     }
     save();

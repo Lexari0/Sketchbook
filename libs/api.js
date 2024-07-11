@@ -1,4 +1,5 @@
 const path = require("path");
+const admin = require(path.join(process.cwd(), "libs/admin.js"));
 const config = require(path.join(process.cwd(), "libs/config.js"));
 
 module.exports = {
@@ -8,19 +9,30 @@ module.exports = {
             this.sendResponse(res, 503, {error: "Endpoint is disabled."});
             return false;
         }
-        if (endpoint_enabled === "key") {
+        if (endpoint_enabled === "key" || endpoint_enabled === "admin") {
             if (req.method !== "POST") {
                 this.sendResponse(res, 405, {error: "Incorrect method: \"" + req.method + "\". Only POST is allowed for this API endpoint."});
                 return false;
             }
-            const params = await this.getParams(req);
-            if (!("key" in params)) {
-                this.sendResponse(res, 401, {error: "Missing \"key\" parameter in request body."});
-                return false;
+            if (endpoint_enabled === "key")
+            {
+                const params = await this.getParams(req);
+                if (!("key" in params)) {
+                    this.sendResponse(res, 401, {error: "Missing \"key\" parameter in request body."});
+                    return false;
+                }
+                if (!this.keyIsValid(params.key)) {
+                    this.sendResponse(res, 403, {error: "Provided API key is not permitted access."});
+                    return false;
+                }
             }
-            if (!this.keyIsValid(params.key)) {
-                this.sendResponse(res, 403, {error: "Provided API key is not permitted access."});
-                return false;
+            else if (endpoint_enabled === "admin")
+            {
+                if (!await admin.isRequestAdmin(req))
+                {
+                    this.sendResponse(res, 403, {error: "Endpoint is admin-only."});
+                    return false;
+                }
             }
         }
         if (req.method !== "POST" && req.method !== "GET") {
@@ -45,7 +57,7 @@ module.exports = {
                     var split_param = url_param.split("=");
                     const k = split_param.shift();
                     const v = split_param.join("=");
-                    req.params[k] = v !== undefined ? v : null;
+                    req.params[k] = v !== undefined ? decodeURIComponent(v) : null;
                 }
             }
         }
@@ -67,7 +79,7 @@ module.exports = {
                         var split_param = url_param.split("=");
                         const k = split_param.shift();
                         const v = split_param.join("=");
-                        req.params[k] = v !== undefined ? v : null;
+                        req.params[k] = v !== undefined ? decodeURIComponent(v) : null;
                     }
                     resolve(req.params);
                 });

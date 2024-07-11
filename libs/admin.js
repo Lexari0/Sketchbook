@@ -16,16 +16,13 @@ module.exports = {
     isTokenValid: function(token) {
         if (Date.now() > active_token_valid_until)
         {
-            console.log("Token expired");
             revokeToken();
             return false;
         }
         if (active_token === undefined)
         {
-            console.log("No active token");
             return false;
         }
-        console.log("Checking token:", {active_token, token});
         return active_token === token;
     },
     generateNewToken: function() {
@@ -48,7 +45,6 @@ module.exports = {
     },
     isRequestAdmin: function(req) {
         const cookies = this.getRequestCookies(req);
-        console.log(cookies);
         return this.isTokenValid(cookies.session_token);
     },
     isPasswordCorrect: function(password) {

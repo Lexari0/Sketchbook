@@ -5,18 +5,159 @@
 <script src="/static/jquery-3.7.1.min.js"></script>
 <script src="/static/common.js"></script>
 <script>
+function titleField(name) {
+    return `<div class="info-field" field="${name}"><h3><span class="field-name">${name}</span></h3></div>`;
+}
+function infoField(name, value) {
+    return `<div class="info-field" field="${name}"><h3><span class="field-name">${name}</span>: <span class="field-value">${value}</span></h3></div>`;
+}
+function textField(name, value, key) {
+    key = key ? key : name;
+    return `<div class="info-field" field="${name}"><h3><span class="field-name">${name}</span>: <input type="text" class="field-value" name="${key}" value="${value}"></h3></div>`;
+}
+function fileField(name, key) {
+    key = key ? key : name;
+    return `<div class="info-field" field="${name}"><h3><span class="field-name">${name}</span>: </h3><input type="file" name="${key}"></div>`;
+}
+function submitButton(text = "Update") {
+    return `<input type="submit" value="${text}">`
+}
+
 $(async () => {
+    fetch("/api/server")
+        .then(response => response.json())
+        .then(json => {
+            const server_software = $("#server-software");
+            const server_owner = $("#server-owner form");
+            if (json.error.length > 0)
+            {
+                server_software.append(`<b class="error">Failed to get server software info: ${json.error}</b>`);
+                server_owner.append(`<b class="error">Failed to get server owner info: ${json.error}</b>`);
+                return;
+            }
+            server_software.append(infoField("Name", json.software.name));
+            server_software.append(infoField("Version", json.software.version));
+            server_software.append(infoField("Author", json.software.author));
+            server_software.append(infoField("License", json.software.license));
+            const license_field = server_software.find(".info-field[field=License] .field-value")
+            license_field.html(`<a href="https://opensource.org/licenses/?ls=${json.software.license}">${license_field.html()}</a>`);
+            server_software.append(titleField("Source"));
+            const source_field = server_software.find(".info-field[field=Source] .field-name")
+            source_field.html(`<a href="${json.software.source}">${source_field.html()}</a>`);
+            server_owner.append(textField("Name", json.owner.name, "server.owner.name"));
+            server_owner.append(textField("Email", json.owner.email, "server.owner.email"));
+            server_owner.append(submitButton());
+        });
+    fetch("/api/gallery")
+        .then(response => response.json())
+        .then(json => {
+            const gallery = $("#gallery .info");
+            if (json.error.length > 0)
+            {
+                gallery.append(`<b class="error">Failed to get gallery info: ${json.error}</b>`);
+                return;
+            }
+            gallery.append(infoField("Items", json.item_count));
+            gallery.append(infoField("Tags", json.tag_count));
+            gallery.append(infoField("Last Update", json.last_update));
+        });
+    const sql_form = $("#sql form");
+    const sql_command = sql_form.find("textarea.command");
+    const sql_response = sql_form.find("textarea.response");
+    sql_form.submit(event => {
+        event.preventDefault();
+        fetch(`/api/sql`, {
+            method:"POST",
+            body: `q=${encodeURIComponent(sql_command.val())}`
+        }).then(async response => {
+            if (!response.ok)
+            {
+                return {error: await response.text()};
+            }
+            return await response.json();
+        }).then(json => {
+                if (json.error.length > 0)
+                {
+                    sql_response.text("API Error:\n" + json.error);
+                    return;
+                }
+                sql_response.text(JSON.stringify(json.r, null, 2));
+            })
+            .catch(() => {});
+    });
 });
 </script>
 </head>
 <body>
 {# templates/titlebar.html #}
-<div id="main-body">
-    <div class="admin-login">
+<div id="admin-main-body">
+    <div class="admin-panel">
         <h2>Admin:</h2>
-        <h2>TBA</h2>
-        <form action="/admin/logout" method="post">
+        <form class="logout" action="/admin/logout" method="post">
             <input class="button" type="submit" value="Log Out">
+        </form>
+    </div>
+    <div class="admin-panel" id="server-software">
+        <h2>Server Software:</h2>
+    </div>
+    <div class="admin-panel" id="server-owner">
+        <h2>Server Owner:</h2>
+        <form action="/admin/update_config" method="post">
+        </form>
+    </div>
+    <div class="admin-panel" id="gallery">
+        <h2>Gallery:</h2>
+        <div class="info"></div>
+        <hr />
+        <form action="/admin/upload_item" method="post">
+            <div class="info-field" field="new-item">
+                <h3>
+                    <span class="field-name">Upload New Item</span>:
+                    <input type="file" name="file" accept=".png,.webp,.jpg,.jpeg,.svg,.bmp,.ico,.tiff,">
+                </h3>
+                <input type="submit" value="Upload">
+            </div>
+        </form>
+    </div>
+    <div class="admin-panel" id="logs">
+        <div class="recent-logs">
+            <h3>Recent Logs:</h3>
+            <!-- TODO -->
+            <textarea readonly>NYI</textarea>
+        </div>
+        <hr />
+        <div class="log-files">
+            <h3>Log Files:</h3>
+            <div class="file-list">
+                <!-- TODO -->
+                <ul></ul>
+            </div>
+        </div>
+    </div>
+    <div class="admin-panel" id="wifi">
+        <h2>WiFi:</h2>
+        <p><b>Note:</b> These settings are only intended to work if running on a Raspberry Pi with WiFi functionality (eg: <a href="https://www.raspberrypi.com/products/raspberry-pi-zero-2-w/">Raspberry Pi Zero 2 W</a>).</p>
+        <form action="/admin/update_wifi" method="post">
+            <h3>
+                <label for="SSID">SSID:</label>
+                <input type="text" name="SSID" value="{{ ssid }}">
+            </h3>
+            <h3>
+                <label for="Password">Password:</label>
+                <input type="password" name="password">
+            </h3>
+            <input type="submit" value="Update">
+        </form>
+    </div>
+    <div class="admin-panel" id="sql">
+        <h2>SQL:</h2>
+        <p class="warning">This can be dangerous! Only touch if you know what you're doing and made a backup of the database.</p>
+        <form class="sql">
+            <h4>Command:</h4>
+            <textarea class="command"></textarea>
+            <input type="submit" value="Run Command">
+            <h4>Response:</h4>
+            <textarea class="response" readonly></textarea>
         </form>
     </div>
 </div>

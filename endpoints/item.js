@@ -91,7 +91,7 @@ module.exports = {
             return true;
         };
         endpoints[/^\/item\/[0-9]+\/edit$/] = async (req, res) => {
-            if (!canEdit(req))
+            if (!admin.isRequestAdmin(req))
             {
                 res.writeHead(403);
                 res.end(`<h1>You are not permitted to edit items.</h1>`);

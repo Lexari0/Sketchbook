@@ -46,11 +46,15 @@ module.exports = {
             if (!await api.requestIsValid(req, res, config.api.enabled_endpoints.gallery._)) {
                 return true;
             }
-            const response = (await db.select(["COUNT(*) AS item_count", "MAX(last_update) AS last_update"], "items", {where:"missing=0"})).shift();
-            if (response === undefined) {
-                api.sendResponse(res, 502, {error: "Database query result was undefined"});
+            const item_response = (await db.select(["COUNT(*) AS item_count", "MAX(last_update) AS last_update"], "items", {where:"missing=0"})).shift();
+            if (item_response === undefined) {
+                api.sendResponse(res, 502, {error: "Item database query result was undefined"});
             }
-            api.sendResponse(res, 200, {error: "", ...response});
+            const tag_response = (await db.select(["COUNT(*) AS tag_count"], "tags")).shift();
+            if (tag_response === undefined) {
+                api.sendResponse(res, 502, {error: "Tag database query result was undefined"});
+            }
+            api.sendResponse(res, 200, {error: "", ...item_response, ...tag_response});
             return true;
         };
         endpoints[/\/api\/gallery\/item\/[0-9]+/] = async (req, res) => {
