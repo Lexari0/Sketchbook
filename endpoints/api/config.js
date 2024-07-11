@@ -32,7 +32,7 @@ module.exports = {
                         changed_config_obj[key_layer] = {};
                     }
                     config_obj = config_obj[key_layer];
-                    changed_config_obj = changed_config[key_layer];
+                    changed_config_obj = changed_config_obj[key_layer];
                     if (typeof(config_obj) !== "object")
                     {
                         config_obj = undefined;
