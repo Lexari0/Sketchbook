@@ -58,7 +58,7 @@ module.exports = {
             api.sendResponse(res, 200, {error: "", ...item_response, ...tag_response});
             return true;
         };
-        endpoints[/\/api\/gallery\/item\/[0-9]+/] = async (req, res) => {
+        endpoints[/^\/api\/gallery\/item\/[0-9]+$/] = async (req, res) => {
             if (!await api.requestIsValid(req, res, config.api.enabled_endpoints.gallery.item._)) {
                 return true;
             }
@@ -72,13 +72,8 @@ module.exports = {
             }
             return true;
         };
-        endpoints[/\/api\/gallery\/item\/[0-9]+\/new_file/] = async (req, res) => {
+        endpoints[/^\/api\/gallery\/item\/[0-9]+\/new_file$/] = async (req, res) => {
             if (!await api.requestIsValid(req, res, config.api.enabled_endpoints.gallery.item.new_file)) {
-                return true;
-            }
-            if (req.method !== "POST")
-            {
-                api.sendResponse(res, 405, {error: "Endpoint must use the POST method"});
                 return true;
             }
             const split_url = req.url.split("?").shift().split("/").filter(String);
@@ -139,7 +134,7 @@ module.exports = {
             }
             catch (error)
             {
-                api.sendResponse(res, 400, {error});
+                api.sendResponse(res, 503, {error});
                 return true;
             }
             api.sendResponse(res, 200, {error: "", gallery_item_id, new_file_path: await gallery.getFilePathOfItem(gallery_item_id)});
