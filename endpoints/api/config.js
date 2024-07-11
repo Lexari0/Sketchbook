@@ -58,7 +58,7 @@ module.exports = {
                 api.sendResponse(res, 200, {error: errors.join("; "), params})
                 return true;
             }
-            for (const k of Object.keys(params).map(key => key.substring(0, key.indexOf(" "))))
+            for (const k of Object.keys(params).map(key => key.substring(0, key.indexOf("."))))
             {
                 console.log(`Cloning config key: ${k} (${new_config[k]})`)
                 config[k] = structuredClone(new_config[k]);
