@@ -8,6 +8,12 @@ const config = require(path.join(process.cwd(), "libs/config.js"));
 const db = require(path.join(process.cwd(), "libs/db.js"));
 const log = require(path.join(process.cwd(), "libs/log.js"));
 
+const supported_extensions = {
+    images: [".png", ".jpg", ".jpeg", ".tiff", ".webp", ".ico"],
+    video: [".gif", ".webm", ".mp4"],
+    audio: [".ogg", ".wav", ".mp3", ".acc"],
+    text: [".txt", ".md", ".html"]
+};
 const content_path = path.join(process.cwd(), config.gallery.content_path);
 const built_in_categories = [
     [
@@ -292,6 +298,13 @@ ${required_query.replace(/^/gm,"    ")}
         ]);
     },
     updateItem: async function(file_path) {
+        // Only images are currently supported
+        // Other file types will be supported over time
+        if (!supported_extensions.images.includes(path.extname(file_path)))
+        {
+            log.message("gallery", "Path is not a supported file type: " + file_path);
+            return false;
+        }
         if (!path.isAbsolute(file_path))
         {
             file_path = path.resolve(path.join(content_path, file_path));
@@ -300,7 +313,7 @@ ${required_query.replace(/^/gm,"    ")}
         {
             log.message("gallery", "Item went missing: " + file_path);
             await db.update("items", {missing:1}, {where: "file_path=" + sqlstring.escape(file_path)});
-            return;
+            return false;
         }
         const file_hash = await this.hashFile(file_path);
         const current_entry = (await db.select(["gallery_item_id", "file_path", "hash", "missing"], "items", {
@@ -321,7 +334,7 @@ ${required_query.replace(/^/gm,"    ")}
                 return;
             }
             await this.addUntaggedTag(new_entry.gallery_item_id);
-            return;
+            return true;
         }
         await this.removeUntaggedTag(current_entry.gallery_item_id);
         if (current_entry.hash != file_hash) {
@@ -351,6 +364,7 @@ ${required_query.replace(/^/gm,"    ")}
             log.message("gallery", "Item", current_entry.gallery_item_id, "is untagged, giving it the default tag.");
             await this.addUntaggedTag(current_entry.gallery_item_id)
         }
+        return true;
     },
     refreshContent: async function() {
         log.message("gallery", "Refreshing content directory...");

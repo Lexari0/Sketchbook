@@ -1,3 +1,4 @@
+const fs = require("fs");
 const path = require("path");
 const sqlstring = require("sqlstring-sqlite");
 const api = require(path.join(process.cwd(), "libs/api.js"));
@@ -187,6 +188,68 @@ module.exports = {
                 limit: limit
             });
             api.sendResponse(res, 200, {error: "", like: use_like ? query.like : "", count: limit, categories});
+            return true;
+        };
+        endpoints["/api/gallery/refresh"] = async (req, res) => {
+            if (!await api.requestIsValid(req, res, config.api.enabled_endpoints.gallery.refresh)) {
+                return true;
+            }
+            const query = await api.getParams(req);
+            if (query.subdir && query.subdir.startsWith(".."))
+            {
+                api.sendResponse(res, 502, {error: "Provided path must be a subdirectory."});
+                return;
+            }
+            const original_base_path = query.subdir ? path.join(process.cwd(), "content", query.subdir) : path.join(process.cwd(), "content");
+            var base_path = original_base_path;
+            var refreshed_items = 0;
+            if (!fs.existsSync(base_path))
+            {
+                api.sendResponse(res, 502, {error: "Provided path does not exist."});
+                return;
+            }
+            var dir_stat = fs.lstatSync(base_path);
+            while (dir_stat.isSymbolicLink())
+            {
+                const link_path = fs.realpathSync(base_path);
+                if (link_path === base_path)
+                {
+                    api.sendResponse(res, 502, {error: "Provided path links to itself."});
+                    return;
+                }
+                base_path = link_path;
+                if (!fs.existsSync(base_path))
+                {
+                    api.sendResponse(res, 502, {error: "Provided path linked to something that does not exist."});
+                    return;
+                }
+                dir_stat = fs.lstatSync(base_path);
+            }
+            base_path = original_base_path;
+            if (dir_stat.isDirectory())
+            {
+                for (const item of fs.readdirSync(base_path))
+                {
+                    const item_path = path.join(base_path, item);
+                    if (!fs.lstatSync(item_path).isFile())
+                    {
+                        continue;
+                    }
+                    gallery.updateItem(item_path);
+                    refreshed_items += 1;
+                }
+            }
+            else if (dir_stat.isFile())
+            {
+                gallery.updateItem(item_path);
+                refreshed_items += 1;
+            }
+            else
+            {
+                api.sendResponse(res, 502, {error: "Provided path is not a directory or file."});
+                return;
+            }
+            api.sendResponse(res, 200, {error: "", subdir: query.subdir ? query.subdir : "", refreshed_items});
             return true;
         };
     }
