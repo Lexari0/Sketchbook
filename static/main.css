@@ -590,14 +590,14 @@ div.new-tags {
 }
 
 button.text-link {
-    border:none;
-    outline:none;
-    background:none;
-    cursor:pointer;
-    padding:0;
-    text-decoration:underline;
-    font-family:inherit;
-    font-size:inherit;
+    border: none;
+    outline: none;
+    background: none;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+    font-family: inherit;
+    font-size: inherit;
 }
 
 [data-tooltip]:hover::after {
@@ -610,6 +610,7 @@ button.text-link {
     padding: .25em;
     font-size: 16px;
     font-weight: normal;
+    font-family: "Monaco", monospace;
 }
 
 footer {

@@ -15,7 +15,7 @@
 -- [x] Check boxes for config bools
 -- [x] Drop downs for config options (eg: apis enabled)
 -- [x] Text inputs for config fields (eg: owner and email)
--- [ ] Config options should all have hover tooltip descriptions
+-- [x] Config options should all have hover tooltip descriptions
 -- [x] Links to log files
 -- [x] SQL command entry (if /api/sql endpoint is enabled; warn that this is dangerous)
 - [x] New image upload
