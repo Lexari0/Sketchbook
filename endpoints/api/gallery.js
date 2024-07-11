@@ -67,7 +67,15 @@ module.exports = {
             const gallery_item_id = parseInt(split_url[3]);
             const query = await api.getParams(req);
             const item = await apiGalleryIDLookup(gallery_item_id, res, "simple" in query);
-            if (item !== undefined)
+            if (item === undefined)
+            {
+                api.sendResponse(res, 503, {error: `Failed to get item data for the id ${gallery_item_id}`});
+            }
+            else if ("simple" in query)
+            {
+                api.sendResponse(res, 200, {error: "", item});
+            }
+            else
             {
                 const visibility = await gallery.getItemCensorResult(gallery_item_id, query);
                 api.sendResponse(res, 200, {error: "", item, visibility});
