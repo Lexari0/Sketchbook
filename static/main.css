@@ -1,9 +1,13 @@
+html{
+    overflow-x: clip;
+}
 body {
     margin: 0;
     background-color: #3c6e51;
     font-family: "Monaco", monospace;
     position: relative;
     min-height: 100vh;
+    min-width: 100%;
 }
 a:link, a:visited {
     color: #42865e;
@@ -176,6 +180,9 @@ a:hover, a:active {
     border-radius: 0.25em;
     padding: 0.5em;
 }
+label {
+    white-space: nowrap;
+}
 .item-preview, div.existing-tags, div.new-tags {
     padding: 0.5em;
     background-color: #0004;
@@ -184,6 +191,12 @@ a:hover, a:active {
 }
 .item-preview {
     height: fit-content;
+}
+div.existing-tags h2, div.new-tags h2 {
+    white-space: nowrap;
+}
+form.add-tag {
+    white-space: nowrap;
 }
 div.existing-tags, div.new-tags {
     min-height: calc(100vh - 11em);

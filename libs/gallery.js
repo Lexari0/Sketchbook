@@ -81,7 +81,7 @@ module.exports = {
                 "color TEXT",
                 "editable INTEGER DEFAULT 1"
             ]),
-            db.all("CREATE TABLE IF NOT EXISTS item_tags_with_data AS SELECT item_tags.item_tag_entry, item_tags.gallery_item_id, tags.* FROM item_tags INNER JOIN tags ON item_tags.tag_id=tags.tag_id")
+            db.all("CREATE VIEW IF NOT EXISTS item_tags_with_data AS SELECT item_tags.item_tag_entry, item_tags.gallery_item_id, tags.* FROM item_tags INNER JOIN tags ON item_tags.tag_id=tags.tag_id")
         ]);
         await db.all("INSERT OR IGNORE INTO tag_categories (category, description, color, editable) VALUES " + built_in_categories.map(c => `(${c.map(sqlstring.escape).join(", ")}, 0)`).join(", "));
         await Promise.all(Object.keys(built_in_tags).map(category =>
@@ -221,8 +221,10 @@ module.exports = {
         const excluded_query = excluded_tags.length === 0 ? optional_query :
 `SELECT * FROM (
 ${optional_query.replace(/^/gm,"    ")}
-) AS optional WHERE optional.tag NOT IN (
-    ${excluded_tags.join(", ")}
+) AS optional WHERE optional.gallery_item_id NOT IN (
+    SELECT DISTINCT gallery_item_id FROM item_tags_with_data WHERE tag IN (
+        ${excluded_tags.join(", ")}
+    )
 )`;
         const required_query = required_tags.length === 0 ? excluded_query :
 `SELECT * FROM (
@@ -262,19 +264,20 @@ ${required_query.replace(/^/gm,"    ")}
     },
     addTags: async function(gallery_item_id, ...tags) {
         log.message("gallery", "Adding tags to item", gallery_item_id, ":", tags.join(", "))
-        await db.all("INSERT OR REPLACE INTO item_tags (gallery_item_id, tag_id) " + tags.map(tag => `SELECT ${gallery_item_id}, tag_id FROM tags WHERE tag=${tag} AND NOT EXISTS (SELECT * FROM item_tags WHERE gallery_item_id=${gallery_item_id} AND tag=${tag})`).join(" UNION ALL "));
+        await db.all(`INSERT OR IGNORE INTO tags (tag) VALUES ${tags.map(tag => `(${tag})`).join(", ")}`);
+        await db.all("INSERT OR IGNORE INTO item_tags (gallery_item_id, tag_id) " + tags.map(tag => `SELECT ${gallery_item_id}, tag_id FROM tags WHERE tag=${tag} AND NOT EXISTS (SELECT * FROM item_tags WHERE gallery_item_id=${gallery_item_id} AND item_tags.tag_id=tags.tag_id)`).join(" UNION ALL "));
         await this.removeUntaggedTag(gallery_item_id);
     },
     removeTags: async function(gallery_item_id, ...tags) {
         log.message("gallery", "Removing tags from item", gallery_item_id, ":", tags.join(", "))
-        await db.all(`DELETE FROM item_tags WHERE gallery_item_id=${gallery_item_id} AND tag IN (${tags.join(", ")});`);
+        await db.all(`DELETE FROM item_tags WHERE gallery_item_id=${gallery_item_id} AND tag_id IN (SELECT tag_id FROM tags WHERE tag IN (${tags.join(", ")}))`);
         await this.addUntaggedTag(gallery_item_id);
     },
     addUntaggedTag: async function(gallery_item_id) {
         await db.all(`INSERT OR REPLACE INTO item_tags (gallery_item_id, tag_id) SELECT ${gallery_item_id}, tag_id FROM tags WHERE tag='untagged' AND NOT EXISTS (SELECT * FROM item_tags WHERE gallery_item_id=${gallery_item_id})`);
     },
     removeUntaggedTag: async function(gallery_item_id) {
-        await db.all(`DELETE FROM item_tags WHERE gallery_item_id=${gallery_item_id} AND item_tag_entry IN (SELECT a.item_tag_entry FROM (item_tags INNER JOIN tags ON item_tags.tag_id=tags.tag_id) AS a INNER JOIN (item_tags INNER JOIN tags ON item_tags.tag_id=tags.tag_id) AS b ON a.tag_id<>b.tag_id AND b.gallery_item_id=a.gallery_item_id WHERE a.tag="untagged");`);
+        await db.all(`DELETE FROM item_tags WHERE gallery_item_id=${gallery_item_id} AND item_tag_entry IN (SELECT a.item_tag_entry FROM item_tags_with_data AS a INNER JOIN item_tags_with_data AS b ON a.tag_id<>b.tag_id AND b.gallery_item_id=a.gallery_item_id WHERE a.tag="untagged");`);
     },
     updateMetaTags: async function(gallery_item_id) {
         await Promise.all([

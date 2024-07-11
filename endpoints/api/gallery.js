@@ -59,7 +59,8 @@ module.exports = {
             }
             const split_url = req.url.split("?").shift().split("/").filter(String);
             const gallery_item_id = parseInt(split_url[3]);
-            const item = await apiGalleryIDLookup(gallery_item_id, res);
+            const query = await api.getParams(req);
+            const item = await apiGalleryIDLookup(gallery_item_id, res, "simple" in query);
             if (item !== undefined)
             {
                 api.sendResponse(res, 200, {error: "", [gallery_item_id]: item});
@@ -88,7 +89,7 @@ module.exports = {
             for (const item of items_query_result)
             {
                 items[item.gallery_item_id] = item;
-                items[item.gallery_item_id].tags = (await db.select("tag", "item_tags INNER JOIN tags ON item_tags.tag_id=tags.tag_id", {where: `gallery_item_id=${item.gallery_item_id}`})).map(x => x.tag);
+                items[item.gallery_item_id].tags = (await db.select("tag", "item_tags_with_data", {where: `gallery_item_id=${item.gallery_item_id}`})).map(x => x.tag);
                 items[item.gallery_item_id].resolutions = {
                     thumb: `/item/${item.gallery_item_id}/thumb`,
                     small: `/item/${item.gallery_item_id}/small`,

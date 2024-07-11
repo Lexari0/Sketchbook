@@ -35,12 +35,14 @@ module.exports = {
                 res.end(`<h1>Item ${gallery_item_id} is currently missing</h1><h2>Please notify the gallery owner.<br /><a href="/">Return home</a></h2>`);
                 return true;
             }
-            const tags = (await db.select("item_tags.tag", "item_tags INNER JOIN items ON item_tags.gallery_item_id=items.gallery_item_id", {
+            const tags = (await db.select("tag",
+                "item_tags_with_data INNER JOIN items ON item_tags_with_data.gallery_item_id=items.gallery_item_id", {
                 distinct: true,
-                where: `item_tags.gallery_item_id=${gallery_item_id}`,
+                where: `items.gallery_item_id=${gallery_item_id}`,
                 order_by: "tag"
             }));
-            const tags_with_counts = await db.select(["tag", "COUNT(*) as count"], "item_tags", {
+            const tags_with_counts = await db.select(["tag", "COUNT(*) as count"], "item_tags_with_data", {
+                distinct: true,
                 where: `tag IN (${tags.map(x => sqlstring.escape(x.tag)).join()})`,
                 order_by: "tag",
                 group_by: "tag"
@@ -143,9 +145,9 @@ module.exports = {
                 res.end(`<h1>Item ${gallery_item_id} is currently missing</h1><h2>Please notify the gallery owner.<br /><a href="/">Return home</a></h2>`);
                 return true;
             }
-            const tags = (await db.select("item_tags.tag", "item_tags INNER JOIN items ON item_tags.gallery_item_id=items.gallery_item_id", {
+            const tags = (await db.select("tag", "item_tags_with_data INNER JOIN items ON item_tags_with_data.gallery_item_id=items.gallery_item_id", {
                 distinct: true,
-                where: `item_tags.gallery_item_id=${gallery_item_id}`,
+                where: `items.gallery_item_id=${gallery_item_id}`,
                 order_by: "tag"
             }));
             var template_params = {config: structuredClone(config), item, tags: tags};
