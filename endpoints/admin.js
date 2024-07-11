@@ -21,8 +21,7 @@ async function getWifiSSID() {
                 const ssid = stdout.substring(0, stdout.indexOf("\n"));
                 resolve(ssid);
             });
-        }
-        )
+        })
     );
 }
 
@@ -53,7 +52,7 @@ module.exports = {
             const params = await api.getParams(req);
             if ("password" in params)
             {
-                if (admin.isPasswordCorrect(params.password))
+                if (await admin.isPasswordCorrect(params.password))
                 {
                     res.writeHead(302, {
                         "Set-Cookie": `session_token=${admin.generateNewToken()}; Path=/; Max-Age=${admin.token_valid_time_sec}`,
@@ -126,7 +125,7 @@ module.exports = {
             }
             if ("gallery.admin.password" in params)
             {
-                if (!admin.isPasswordCorrect(params.password))
+                if (!await admin.isPasswordCorrect(params.password))
                 {
                     errors += "error.gallery.admin.password=Current password is incorrect!";
                 }

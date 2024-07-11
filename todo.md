@@ -12,8 +12,8 @@
 - [x] Mount USB drives to content folder
 - [x] Add an "admin" panel (must be logged in to view)
 -- [x] Show software info (name, version, etc. from config)
--- [ ] Check boxes for config bools
--- [ ] Drop downs for config options (eg: apis enabled)
+-- [x] Check boxes for config bools
+-- [x] Drop downs for config options (eg: apis enabled)
 -- [x] Text inputs for config fields (eg: owner and email)
 -- [ ] Config options should all have hover tooltip descriptions
 -- [ ] Links to log files
@@ -41,11 +41,9 @@
 - [ ] Ensure running as 'sudo'
 - [ ] Ask if the hostname should be changed to "sketchbook"
 - [ ] Installs prerequisites
--- [ ] nginx
--- [ ] nvm, nodejs, and npm
+-- [ ] apt: nginx avahi-daemon whois certbot
+-- [ ] nvm -> nodejs and npm
 -- [ ] npm packages
--- [ ] avahi-daemon
--- [ ] certbot
 - [ ] Requests initial config information:
 -- [ ] Server domain
 --- [ ] DNS lookup (`host -4 -t A ${domain} | cut -d' ' -f4`) to confirm it points to this machine's public IP (`curl ifconfig.co -4`) with `[[ diff <(command1) <(command2) ]]`

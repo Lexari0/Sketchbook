@@ -52,10 +52,7 @@ const DEFAULT = {
                 text: "Sourcecode",
                 link: "https://github.com/Lexari0/Sketchbook"
             }
-        ],
-        admin: {
-            password: ""
-        }
+        ]
     },
     api: {
         key: uuid(),
@@ -104,6 +101,7 @@ const DEFAULT = {
     logging: {
         path: "last.log",
         enabled_categories: {
+            admin: true,
             api: false,
             config: true,
             db: true,
