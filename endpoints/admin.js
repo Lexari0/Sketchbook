@@ -19,7 +19,6 @@ async function getWifiSSID() {
             }
             exec("iwgetid -r", (error, stdout, stderr) => {
                 const ssid = stdout.substring(0, stdout.indexOf("\n"));
-                console.log("ssid:", ssid);
                 resolve(ssid);
             });
         }
