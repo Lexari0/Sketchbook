@@ -5,11 +5,9 @@ const sqlstring = require("sqlstring-sqlite");
 const admin = require(path.join(process.cwd(), "libs/admin.js"));
 const api = require(path.join(process.cwd(), "libs/api.js"));
 const config = require(path.join(process.cwd(), "libs/config.js"));
-const cookies = require(path.join(process.cwd(), "libs/cookies.js"));
 const db = require(path.join(process.cwd(), "libs/db.js"));
 const gallery = require(path.join(process.cwd(), "libs/gallery.js"));
 const html = require(path.join(process.cwd(), "libs/html.js"));
-const subscribestar = require(path.join(process.cwd(), "libs/subscribestar.js"));
 
 module.exports = {
     register_endpoints: endpoints => {

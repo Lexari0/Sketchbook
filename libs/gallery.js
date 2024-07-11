@@ -6,6 +6,7 @@ const sharp = require("sharp");
 const sqlstring = require("sqlstring-sqlite");
 const admin = require(path.join(process.cwd(), "libs/admin.js"));
 const config = require(path.join(process.cwd(), "libs/config.js"));
+const cookies = require(path.join(process.cwd(), "libs/cookies.js"));
 const db = require(path.join(process.cwd(), "libs/db.js"));
 const log = require(path.join(process.cwd(), "libs/log.js"));
 const subscribestar = require(path.join(process.cwd(), "libs/subscribestar.js"));
