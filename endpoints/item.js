@@ -50,22 +50,40 @@ module.exports = {
         endpoints[/^\/item\/[0-9]+\/(thumb|small|large|source)$/] = async (req, res) => {
             const split_url = req.url.split("?").shift().split("/").filter(String);
             const gallery_item_id = parseInt(split_url[1]);
+            const entry = (await db.select(["file_path", "missing"], "items", {where: `gallery_item_id=${gallery_item_id}`})).shift();
+            if (entry === undefined)
+            {
+                return false;
+            }
+            if (entry.missing)
+            {
+                res.writeHead(404);
+                res.end(`<h1>Item ${gallery_item_id} is currently missing</h1><h2>Please notify the gallery owner.<br /><a href="/">Return home</a></h2>`);
+                return true;
+            }
+            const subscribestar_tags = (await db.select("tag", "item_tags_with_data", {where: `gallery_item_id=${item.gallery_item_id} AND tag LIKE "subscribestar:%"`})).map(x => x.tag);
+            if (subscribestar_tags.length > 0)
+            {
+                // TODO: Only send censored version if the viewer doesn't have access
+                const requested_path = path.resolve(path.join(process.cwd(), "gallery", "censored", `${gallery_item_id}.webp`));
+                if (!fs.existsSync(requested_path))
+                {
+                    await gallery.refreshAlternates(gallery_item_id);
+                }
+                const file_stat = fs.statSync(requested_path);
+                const read_stream = fs.createReadStream(requested_path);
+                res.writeHead(200, {
+                        "Content-Type": mime.lookup(".webp"),
+                        "Content-Length": file_stat.size
+                    });
+                read_stream.pipe(res);
+                return true;
+            }
             var size = split_url[2];
             if (size === "source") {
                 if (!config.gallery.distribute_source)
                 {
                     return false;
-                }
-                const entry = (await db.select(["file_path", "missing"], "items", {where: `gallery_item_id=${gallery_item_id}`})).shift();
-                if (entry === undefined)
-                {
-                    return false;
-                }
-                if (entry.missing)
-                {
-                    res.writeHead(404);
-                    res.end(`<h1>Item ${gallery_item_id} is currently missing</h1><h2>Please notify the gallery owner.<br /><a href="/">Return home</a></h2>`);
-                    return true;
                 }
                 const file_stat = fs.statSync(entry.file_path);
                 const read_stream = fs.createReadStream(entry.file_path);
@@ -76,9 +94,7 @@ module.exports = {
                 read_stream.pipe(res);
                 return true;
             }
-            // TODO: Only censor if the user doesn't have access
-            //const requested_path = path.resolve(path.join(process.cwd(), "gallery", size, `${gallery_item_id}.webp`));
-            const requested_path = path.resolve(path.join(process.cwd(), "gallery", "censored", `${gallery_item_id}.webp`));
+            const requested_path = path.resolve(path.join(process.cwd(), "gallery", size, `${gallery_item_id}.webp`));
             if (!fs.existsSync(requested_path))
             {
                 await gallery.refreshAlternates(gallery_item_id);
