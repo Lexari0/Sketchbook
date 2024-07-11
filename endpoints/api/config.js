@@ -43,14 +43,15 @@ module.exports = {
                 {
                     errors.push(`Key referenced invalid path: ${key}`);
                 }
-                else if (typeof(config_obj[last_key_layer]) == "object")
+                else if (typeof(config_obj[last_key_layer]) === "object")
                 {
                     errors.push(`Key referenced an object, which cannot be set via the API: ${key}`);
                 }
                 if (errors.length == 0)
                 {
-                    config_obj[last_key_layer] = params[key];
-                    changed_config_obj[last_key_layer] = params[key];
+                    const value = typeof(config_obj[last_key_layer]) === "boolean" ? params[key] == "true" : params[key];
+                    config_obj[last_key_layer] = value;
+                    changed_config_obj[last_key_layer] = value;
                 }
             }
             if (errors.length > 0)
