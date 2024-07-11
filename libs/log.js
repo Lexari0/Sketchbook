@@ -38,6 +38,9 @@ function categoryEnabled(category) {
 }
 
 module.exports = {
+    getDirectory: function() {
+        return logs_directory;
+    },
     getActiveFile: function() {
         return active_file;
     },

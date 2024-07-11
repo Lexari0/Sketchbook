@@ -87,9 +87,12 @@ module.exports = {
             }
             const params = await api.getParams(req);
             const file_path = log.getActiveFile();
+            console.log("Getting line_offsets");
             const line_offsets = await getFileLineOffsets(file_path);
             const total_lines = line_offsets.length;
+            console.log("total_lines: ", total_lines);
             const lines = Math.max(0, Math.min(params.lines == undefined ? 20 : params.lines, total_lines));
+            console.log("Getting ", lines, " lines...");
             const logs = await getLogLines(file_path, lines, line_offsets);
             if (logs === undefined)
             {
