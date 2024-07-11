@@ -101,38 +101,70 @@ module.exports = {
                         log.message("api", `Updating file for item ${gallery_item_id}`);
                         try
                         {
-                            const old_file_path = await gallery.getFilePathOfItem(gallery_item_id);
                             if (gallery.isItemMissing(gallery_item_id) === false)
                             {
+                                const old_file_path = await gallery.getFilePathOfItem(gallery_item_id);
                                 log.message("api", `Deleting old file: ${old_file_path}`);
                                 fs.unlinkSync(old_file_path);
                             }
+                        }
+                        catch (err)
+                        {
+                            reject(`Error deleting old file: ${err}`);
+                            return;
+                        }
+                        try
+                        {
                             log.message("api", "Updating DB file path");
                             await db.update("items", {file_path: final_file_path, hash: file_hash}, {
                                 where: `gallery_item_id=${sqlstring.escape(gallery_item_id)}`,
                                 });
+                        }
+                        catch (err)
+                        {
+                            reject(`Error updating database: ${err}`);
+                            return;
+                        }
+                        try
+                        {
                             log.message("api", `Copying temp file to content folder: ${temp_file_path} -> ${final_file_path}`);
                             fs.copyFileSync(temp_file_path, final_file_path);
+                        }
+                        catch (err)
+                        {
+                            reject(`Error copying temp file to final location: ${err}`);
+                            return;
+                        }
+                        try
+                        {
                             log.message("api", "Forcing gallery refresh of item data");
                             if (!await gallery.updateItem(final_file_path))
                             {
-                                throw "Failed to update item in gallery.";
+                                reject("Failed to update item in database");
                             }
-                            try
-                            {
-                                log.message("api", "Deleting temp file");
-                                fs.unlinkSync(temp_file_path);
-                            }
-                            catch
-                            {
-                                // Failing to delete the temp file is not a big deal
-                            }
+                        }
+                        catch (err)
+                        {
+                            reject(`Error updating item in database: ${err}`);
+                            return;
+                        }
+                        try
+                        {
+                            log.message("api", "Deleting temp file");
+                            fs.unlinkSync(temp_file_path);
+                        }
+                        catch
+                        {
+                            // Failing to delete the temp file is not a big deal
+                        }
+                        try
+                        {
                             log.message("api", "Forcing refresh of alternates");
                             await gallery.refreshAlternates(gallery_item_id);
                         }
                         catch (err)
                         {
-                            reject(`Error while managing files or gallery: ${err}`);
+                            reject(`Error while refreshing alternates in gallery: ${err}`);
                             return;
                         }
                         resolve();
