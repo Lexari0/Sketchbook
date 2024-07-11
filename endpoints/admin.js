@@ -76,7 +76,7 @@ module.exports = {
                 admin.revokeToken();
             }
             res.writeHead(302, {
-                "Set-Cookie": admin.stringifyCookies({session_token: null}),
+                "Set-Cookie": cookies.stringifyCookies({session_token: null}),
                 "Location": "/"
             });
             res.end();

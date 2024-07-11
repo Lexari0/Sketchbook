@@ -1,6 +1,7 @@
 const path = require("path");
 const uuid = require("uuid").v4;
 const config = require(path.join(process.cwd(), "libs/config.js"));
+const cookies = require(path.join(process.cwd(), "libs/cookies.js"));
 
 var active_token = undefined;
 var active_token_valid_until = undefined;
@@ -31,20 +32,8 @@ module.exports = {
         active_token = uuid();
         return active_token;
     },
-    getRequestCookies: function(req) {
-        var cookies = {};
-        for (const cookie of (!req.headers || !req.headers.cookie ? [] : req.headers.cookie.split(";")))
-        {
-            var split_cookie = cookie.split("=");
-            cookies[split_cookie.shift().trim()] = split_cookie.shift().trim();
-        }
-        return cookies;
-    },
-    stringifyCookies: function(cookies) {
-        return Object.keys(cookies).map(k => `${k}=${cookies[k] ? cookies[k] : ""}`).join("&");
-    },
     isRequestAdmin: function(req) {
-        const cookies = this.getRequestCookies(req);
+        const cookies = cookies.getRequestCookies(req);
         return this.isTokenValid(cookies.session_token);
     },
     isPasswordCorrect: function(password) {
