@@ -103,6 +103,10 @@ module.exports = {
             console.log("Sending POST request: " + path.join(hostname, page));
             if (data != undefined)
             {
+                if (typeof(data) == "object")
+                {
+                    data = JSON.stringify(data);
+                }
                 if (content_type == undefined)
                 {
                     if (typeof(data) == "string")
