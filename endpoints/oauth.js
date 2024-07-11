@@ -7,12 +7,18 @@ const subscribestar = require(path.join(process.cwd(), "libs/subscribestar.js"))
 const config = require(path.join(process.cwd(), "libs/config.js"));
 
 const oauth_template = fs.readFileSync(path.join(process.cwd(), "templates/oauth.html"), "utf-8");
-async function sendOAuthPage(res, code, platform, params, req, token, lifetime) {
+async function sendOAuthPage(res, code, platform, params, req, token, lifetime, refresh_token) {
     const body = await html.buildTemplate(oauth_template, {...params, platform}, req);
-    res.writeHead(code, {
-        "Content-Type": "text/html",
-        "Set-Cookie": token ? `${platform.toLowerCase()}_auth_token=${token}; Path=/; Max-Age=${lifetime}` : "",
-    });
+    var options = {"Content-Type": "text/html"};
+    if (token)
+    {
+        options["Set-Cookie"] = [`${platform.toLowerCase()}_auth_token=${token}; Path=/; Max-Age=${lifetime}`];
+        if (refresh_token)
+        {
+            options["Set-Cookie"].append(`${platform.toLowerCase()}_auth_token=${refresh_token}; Path=/; Max-Age=${lifetime * 2}`)
+        }
+    }
+    res.writeHead(code, options);
     res.end(body);
 }
 
@@ -44,7 +50,7 @@ module.exports = {
                 {
                     subscribestar.updateOAuth(post_response);
                 }
-                await sendOAuthPage(res, 200, "SubscribeStar", {}, req, post_response.auth_token, post_response.expires_in);
+                await sendOAuthPage(res, 200, "SubscribeStar", {}, req, post_response.access_token, post_response.expires_in, post_response.refresh_token);
             }
             catch (error)
             {
