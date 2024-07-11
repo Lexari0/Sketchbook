@@ -8,10 +8,34 @@
 </script>
 <script src="/static/common.js"></script>
 <script>
+    const cookies = getCookies();
     $(async () => {
         buildTagList(`/api/gallery/tags?item={{ item.gallery_item_id }}`,
             tag => `<li>(<a href="/tag/${tag.tag}">?</a>/<a href="/search?q=${query}+-${tag.tag}">-</a>/<a href="/search?q=${query}+${tag.tag}">+</a>) <a class="tag-link" href="/search?q=${tag.tag}" tag="${tag.tag}" ${tag.color ? `style="color: ${tag.color}"` : ""}>${tag.tag}</a>: ${tag.count}</li>`
         );
+    });
+    $(async () => {
+        var api_request_body = "";
+        if (cookies.subscribestar_access_token != undefined)
+        {
+            api_request_body += `subscribestar_access_token=${cookies.subscribestar_access_token}`
+        }
+        const api_response = await fetch("/api/gallery/item/{{ item.gallery_item_id }}", {
+            method: "POST",
+            body: api_request_body
+        });
+        if (api_response.visibility.censored == false)
+        {
+            return;
+        }
+        const platform_names = api_response.visibility.platforms.map(x => x.platform);
+        if (platform_names.includes("SubscribeStar"))
+        {
+            if (cookies.subscribestar_access_token == undefined)
+            {
+                $(".platform-requirement").append(`<a href="https://www.subscribestar.com/oauth2/authorize?client_id={{ config.subscribestar.client_id }}&redirect_uri=https%3A%2F%2F{{ config.server.domain }}%2Foauth%2Fsubscribestar&response_type=code&scope=content_provider_profile.read+content_provider_profile.subscriptions.read+user.read">Connect to<br /><img src="/static/ss_logo_v.png" /></a>`);
+            }
+        }
     });
 </script>
 </head>
@@ -26,6 +50,7 @@
             <input id="search-button" type="submit" value="Search">
         </form>
     </section>
+    <div class="platform-requirement"></div>
     <div class="sidebar-header">
         <h3>Tags</h3>
     </div>

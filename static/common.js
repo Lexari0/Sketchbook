@@ -1,3 +1,13 @@
+function getCookies() {
+    var cookies = {};
+    for (const cookie of document.cookie.split(";"))
+    {
+        const kvp = cookie.split("=");
+        cookies[kvp[0]] = kvp[1];
+    }
+    return cookies;
+}
+
 async function mapAPICall(api_endpoint, mapper) {
     const response = await fetch(api_endpoint);
     const json = await response.json();
