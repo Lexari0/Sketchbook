@@ -87,7 +87,7 @@ module.exports = {
                             }
                             continue;
                         }
-                        if (url_param.startsWith(/-+/))
+                        if (/^-----------------------------[0-9]+$/g.exec(url_param) != null)
                         {
                             section = url_param;
                             break;
