@@ -186,7 +186,7 @@ module.exports = {
                 updateOrder("RANDOM()");
                 continue;
             }
-            if (match = tag.match(/created:(>|<|=)(.+)/))
+            if (match = tag.match(/^created:(>|<|=)(.+)$/))
             {
                 switch (match[1])
                 {

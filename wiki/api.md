@@ -307,7 +307,7 @@ Queries the gallery with a given search criteria and responds with posts which m
 
 Parameters:
 
-- `q`: Search query as a `+` delimited series of tags. A tag prefixed with `-` must be excluded from results. If multiple tags are prefixed with `~`, only one of them must be included on an item for it to be included in the results. `page:PAGE_INDEX` allows specifying the page of search results to retrieve. 
+- `q`: Search query as a `+` delimited series of tags. See the Search wiki page for more information.
 - `simple` (optional): If provided, no database or external API (eg: visibility) lookups are performed. Useful for only getting relevant URIs.
 
 #### Example Response
