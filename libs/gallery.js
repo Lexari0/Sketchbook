@@ -386,7 +386,7 @@ ${required_query.replace(/^/gm,"    ")}
             distinct: true,
             where: `gallery_item_id=${item_id}`
         });
-        return found.length > 0 ? found[0].missing == 0 : undefined;
+        return found.length > 0 ? found[0].missing == 1 : undefined;
     },
     refreshContent: async function() {
         log.message("gallery", "Refreshing content directory...");
