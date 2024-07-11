@@ -44,7 +44,7 @@ const PLATFORMS = {
 
 module.exports = {
     register_endpoints: endpoints => {
-        for (const platform in Object.keys(PLATFORMS))
+        for (const platform of Object.keys(PLATFORMS))
         {
             const endpoint = path.join("/oauth", platform.toLowerCase());
             console.log("Registered: " + endpoint);

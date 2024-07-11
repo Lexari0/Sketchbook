@@ -23,14 +23,14 @@ module.exports = {
         return "http://" + path.join(config.server.domain, "/oauth/subscribestar");
     },
     clearOauth: function() {
-        for (const key in Object.keys(config.subscribestar.auth_token))
+        for (const key of Object.keys(config.subscribestar.auth_token))
         {
             config.subscribestar.auth_token[key] = undefined;
         }
         config.save();
     },
     updateOauth: function(oauth_response) {
-        for (const key in Object.keys(config.subscribestar.auth_token))
+        for (const key of Object.keys(config.subscribestar.auth_token))
         {
             config.subscribestar.auth_token[key] = oauth_response[key];
         }
