@@ -15,7 +15,7 @@ async function sendOAuthPage(res, code, platform, params, req, token, lifetime, 
         options["Set-Cookie"] = [`${platform.toLowerCase()}_auth_token=${token}; Path=/; Max-Age=${lifetime}`];
         if (refresh_token)
         {
-            options["Set-Cookie"].append(`${platform.toLowerCase()}_auth_token=${refresh_token}; Path=/; Max-Age=${lifetime * 2}`)
+            options["Set-Cookie"].push(`${platform.toLowerCase()}_auth_token=${refresh_token}; Path=/; Max-Age=${lifetime * 2}`)
         }
     }
     res.writeHead(code, options);
