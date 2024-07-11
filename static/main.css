@@ -93,7 +93,7 @@ a:hover, a:active {
     gap: 0.5em;
 }
 #sidebar {
-    width: 15em;
+    min-width: 15em;
     float: left;
     background-color: #0004;
     padding: 1em;
@@ -103,12 +103,13 @@ a:hover, a:active {
 }
 #content {
     flex-grow: 1;
+}
+.search-results-container {
     min-height: calc(100vh - 12em);
 }
 #search-results {
     display: flex;
     flex-wrap: wrap;
-    flex-grow: 1;
 }
 #search-results > #item {
     margin: 0.5em;
