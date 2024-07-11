@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <head>
-<title>{{ config.gallery.name }} - Editing Tag {{ item.gallery_item_id }}</title>
+<title>{{ config.gallery.name }} - Editing Tag {{ tag.tag }}</title>
 <link rel="stylesheet" type="text/css" href="/static/main.css" />
 <script src="/static/jquery-3.7.1.min.js"></script>
 <script src="/static/common.js"></script>
 <script>
-    var tag_changes = {to_remove: {}, to_add: {}};
     $(async () => {
         const url_params = new URLSearchParams(window.location.search);
         if (url_params.has("error"))
@@ -20,15 +19,11 @@
         {
             $(".description").text(decodeURIComponent(url_params.get("description")));
         }
-        $("input[type=checkbox]").prop("checked", false);
-        const new_tag_list = $("#tag-list.new-tags");
-        const new_tag_name = $("input.new-tag-name");
-        new_tag_name.prop("value", "");
         const tag_category = $("select.tag-category");
         function updateSelectedColor() {
             tag_category.css("color", tag_category.find(":selected").css("color"));
         }
-        buildAPIList("select.tag-category", "/api/gallery/tags/categories?count=1000", json => json.categories, category => `<option category-id="${category.id}" style="color: ${category.color ? category.color : "#000"}">${category.category}</option>`)
+        buildAPIList("select.tag-category", "/api/gallery/tags/categories?count=1000", json => json.categories, category => `<option category-id="${category.id}" ${category.color ? `style="color: ${category.color}"` : ""}">${category.category}</option>`)
             .then(() => {
                 if (url_params.has("category"))
                 {
@@ -57,25 +52,17 @@
             console.log({url});
         });
     });
-
-    function toggleAdd(tag) {
-        console.log(tag_changes.to_add[tag] ? "Unmarking": "Marking", "tag for add:", tag);
-        tag_changes.to_add[tag] = !tag_changes.to_add[tag];
-    }
-    function toggleRemoval(tag) {
-        console.log(tag_changes.to_remove[tag] ? "Unmarking": "Marking", "tag for removal:", tag);
-        tag_changes.to_remove[tag] = !tag_changes.to_remove[tag];
-    }
 </script>
 </head>
 <body>
 {# templates/titlebar.html #}
 <div id="main-body">
     <div class="edit-tag-info">
+        <h2>Editing Tag: {{ tag.tag }}</h2>
         <form class="submit-changes">
             <b class="error"></b>
             <div class="form-field">Name:</div><input class="name" type="text" name="name" value="{{ tag.tag }}"><br />
-            <div class="form-field">Description:</div><textarea class="description" name="description" rows="5">{{ tag.description }}</textarea><br />
+            <div class="form-field">Description:</div><textarea class="description" name="description" rows="5">{? if tag.description ?}{{ tag.description }}{? end ?}</textarea><br />
             <div class="form-field">Category:</div><select class="tag-category" name="category">
                 <option category-id="0" style="color: #999">No category</option>
             </select><br />

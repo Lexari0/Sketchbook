@@ -64,7 +64,7 @@
         /*{? else ?}*/
         buildTagList(
             "/api/gallery/tags" + (query ? `?q=${query}` : ""),
-            tag => `<li>(<a href="/tag/${tag.tag}">?</a>/<a href="/search?q=${query}+-${tag.tag}">-</a>/<a href="/search?q=${query}+${tag.tag}">+</a>) <a class="tag-link" href="/search?q=${tag.tag}" tag="${tag.tag}">${tag.tag}</a>: ${tag.count}</li>`
+            tag => `<li>(<a href="/tag/${tag.tag}">?</a>/<a href="/search?q=${query}+-${tag.tag}">-</a>/<a href="/search?q=${query}+${tag.tag}">+</a>) <a class="tag-link" href="/search?q=${tag.tag}" tag="${tag.tag}" ${tag.color ? `style="color: ${tag.color}"` : ""}>${tag.tag}</a>: ${tag.count}</li>`
         )
         /*{? end ?}*/
     });

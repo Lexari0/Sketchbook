@@ -13,7 +13,7 @@ const built_in_categories = [
     [
         "artist",
         "Tags of this category denote artists involved in the creation of an item.",
-        "#6e30a1"
+        "#b37dff"
     ],
     [
         "character",
@@ -29,6 +29,11 @@ const built_in_categories = [
         "meta",
         "Tags of this category are either automatically applied based on a specified rule or apply special rules to a search query.",
         "#0871c2"
+    ],
+    [
+        "species",
+        "Tags of this category denote the species of character(s) depicted in an item.",
+        "#60a38e"
     ]
 ];
 const built_in_tags = {

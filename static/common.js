@@ -16,7 +16,7 @@ async function buildAPIList(jqueryGetter, api_endpoint, array_getter, html_forma
     }
 }
 
-async function buildTagList(api_endpoint, tag_html_formatter) {
+async function buildTagList(api_endpoint, tag_html_formatter = tag => `<li><a class="tag-link" href="/tag/${tag.tag}" tag="${tag.tag}" ${tag.color ? `style="color: ${tag.color}"` : ""}>${tag.tag}</a>: ${tag.count}</li>`) {
     await buildAPIList(".tag-list", api_endpoint, json => json.tags, tag_html_formatter)
 }
 
@@ -193,12 +193,12 @@ function getInvalidCharactersInTag(tag) {
 function getErrorMessageForInvalidCharacters(bad_matches) {
     if (bad_matches.length === 0)
     {
-        return "No invalid characters in tag.";
+        return "No invalid characters in tag/category.";
     }
     const last = bad_matches.pop();
     if (bad_matches.length === 0)
     {
-        return `${last} is an illegal or reserved character in tags!`;
+        return `${last} is an illegal or reserved character in tags/categories!`;
     }
-    return `${bad_matches.map(x => `'${x}'`).join()}${bad_matches.length > 1 ? "," : ""} and '${last}' are illegal or reserved characters in tags!`;
+    return `${bad_matches.map(x => `'${x}'`).join()}${bad_matches.length > 1 ? "," : ""} and '${last}' are illegal or reserved characters in tags/categories!`;
 }

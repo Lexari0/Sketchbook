@@ -1,111 +1,85 @@
 <!DOCTYPE html>
 <head>
-<title>{{ config.gallery.name }} - Editing #{{ item.gallery_item_id }}</title>
+<title>{{ config.gallery.name }} - Editing Tag Category {{ category.category }}</title>
 <link rel="stylesheet" type="text/css" href="/static/main.css" />
 <script src="/static/jquery-3.7.1.min.js"></script>
+<script src="/static/common.js"></script>
 <script>
-    var tag_changes = {to_remove: {}, to_add: {}};
-    window.onload = (async () => {
-        $("input[type=checkbox]").prop("checked", false);
-        const new_tag_list = $("#tag-list.new-tags");
-        const new_tag_name = $("input.new-tag-name");
-        new_tag_name.prop("value", "");
-        $("form.add-tag").submit(function(event) {
-            event.preventDefault();
-            const tag_name = new_tag_name.prop("value").replace(/^\s+|\s+$/, "").replace(/\s+/g, "_").toLowerCase();
-            if (tag_name.length === 0)
-            {
-                return;
-            }
-            var bad_matches = [...new Set(tag_name.match(/[:{}<>="'`]/g))]
-            const error_msg = $("form.add-tag .error")
-            if (bad_matches.length > 0)
-            {
-                const last = bad_matches.pop();
-                if (bad_matches.length === 0)
-                {
-                    error_msg.text(`${last} is an illegal or reserved character in tags!`)
-                    error_msg.append("<br />");
-                }
-                else
-                {
-                    error_msg.text(`${bad_matches.map(x => `'${x}'`).join()}${bad_matches.length > 1 ? "," : ""} and '${last}' are illegal or reserved characters in tags!`);
-                    error_msg.append("<br />");
-                }
-                return;
-            }
-            error_msg.html("");
-            new_tag_list.append(`<li><input type="checkbox" onchange="toggleAdd('${tag_name}')" name="add-${tag_name}" value="${tag_name}" checked><label for="add-${tag_name}">${tag_name}</label></li>`);
-            toggleAdd(tag_name);
-            new_tag_name.prop("value", "");
-        });
+    $(async () => {
+        const url_params = new URLSearchParams(window.location.search);
+        if (url_params.has("error"))
+        {
+            $(".error").text(decodeURIComponent(url_params.get("error")));
+        }
+        if (url_params.has("name"))
+        {
+            $(".name").val(decodeURIComponent(url_params.get("name")));
+        }
+        if (url_params.has("description"))
+        {
+            $(".description").text(decodeURIComponent(url_params.get("description")));
+        }
+        if (url_params.has("color"))
+        {
+            $(".color").text(decodeURIComponent(url_params.get("color")));
+        }
         $("form.submit-changes").submit(function(event) {
             event.preventDefault();
             var url = new URL(window.location.href);
-            var params = {tags_to_remove: [], tags_to_add: [], name: $("input.name").prop("value"), description: $("textarea.description").prop("value")};
-            for (const k of Object.keys(tag_changes.to_remove))
+            const new_name = formatAsTag($("input.name").prop("value"));
+            const bad_matches = getInvalidCharactersInTag(new_name);
+            if (bad_matches.length > 0)
             {
-                if (tag_changes.to_remove[k])
-                {
-                    params.tags_to_remove.push(k)
-                }
+                const error_msg = $(this).find(".error");
+                error_msg.text(getErrorMessageForInvalidCharacters(bad_matches));
+                error_msg.append("<br />");
+                return;
             }
-            for (const k of Object.keys(tag_changes.to_add))
-            {
-                if (tag_changes.to_add[k])
-                {
-                    params.tags_to_add.push(k)
-                }
-            }
+            const params = {name: new_name, description: $("textarea.description").prop("value"), color: $("input.color").val()};
             url.search = "submitting&" + Object.keys(params).map(k => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`).join("&");
             window.location.href = url.toString();
+            console.log({url});
+        });
+        const color_picker = $("input.color");
+        const clear_color_button = $("button.clear-color");
+        const color_text = $("p.color");
+        color_picker.on("change", () => color_text.html(color_picker.val()));
+        color_picker.on("click", () => {
+            color_text.html(color_picker.val());
+            if (color_picker.val() === "#000000")
+            {
+                color_picker.val("#888888");
+            }
+        });
+        clear_color_button.on("click", event => {
+            event.preventDefault();
+            color_picker.val(0);
+            color_text.html("<i class=\"missing\">None</i>");
         });
     });
-
-    function toggleAdd(tag) {
-        console.log(tag_changes.to_add[tag] ? "Unmarking": "Marking", "tag for add:", tag);
-        tag_changes.to_add[tag] = !tag_changes.to_add[tag];
-    }
-    function toggleRemoval(tag) {
-        console.log(tag_changes.to_remove[tag] ? "Unmarking": "Marking", "tag for removal:", tag);
-        tag_changes.to_remove[tag] = !tag_changes.to_remove[tag];
-    }
 </script>
 </head>
 <body>
 {# templates/titlebar.html #}
 <div id="main-body">
-    <div class="item-preview">
-        <img src="/item/{{ item.gallery_item_id }}/small" />
+    <div class="edit-tag-category-info">
+        <h2>Editing Tag Category: {{ category.category }}</h2>
         <form class="submit-changes">
-            <div class="form-field">Name:</div><input class="name" type="text" name="name" value="{{ item.name }}"><br />
-            <div class="form-field">Description:</div><textarea class="description" name="description" rows="5">{{ item.description }}</textarea><br />
-            <input class="button" type="submit" value="Update Item">
-        </form>
-    </div>
-    <div class="existing-tags">
-        <h2>Tags to Remove</h2>
-        <ul id="tag-list" class="existing-tags">
-            {% for tag in tags %}
-            <li>
-                <label for="remove-{{ tag.tag }}">
-                    <input type="checkbox" onchange="toggleRemoval('{{ tag.tag }}')" name="remove-{{ tag.tag }}" value="{{ tag.tag }}">
-                    {{ tag.tag }}
-                </label>
-            </li>
-            {% end %}
-        </ul>
-    </div>
-    <div class="new-tags">
-        <h2>Tags to Add</h2>
-        <form class="add-tag">
             <b class="error"></b>
-            <input class="new-tag-name" type="text">
-            <input type="submit" value="Add">
+            <div class="form-field">Name:</div><input class="name" type="text" name="name" value="{{ category.category }}"><br />
+            <div class="form-field">Description:</div><textarea class="description" name="description" rows="5">{? if category.description ?}{{ category.description }}{? end ?}</textarea><br />
+            <div class="form-field">Color:</div><div class="color-picker">
+                <input class="color" type="color" name="color" value="{? if category.color ?}{{ category.color }}{? end ?}"><button class="clear-color">Clear</button>
+                <p class="color">
+                    {? if category.color ?}
+                    {{ category.color }}
+                    {? else ?}
+                    <i class="missing">None</i>
+                    {? end ?}
+                </p>
+            </div><br />
+            <input class="button" type="submit" value="Update Category">
         </form>
-        <br />
-        <ul id="tag-list" class="new-tags">
-        </ul>
     </div>
 </div>
 <footer>

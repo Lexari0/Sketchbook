@@ -66,9 +66,10 @@ const DEFAULT = {
         path: "last.log",
         enabled_categories: {
             api: false,
-            db: true,
             config: true,
+            db: true,
             gallery: true,
+            html: false,
             other: true,
             program: true,
             sql: false,

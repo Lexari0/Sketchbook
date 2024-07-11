@@ -10,11 +10,9 @@
 <script>
     $(async () => {
         Promise.all([
-            buildTagList(`/api/gallery/tags?q=${query}`,
-                tag => `<li><a class="tag-link" href="/tag/${tag.tag}" tag="${tag.tag}">${tag.tag}</a>: ${tag.count}</li>`
-            ),
+            buildTagList(`/api/gallery/tags?q=${query}`),
             buildAPIList(".category-list", "/api/gallery/tags/categories", json => json.categories,
-                category => `<li><a class="category-link" href="/tags/category/${category.category}">${category.category}</a>: ${category.count}</li>`
+                category => `<li><a class="category-link" href="/tags/category/${category.category}" ${category.color ? `style="color: ${category.color}"` : ""}>${category.category}</a>: ${category.count}</li>`
             ),
         ]);
     });

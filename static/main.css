@@ -381,7 +381,8 @@ div.new-tags {
     height: fit-content;
 }
 
-div.edit-tag-info {
+div.edit-tag-info,
+div.edit-tag-category-info {
     padding: 0.5em;
     background-color: #0004;
     border-radius: 0.25em;
@@ -392,12 +393,15 @@ div.edit-tag-info {
 
 div.existing-tags h2,
 div.new-tags h2,
-div.edit-tag-info h2 {
+div.edit-tag-info h2,
+div.edit-tag-category-info h2 {
     white-space: nowrap;
 }
 
 div.edit-tag-info input[type=submit],
-div.edit-tag-info select {
+div.edit-tag-info select,
+div.edit-tag-category-info input[type=submit],
+div.edit-tag-category-info select {
     min-width: 100%;
     max-width: 100%;
 }
@@ -411,9 +415,32 @@ form.submit-changes input[type=submit] {
     margin-top: 0.5em;
 }
 
+.color-picker {
+    height: fit-content;
+    display: flex;
+    gap: 1em;
+    align-items: center;
+}
+
+.clear-color {
+    padding: 0.5em 1em;
+}
+
+.clear-color,
+input[type=color] {
+    height: 3em;
+    vertical-align: top;
+}
+
+p.color {
+    display: inline;
+    margin: 0;
+}
 
 div.edit-tag-info input[type=text],
-div.edit-tag-info textarea {
+div.edit-tag-info textarea,
+div.edit-tag-category-info input[type=text],
+div.edit-tag-category-info textarea {
     min-width: calc(100% - 8px);
     max-width: calc(100% - 8px);
 }

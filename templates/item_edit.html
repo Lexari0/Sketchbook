@@ -68,6 +68,7 @@
 {# templates/titlebar.html #}
 <div id="main-body">
     <div class="item-preview">
+        <h2>Editing Item #{{ item.gallery_item_id }}</h2>
         <img src="/item/{{ item.gallery_item_id }}/small" />
         <form class="submit-changes">
             <div class="form-field">Name:</div><input class="name" type="text" name="name" value="{{ item.name }}"><br />

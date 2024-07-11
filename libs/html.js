@@ -213,7 +213,9 @@ module.exports = function (defaultContents = undefined) {
                     const fail_body = () => else_match ? section_to_eval.substr(else_match.index + else_match[0].length, end_match.index - (else_match.index + else_match[0].length)) : "";
                     const post_section = template_without_pre_section.substr(end_match.index + end_match[0].length);
                     const found_param = findParam(params, condition);
-                    template = pre_section + (found_param ? pass_body() : fail_body()).replace(/^\s+|\s+$/g, "") + post_section;
+                    const replaced_section = (found_param ? pass_body() : fail_body()).replace(/^\s+|\s+$/g, "");
+                    log.message("html", start_match[0], {section_to_eval, else_match: else_match ? else_match.index : -1, end_match: end_match.index, pass_body: pass_body(), fail_body: fail_body(), replaced_section});
+                    template = pre_section + replaced_section + post_section;
                 }
                 return template;
             }

@@ -136,11 +136,11 @@ module.exports = {
             var where = [];
             if (use_like)
             {
-                where.push(`tags.tag LIKE ${sqlstring.escape(like)} ESCAPE '\\'`);
+                where.push(`tag LIKE ${sqlstring.escape(like)} ESCAPE '\\'`);
             }
             if (category)
             {
-                where.push(`tag_categories.category=${sqlstring.escape(category)}`);
+                where.push(`category=${sqlstring.escape(category)}`);
             }
             if (!isNaN(item))
             {
@@ -156,7 +156,7 @@ module.exports = {
             }
             // TODO: Use query.q to search for items and count tags on those items
             const limit = Math.max(Math.min(isNaN(count) ? 20 : count, 100), 1);
-            const tags = await db.select(["tag", "description", "category", "(SELECT COUNT(*) FROM item_tags WHERE item_tags.tag_id=tags_with_categories.tag_id) AS count"],
+            const tags = await db.select(["tag", "description", "category", "color", "(SELECT COUNT(*) FROM item_tags WHERE item_tags.tag_id=tags_with_categories.tag_id) AS count"],
                 "tags_with_categories", {
                     where,
                     order_by: "count DESC, tag",

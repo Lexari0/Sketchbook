@@ -1,7 +1,7 @@
 # To Do
 
 - [x]Tag/category wiki
--- [ ] Tag/category editing
+-- [x] Tag/category editing
 - [x] Tag search auto complete
 - [ ] Relevant tags given a query
 - [ ] New image upload

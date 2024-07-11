@@ -6,9 +6,7 @@
 <script src="/static/common.js"></script>
 <script>
     $(async () => {
-        buildTagList("/api/gallery/tags?q={{ tag.tag }}",
-            tag => `<li><a class="tag-link" href="/tag/${tag.tag}" tag="${tag.tag}">${tag.tag}</a>: ${tag.count}</li>`
-        );
+        buildTagList("/api/gallery/tags?q={{ tag.tag }}");
         buildAPIList(".tag-examples",
             `http://golem.local:8090/api/gallery/search?q=${encodeURIComponent("{{ tag.tag }}")}&count=8&simple`,
             json => Object.values(json.items),
