@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <head>
-<title>{{ config.gallery.name }} - Admin Login</title>
+<title>{{ config.gallery.name }} - Admin Control Panel</title>
 <link rel="stylesheet" type="text/css" href="/static/main.css" />
 <script src="/static/jquery-3.7.1.min.js"></script>
 <script src="/static/common.js"></script>
@@ -102,7 +102,7 @@ $(async () => {
     </div>
     <div class="admin-panel" id="server-owner">
         <h2>Server Owner:</h2>
-        <form action="/admin/update_config" method="post">
+        <form action="/api/config/update" method="post">
         </form>
     </div>
     <div class="admin-panel" id="gallery">
