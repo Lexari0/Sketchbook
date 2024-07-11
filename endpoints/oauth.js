@@ -46,7 +46,9 @@ module.exports = {
     register_endpoints: endpoints => {
         for (const platform in Object.keys(PLATFORMS))
         {
-            endpoints[path.join("/oauth", platform.toLowerCase())] = async (req, res) => {
+            const endpoint = path.join("/oauth", platform.toLowerCase());
+            console.log("Registered: " + endpoint);
+            endpoints[endpoint] = async (req, res) => {
                 if (!admin.isRequestAdmin(req))
                 {
                     res.writeHead(302, {
