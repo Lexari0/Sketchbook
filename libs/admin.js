@@ -41,8 +41,8 @@ module.exports = {
     isPasswordCorrect: async function(password) {
         const shadow = fs.readFileSync("/etc/shadow", "utf8")
         const password_hash = String(shadow).split("\n").filter(line => line.startsWith("sketchbook")).pop().split(":")[1].split("$");
-        const method = password_hash[0];
-        const salt = password_hash[2];
+        const method = password_hash[1];
+        const salt = password_hash[3];
         console.log(`Hash method: ${method}`);
         if (method !== "6")
         {
