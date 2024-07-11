@@ -177,7 +177,7 @@ function updateRecentLogs() {
 }
 $(updateRecentLogs);
 $(() => {
-    const log_file_list = $("#logs .log-files .log-files .file-list ul");
+    const log_file_list = $("#logs .log-files .file-list ul");
     fetch("/api/log/files", { method:"POST" })
         .then(response => response.json())
         .then(json => {
@@ -243,7 +243,7 @@ $(() => {
     <div class="admin-panel" id="logs">
         <div class="recent-logs">
             <h3>Recent Logs:</h3>
-            <textarea readonly></textarea>
+            <textarea readonly lines="20"></textarea>
         </div>
         <hr />
         <div class="log-files">
