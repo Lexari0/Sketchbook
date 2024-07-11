@@ -13,7 +13,7 @@ async function buildAPIList(jqueryGetter, api_endpoint, array_getter, html_forma
     const tag_list = $(jqueryGetter);
     if (tag_list.length > 0)
     {
-        for (const html_tag of mapAPICall(api_endpoint, array_getter).map(html_formatter))
+        for (const html_tag of (await mapAPICall(api_endpoint, array_getter)).map(html_formatter))
         {
             tag_list.append(html_tag);
         }
