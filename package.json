@@ -23,6 +23,7 @@
   "dependencies": {
     "chokidar": "^3.6.0",
     "mime-types": "^2.1.35",
+    "node-stream-zip": "^1.15.0",
     "sharp": "^0.33.2",
     "sqlite3": "^5.1.7",
     "sqlstring-sqlite": "^0.1.1",

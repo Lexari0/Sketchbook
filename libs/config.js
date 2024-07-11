@@ -13,7 +13,7 @@ const DEFAULT = {
     server: {
         software: {
             name: "Sketchbook",
-            version: "1.0",
+            version: "0.1",
             source: "https://github.com/Lexari0/Sketchbook",
             author: "Lexario",
             license: "MIT"
