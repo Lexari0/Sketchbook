@@ -608,6 +608,8 @@ button.text-link {
     border-radius: 4px;
     background: #eee;
     padding: .25em;
+    font-size: 16px;
+    font-weight: normal;
 }
 
 footer {
