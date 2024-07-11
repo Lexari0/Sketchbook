@@ -65,36 +65,37 @@ module.exports = {
                 return true;
             }
             const query = await api.getParams(req);
-            const page = "page" in query ? parseInt(query.page) : 1;
+            const page = "page" in query ? Math.max(parseInt(query.page), 1) : 1;
             const item_count = (await db.select(["COUNT(*) AS item_count"], "items")).shift().item_count;
             const page_count = Math.ceil(item_count / 50);
             const items_query_result = (await db.select(
                     ["gallery_item_id", "name", "created AS uploaded_on", "last_update AS last_edited", "source", "missing"],
                     "items",
                     {
+                        where: "since" in query ? `last_update>${sqlstring.escape(query.since)}` : undefined,
                         order_by: "last_update",
                         limit: 50,
-                        offset: page * 50
+                        offset: (page - 1) * 50
                     }
                 ));
             var items = {};
             for (const item of items_query_result)
             {
                 items[item.gallery_item_id] = item;
-                delete items[item.gallery_item_id].gallery_item_id;
-                items[item.gallery_item_id].tags = (await db.select("tag", "item_tags", {where: `gallery_item_id=${gallery_item_id}`})).map(x => x.tag);
+                items[item.gallery_item_id].tags = (await db.select("tag", "item_tags", {where: `gallery_item_id=${item.gallery_item_id}`})).map(x => x.tag);
                 items[item.gallery_item_id].resolutions = {
-                    thumb: `/item/${gallery_item_id}/thumb`,
-                    small: `/item/${gallery_item_id}/small`,
-                    large: `/item/${gallery_item_id}/large`
+                    thumb: `/item/${item.gallery_item_id}/thumb`,
+                    small: `/item/${item.gallery_item_id}/small`,
+                    large: `/item/${item.gallery_item_id}/large`
                 };
                 if (config.gallery.distribute_source)
                 {
-                    items[item.gallery_item_id].resolutions.source = `/item/${gallery_item_id}/source`
+                    items[item.gallery_item_id].resolutions.source = `/item/${item.gallery_item_id}/source`
                 }
-                items[item.gallery_item_id].uri = `/item/${gallery_item_id}`;
+                items[item.gallery_item_id].uri = `/item/${item.gallery_item_id}`;
+                delete items[item.gallery_item_id].gallery_item_id;
             }
-            api.sendResponse(res, 200, {error: "", items});
+            api.sendResponse(res, 200, {error: "", page, page_count, items});
             return true;
         };
         endpoints["/api/gallery/search"] = async (req, res) => {
@@ -106,12 +107,14 @@ module.exports = {
                 api.sendResponse(res, 400, {error: "Missing query parameter 'q'"});
                 return true;
             }
-            var search_results = {}
-            for (const search_result of await gallery.search(decodeURIComponent(query.q)))
+            const query_results = await gallery.search(decodeURIComponent(query.q));
+            console.log({query_results});
+            var search_results = {};
+            for (const search_result of query_results.items)
             {
                 search_results[search_result.gallery_item_id] = await apiGalleryIDLookup(search_result.gallery_item_id);
             }
-            api.sendResponse(res, 200, {error: "", q: query.q, r: search_results});
+            api.sendResponse(res, 200, {error: "", q: query.q, item_count: query_results.item_count, items: search_results});
             return true;
         };
     }

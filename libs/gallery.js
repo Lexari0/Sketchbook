@@ -87,6 +87,8 @@ module.exports = {
             }
         };
         var page = 1;
+        var earliest_date = undefined;
+        var latest_date = undefined;
         var optional_tags = [];
         var excluded_tags = [];
         var required_tags = [];
@@ -94,21 +96,37 @@ module.exports = {
         {
             switch (tag)
             {
-                case "order:created":
-                    updateOrder("created DESC");
+            case "order:created":
+                updateOrder("created DESC");
+                continue;
+            case "order:created_asc":
+                updateOrder("created ASC");
+                continue;
+            case "order:updated":
+                updateOrder("last_update DESC");
+                continue;
+            case "order:updated_asc":
+                updateOrder("last_update ASC");
+                continue;
+            case "order:random":
+                updateOrder("RANDOM()");
+                continue;
+            }
+            if (match = tag.match(/created:(>|<|=)(.+)/))
+            {
+                switch (match[1])
+                {
+                case ">":
+                    earliest_date = match[2];
                     continue;
-                case "order:created_asc":
-                    updateOrder("created ASC");
+                case "<":
+                    latest_date = match[2];
                     continue;
-                case "order:updated":
-                    updateOrder("last_update DESC");
+                case "=":
+                    earliest_date = match[2];
+                    latest_date = match[2];
                     continue;
-                case "order:updated_asc":
-                    updateOrder("last_update ASC");
-                    continue;
-                case "order:random":
-                    updateOrder("RANDOM()");
-                    continue;
+                }
             }
             if (tag.match(/^page:[0-9]+$/))
             {
@@ -147,10 +165,16 @@ module.exports = {
         const optional_query = optional_tags.length === 0 ? "item_tags" : "SELECT * FROM item_tags WHERE tag IN (" + optional_tags.join(", ") + ")";
         const excluded_query = excluded_tags.length === 0 ? optional_query : "SELECT * FROM (" + optional_query + ") WHERE gallery_item_id NOT IN (SELECT gallery_item_id FROM item_tags WHERE tag IN (" + excluded_tags.join(", ") + "))"
         const required_query = required_tags.length === 0 ? excluded_query : "SELECT * FROM (" + excluded_query + ") AS found INNER JOIN item_tags ON item_tags.gallery_item_id = found.gallery_item_id WHERE item_tags.tag IN (" + required_tags.join(", ") + ") GROUP BY item_tags.gallery_item_id HAVING COUNT(DISTINCT item_tags.tag) = " + required_tags.length
-        return "SELECT DISTINCT " + selected_columns + " FROM (" + required_query + ") AS found INNER JOIN items ON items.gallery_item_id=found.gallery_item_id WHERE items.missing=0 ORDER BY " + order_by + " LIMIT " + limit + " OFFSET " + ((page - 1) * limit);
+        return "SELECT DISTINCT " + selected_columns + ", (SELECT COUNT(*) FROM (" + required_query + ")) AS item_count FROM (" + required_query + ") AS found INNER JOIN items ON items.gallery_item_id=found.gallery_item_id WHERE items.missing=0 ORDER BY " + order_by + " LIMIT " + limit + " OFFSET " + ((page - 1) * limit);
     },
     search: async function (query) {
-        return await db.all(this.buildSQLFromSearch(query));
+        const result = await db.all(this.buildSQLFromSearch(query));
+        console.log({result});
+        if (result.length === 0)
+        {
+            return {item_count: 0, items: []};
+        }
+        return {item_count: result[0].item_count, items: result.map(x => { delete x.item_count; return x; })};
     },
     hashFile: async function (file_path) {
         if (!path.isAbsolute(file_path))
