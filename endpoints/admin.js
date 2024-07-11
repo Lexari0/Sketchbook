@@ -176,7 +176,7 @@ module.exports = {
                         const uploaded_file = form.file[0];
                         const temp_file_path = uploaded_file.filepath;
                         const file_hash = await gallery.hashFile(temp_file_path);
-                        const final_file_path = path.join(process.cwd(), "content", file_hash + path.extname(uploaded_file.originalFilename));
+                        const final_file_path = path.join(gallery.content_path, file_hash + path.extname(uploaded_file.originalFilename));
                         try
                         {
                             fs.copyFileSync(temp_file_path, final_file_path);
