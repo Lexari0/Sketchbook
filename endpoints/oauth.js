@@ -35,9 +35,9 @@ const PLATFORMS = {
             console.log(`OAuth response: ${post_response}`);
             subscribestar.updateOauth(post_response);
         }
-        catch
+        catch (error)
         {
-            await sendOAuthPage(res, 503, {platform: "SubscribeStar", error: "Server side error getting POST response from SubscribeStar"}, req);
+            await sendOAuthPage(res, 503, {platform: "SubscribeStar", error: `Server side error getting POST response from SubscribeStar: ${error}`}, req);
             return;
         }
         sendOAuthPage(res, 200, {platform: "SubscribeStar"}, req);
