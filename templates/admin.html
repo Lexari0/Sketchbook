@@ -25,7 +25,7 @@ function dropdownField(name, value, key, values) {
     var select = field.find("select");
     for (const option of values)
     {
-        select.append($(`<option value="${option}">${option}</option>`));
+        select.append($(`<option value="${option}" ${option === value ? "selected=\"selected\"" : ""}>${option}</option>`));
     }
     return field;
 }
@@ -40,7 +40,7 @@ function configFormSubmit(form, event) {
     event.preventDefault();
     var fields = {};
     form.find("input").each((i, x) => {
-        if (x.type === "text")
+        if (x.type === "text" || x.type == "select")
         {
             fields[x.name] = x.value;
         }
@@ -98,6 +98,7 @@ $(async () => {
             const gallery_config = $("form.gallery-config");
             gallery_config.append(textField("Name", config.gallery.name, "gallery.name"));
             gallery_config.append(checkboxField("Distribute Source Content", config.gallery.distribute_source, "gallery.distribute_source"));
+            gallery_config.append(submitButton());
             gallery_config.submit(event => configFormSubmit(server_owner, event));
             const api = $("#api form");
             api.find(".api-keys").append(textField("Key", config.api.key, "api.key"));
@@ -115,7 +116,7 @@ $(async () => {
                 enabled_endpoints.append(dropdownField(endpoint, value, "api.enabled_endpoints." + key, ["any", "key", "admin"]));
             }
             addEndpointDropdowns("", config.api.enabled_endpoints);
-            gallery_config.append(checkboxField("Distribute Source Content", config.gallery.distribute_source, "gallery.distribute_source"));
+            api.append(submitButton());
             gallery_config.submit(event => configFormSubmit(server_owner, event));
         });
     fetch("/api/gallery")
@@ -183,7 +184,6 @@ $(async () => {
             <button type="button" class="collapsible"><h3>Enabled Endpoints</h3></button>
             <div class="enabled-endpoints">
             </div>
-            <input class="button" type="submit" value="Update">
         </form>
     </div>
     <div class="admin-panel" id="gallery">
