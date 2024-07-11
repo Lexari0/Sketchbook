@@ -110,6 +110,7 @@ module.exports = {
             {
                 return true;
             }
+            const params = await api.getParams(req);
             const split_url = req.url.split("?").shift().split("/").filter(String);
             const file_name = split_url[3];
             const file_path = path.join(log.getDirectory(), file_name);
@@ -125,7 +126,6 @@ module.exports = {
                 }
                 return true;
             }
-            const params = await api.getParams(req);
             if (params.plaintext)
             {
                 try
