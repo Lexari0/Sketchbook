@@ -12,14 +12,19 @@
         new_tag_name.prop("value", "");
         $("form.add-tag").submit(function(event) {
             event.preventDefault();
-            const tag_name = new_tag_name.prop("value");
+            const tag_name = new_tag_name.prop("value").replace(/^\s+|\s+$/, "").replace(/\s+/g, "_");
+            if (bad_match = tag_name.match(/[:{}<>=]/g))
+            {
+                $("form.add-tag .error").text(`${bad_match.join()} ${bad_match.length === 0 ? "is an illegal or reserved character" : "are illegal or reserved characters"} in tags!`);
+                return;
+            }
+            $("form.add-tag .error").text("");
             new_tag_list.append(`<li><input type="checkbox" onchange="toggleAdd('${tag_name}')" name="add-${tag_name}" value="${tag_name}" checked><label for="add-${tag_name}">${tag_name}</label></li>`);
             toggleAdd(tag_name);
             new_tag_name.prop("value", "");
         });
         $("form.submit-changes").submit(function(event) {
             event.preventDefault();
-            console.log("Do submission");
             var url = new URL(window.location.href);
             var params = {tags_to_remove: [], tags_to_add: [], name: $("input.name").prop("value"), description: $("textarea.description").prop("value")};
             for (const k of Object.keys(tag_changes.to_remove))
@@ -73,6 +78,7 @@
     <div class="new-tags">
         <h2>Tags to Add</h2>
         <form class="add-tag">
+            <b class="error"></b>
             <input class="new-tag-name" type="text">
             <input type="submit" value="Add">
         </form>
