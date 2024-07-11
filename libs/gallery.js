@@ -54,9 +54,10 @@ const built_in_tags = {
 module.exports = {
     content_path,
     image_directories: {
-        "thumb": path.join(process.cwd(), "gallery/thumb"),
-        "small": path.join(process.cwd(), "gallery/small"),
-        "large": path.join(process.cwd(), "gallery/large")
+        censored: path.join(process.cwd(), "gallery/censored"),
+        thumb: path.join(process.cwd(), "gallery/thumb"),
+        small: path.join(process.cwd(), "gallery/small"),
+        large: path.join(process.cwd(), "gallery/large")
     },
     prepareTables: async function() {
         if (db.db == null) {
@@ -101,24 +102,6 @@ module.exports = {
             db.all("INSERT OR IGNORE INTO tags (tag, description, tag_category_id, editable) SELECT " + built_in_tags[category].map(sqlstring.escape).join(", ") + ", tag_category_id, 0 FROM tag_categories WHERE category=" + sqlstring.escape(category))
         ));
     },
-    getCensoredAlternate: async function(gallery_item_id) {
-        const entry = (await db.select(["file_path", "missing"], "items", {where: `gallery_item_id=${gallery_item_id}`})).shift();
-        if (entry === undefined)
-        {
-            log.error("gallery", `No database entry for item ${gallery_item_id}, so there are no alternates to refresh.`);
-            return;
-        }
-        else if (entry.missing)
-        {
-            log.error("gallery", "Item", gallery_item_id, "is currently missing, so there are no alternates to refresh.");
-            return;
-        }
-        const file_path = path.join(this.image_directories.small, `${gallery_item_id}.webp`);
-        var image = sharp(file_path);
-        image.blur(30.0);
-        image.webp({quality: 1});
-        return await image.toBuffer();
-    },
     refreshAlternates: async function(gallery_item_id) {
         const entry = (await db.select(["file_path", "missing"], "items", {where: `gallery_item_id=${gallery_item_id}`})).shift();
         if (entry === undefined)
@@ -138,33 +121,39 @@ module.exports = {
             log.error("gallery", "Item", gallery_item_id, "has a file_path which doesn't exist.");
             return;
         }
-        async function createAlternate(destination_file_path, size, fit, quality) {
-            var image = await sharp(file_path);
-            if (size)
+        const source_image = sharp(file_path);
+        async function createAlternate(destination_file_path, options = {quality: 80}) {
+            var image = source_image.clone();
+            if (options.size)
             {
                 const metadata = await image.metadata();
-                size = Math.min(size, metadata.width, metadata.height);
-                await image.resize(size, size, {fit});
+                options.size = Math.min(options.size, metadata.width, metadata.height);
+                image.resize(options.size, options.size, {fit: options.fit});
             }
-            await image.webp({quality})
-            await image.toFile(destination_file_path);
+            if (options.blur)
+            {
+                image.blur(options.blur);
+            }
+            image.webp({quality: options.quality})
+            image.toFile(destination_file_path);
         }
         async function createCensoredAlternate(destination_file_path, size, fit, quality) {
-            var image = await sharp(file_path);
+            var image = source_image.clone()
             if (size)
             {
                 const metadata = await image.metadata();
                 size = Math.min(size, metadata.width, metadata.height);
-                await image.resize(size, size, {fit});
-                await image.blur(50.0);
+                image.resize(size, size, {fit});
+                image.blur(50.0);
             }
-            await image.webp({quality})
-            await image.toFile(destination_file_path);
+            image.webp({quality})
+            image.toFile(destination_file_path);
         }
         await Promise.all([
-            createAlternate(path.join(this.image_directories["thumb"], `${gallery_item_id}.webp`), 256, "cover", 60),
-            createAlternate(path.join(this.image_directories["small"], `${gallery_item_id}.webp`), 1024, "inside", 80),
-            createAlternate(path.join(this.image_directories["large"], `${gallery_item_id}.webp`), undefined, undefined, 100)
+            createAlternate(path.join(this.image_directories.thumb, `${gallery_item_id}.webp`), {size: 256, fit: "cover", quality: 60}),
+            createAlternate(path.join(this.image_directories.small, `${gallery_item_id}.webp`), {size: 1024, fit: "inside", quality: 80}),
+            createAlternate(path.join(this.image_directories.large, `${gallery_item_id}.webp`), {quality: 100}),
+            createAlternate(path.join(this.image_directories.censored, `${gallery_item_id}.webp`), {size: 256, fit: "cover", quality: 20, blur: 50}),
         ]);
         log.message("gallery", "Rebuilt alternates for item", gallery_item_id);
     },

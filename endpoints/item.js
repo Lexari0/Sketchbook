@@ -50,21 +50,6 @@ module.exports = {
         endpoints[/^\/item\/[0-9]+\/(thumb|small|large|source)$/] = async (req, res) => {
             const split_url = req.url.split("?").shift().split("/").filter(String);
             const gallery_item_id = parseInt(split_url[1]);
-            // TODO: Only censor if the user doesn't have access
-            const censored = await gallery.getCensoredAlternate(gallery_item_id);
-            if (censored != undefined)
-            {
-                res.writeHead(200, {
-                    "Content-Type": mime.lookup(".webp"),
-                    "Content-Length": censored.length
-                });
-                res.end(censored);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
             var size = split_url[2];
             if (size === "source") {
                 if (!config.gallery.distribute_source)
@@ -91,7 +76,9 @@ module.exports = {
                 read_stream.pipe(res);
                 return true;
             }
-            const requested_path = path.resolve(path.join(process.cwd(), "gallery", size, `${gallery_item_id}.webp`));
+            // TODO: Only censor if the user doesn't have access
+            //const requested_path = path.resolve(path.join(process.cwd(), "gallery", size, `${gallery_item_id}.webp`));
+            const requested_path = path.resolve(path.join(process.cwd(), "gallery", "censored", `${gallery_item_id}.webp`));
             if (!fs.existsSync(requested_path))
             {
                 await gallery.refreshAlternates(gallery_item_id);
