@@ -240,6 +240,14 @@ $(() => {
             </div>
         </form>
     </div>
+    <div class="admin-panel" id="subscribestar">
+        <img class="header" src="/static/ss_logo_h.png" />
+        <p>Client ID: {{ config.subscribestar.client_id }}</p>
+        <p>OAuth Token: {{ config.subscribestar.auth_token.access_token }}</p>
+        <a href="https://www.subscribestar.com/oauth2/authorize?client_id={{ config.subscribestar.client_id }}&redirect_uri=https%3A%2F%2F{{ config.server.domain }}%2Foauth%2Fsubscribestar&response_type=code&scope=content_provider_profile.read+content_provider_profile.subscriptions.read+user.read">
+            Grant OAuth
+        </a>
+    </div>
     <div class="admin-panel" id="logs">
         <div class="recent-logs">
             <h3>Recent Logs:</h3>
@@ -266,14 +274,6 @@ $(() => {
         </form>
     </div>
     -->
-    <div class="admin-panel" id="subscribestar">
-        <img class="header" src="/static/ss_logo_h.png" />
-        <p>Client ID: {{ config.subscribestar.client_id }}</p>
-        <p>OAuth Token: {{ config.subscribestar.auth_token.access_token }}</p>
-        <a href="https://www.subscribestar.com/oauth2/authorize?client_id={{ config.subscribestar.client_id }}&redirect_uri=https%3A%2F%2F{{ config.server.domain }}%2Foauth%2Fsubscribestar&response_type=code&scope=content_provider_profile.read+content_provider_profile.subscriptions.read+user.read">
-            Grant OAuth
-        </a>
-    </div>
     <div class="admin-panel" id="sql">
         <h2>SQL:</h2>
         <p class="warning">This can be dangerous! Only touch if you know what you're doing and made a backup of the database.</p>
