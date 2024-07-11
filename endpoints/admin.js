@@ -179,10 +179,18 @@ module.exports = {
                         const final_file_path = path.join(process.cwd(), "content", file_hash + path.extname(uploaded_file.originalFilename));
                         try
                         {
-                            fs.renameSync(temp_file_path, final_file_path);
+                            fs.copyFileSync(temp_file_path, final_file_path);
                             if (!await gallery.updateItem(final_file_path))
                             {
                                 throw "Failed to update item in gallery.";
+                            }
+                            try
+                            {
+                                fs.unlinkSync(temp_file_path);
+                            }
+                            catch
+                            {
+                                // Failing to delete the temp file is not a big deal
                             }
                         }
                         catch (err)
