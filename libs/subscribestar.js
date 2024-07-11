@@ -147,27 +147,33 @@ module.exports = {
         return await this.getTier(tier_id);
     },
     isItemCensoredForUser: async function(tags, viewer_access_token) {
+        log.message("subscribestar", "Checking isItemCensoredForUser");
         tags = tags.filter(x => x.startsWith("subscribestar:"));
         if (tags.length == 0)
         {
+            log.message("subscribestar", "No subscribestar: tags, visible");
             return false;
         }
         if (viewer_access_token == undefined)
         {
+            log.message("subscribestar", "Viewer has no access_token, censor");
             return true;
         }
         const viewer_id = await this.sendGraphQLRequest("{ user { id } }", true, viewer_access_token).user.id;
         const profile = await this.getProfile();
         if (profile.id == viewer_id)
         {
+            log.message("subscribestar", "Viewer is owner, visible");
             return false;
         }
         const tier_id = await this.getUserSubscriptionTier(viewer_id);
         if (tier_id == undefined)
         {
+            log.message("subscribestar", "Viewer has no subscription tier, censor");
             return true;
         }
         const tier = await this.getTier(tier_id);
+        log.message("subscribestar", "Viewer tier: ", tier);
         return !tags.includes(tier.tag);
     }
 };
