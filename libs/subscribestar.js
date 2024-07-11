@@ -73,12 +73,12 @@ function isOAuthValid() {
     return true;
 }
 
-async function sendGraphQLRequest(query, logError = true) {
+async function sendGraphQLRequest(query, logError = true, bearer_token = config.subscribestar.auth_token.access_token) {
     if (!isOAuthValid())
     {
         return undefined;
     }
-    const post_response = await api.sendPOST(api_host, "/api/graphql/v1", { query }, "application/json", {"Authorization": `Bearer ${config.subscribestar.auth_token.access_token}`});
+    const post_response = await api.sendPOST(api_host, "/api/graphql/v1", { query }, "application/json", {"Authorization": `Bearer ${bearer_token}`});
     if (post_response == undefined)
     {
         return undefined;
@@ -91,6 +91,7 @@ async function sendGraphQLRequest(query, logError = true) {
 }
 
 module.exports = {
+    sendGraphQLRequest,
     isOAuthValid,
     getRedirectURI,
     clearOAuth,
@@ -144,6 +145,30 @@ module.exports = {
             return undefined;
         }
         return await this.getTier(tier_id);
+    },
+    isItemCensoredForuser: async function(tags, viewer_access_token) {
+        tags = tags.filter(x => x.startsWith("subscribestar:"));
+        if (tags.length == 0)
+        {
+            return false;
+        }
+        if (viewer_access_token == undefined)
+        {
+            return true;
+        }
+        const viewer_id = await this.sendGraphQLRequest("{ user { id } }", true, viewer_access_token).user.id;
+        const profile = await this.getProfile();
+        if (profile.id == viewer_id)
+        {
+            return false;
+        }
+        const tier_id = await this.getUserSubscriptionTier(viewer_id);
+        if (tier_id == undefined)
+        {
+            return true;
+        }
+        const tier = await this.getTier(tier_id);
+        return !tags.includes(tier.tag);
     }
 };
 

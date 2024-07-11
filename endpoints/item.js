@@ -5,9 +5,11 @@ const sqlstring = require("sqlstring-sqlite");
 const admin = require(path.join(process.cwd(), "libs/admin.js"));
 const api = require(path.join(process.cwd(), "libs/api.js"));
 const config = require(path.join(process.cwd(), "libs/config.js"));
+const cookies = require(path.join(process.cwd(), "libs/cookies.js"));
 const db = require(path.join(process.cwd(), "libs/db.js"));
 const gallery = require(path.join(process.cwd(), "libs/gallery.js"));
 const html = require(path.join(process.cwd(), "libs/html.js"));
+const subscribestar = require(path.join(process.cwd(), "libs/subscribestar.js"));
 
 module.exports = {
     register_endpoints: endpoints => {
@@ -61,10 +63,15 @@ module.exports = {
                 res.end(`<h1>Item ${gallery_item_id} is currently missing</h1><h2>Please notify the gallery owner.<br /><a href="/">Return home</a></h2>`);
                 return true;
             }
-            const subscribestar_tags = (await db.select("tag", "item_tags_with_data", {where: `gallery_item_id=${gallery_item_id} AND tag LIKE "subscribestar:%"`})).map(x => x.tag);
-            if (subscribestar_tags.length > 0)
+            var censor_item = false;
+            if (!admin.isRequestAdmin(req))
             {
-                // TODO: Only send censored version if the viewer doesn't have access
+                const subscribestar_tags = (await db.select("tag", "item_tags_with_data", {where: `gallery_item_id=${gallery_item_id} AND tag LIKE "subscribestar:%"`})).map(x => x.tag);
+                const subscribestar_access_token = cookies.getRequestCookies(req).subscribestar_access_token;
+                censor_item |= subscribestar.isItemCensoredForUser(subscribestar_tags, subscribestar_access_token);
+            }
+            if (censor_item)
+            {
                 const requested_path = path.resolve(path.join(process.cwd(), "gallery", "censored", `${gallery_item_id}.webp`));
                 if (!fs.existsSync(requested_path))
                 {
@@ -73,9 +80,9 @@ module.exports = {
                 const file_stat = fs.statSync(requested_path);
                 const read_stream = fs.createReadStream(requested_path);
                 res.writeHead(200, {
-                        "Content-Type": mime.lookup(".webp"),
-                        "Content-Length": file_stat.size
-                    });
+                    "Content-Type": mime.lookup(".webp"),
+                    "Content-Length": file_stat.size
+                });
                 read_stream.pipe(res);
                 return true;
             }
