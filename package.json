@@ -1,0 +1,23 @@
+{
+  "name": "sketchbook",
+  "version": "1.0.0",
+  "description": "Self-hostable online art gallery",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lexari0/Sketchbook.git"
+  },
+  "keywords": [
+    "art",
+    "webserver"
+  ],
+  "author": "Lexario",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Lexari0/Sketchbook/issues"
+  },
+  "homepage": "https://github.com/Lexari0/Sketchbook#readme"
+}
