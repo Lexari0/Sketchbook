@@ -367,7 +367,7 @@ ${required_query.replace(/^/gm,"    ")}
         return true;
     },
     getItemIDOfFile: async function(file_path) {
-        await db.select("gallery_entry_id", "items", {
+        await db.select("gallery_item_id", "items", {
             distinct: true,
             where: `hash=${this.hashFile(file_path)}`
         });
@@ -386,7 +386,7 @@ ${required_query.replace(/^/gm,"    ")}
         }
         log.message("gallery", "  Checking for missing files...");
         var new_missing_entries = [];
-        for (const entry of await db.select("gallery_entry_id", "items", {
+        for (const entry of await db.select("gallery_item_id", "items", {
                 distinct: true,
                 where: "missing=0"
             }))
