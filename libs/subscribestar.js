@@ -3,7 +3,7 @@ const api = require(path.join(process.cwd(), "libs/api.js"));
 const config = require(path.join(process.cwd(), "libs/config.js"));
 
 module.exports = {
-    isOauthValid: function(quick) {
+    isOAuthValid: function(quick) {
         if (config.subscribestar.auth_token.expires_at == undefined)
         {
             return false;
@@ -22,14 +22,14 @@ module.exports = {
     getRedirectURI: function() {
         return "https://" + path.join(config.server.domain, "/oauth/subscribestar");
     },
-    clearOauth: function() {
+    clearOAuth: function() {
         for (const key of Object.keys(config.subscribestar.auth_token))
         {
             config.subscribestar.auth_token[key] = undefined;
         }
         config.save();
     },
-    updateOauth: function(oauth_response) {
+    updateOAuth: function(oauth_response) {
         for (const key of Object.keys(config.subscribestar.auth_token))
         {
             config.subscribestar.auth_token[key] = oauth_response[key];
@@ -38,7 +38,7 @@ module.exports = {
         config.subscribestar.auth_token.expires_at = config.subscribestar.auth_token.issued_at + config.subscribestar.auth_token.expires_in
         config.save();
     },
-    refreshOauth: async function() {
+    refreshOAuth: async function() {
         const post_response = await api.sendPOST("www.subscribestar." + (config.subscribestar.adult ? "adult" : "com"), "/oauth2/token", {
             client_id: config.subscribestar.client_id,
             client_secret: config.subscribestar.client_secret,
@@ -46,6 +46,19 @@ module.exports = {
             grant_type: "refresh_token",
             redirect_uri: getRedirectURI()
         });
-        this.updateOauth(post_response);
+        if (post_response.error)
+        {
+            return false;
+        }
+        this.updateOAuth(post_response);
+        return true;
     }
 };
+
+if (!module.exports.isOAuthValid())
+{
+    if (!module.exports.refreshOAuth())
+    {
+        module.exports.clearOAuth();
+    }
+}

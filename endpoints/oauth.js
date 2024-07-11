@@ -38,7 +38,7 @@ const PLATFORMS = {
                 await sendOAuthPage(res, 503, {platform: "SubscribeStar", error: `Failed to get OAuth token from SubscribeStar: ${post_response.error_description}`}, req);
                 return;
             }
-            subscribestar.updateOauth(post_response);
+            subscribestar.updateOAuth(post_response);
         }
         catch (error)
         {
