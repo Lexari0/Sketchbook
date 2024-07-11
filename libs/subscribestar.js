@@ -44,7 +44,7 @@ module.exports = {
             client_secret: config.subscribestar.client_secret,
             refresh_token: config.subscribestar.auth_token.refresh_token,
             grant_type: "refresh_token",
-            redirect_uri: getRedirectURI()
+            redirect_uri: this.getRedirectURI()
         });
         if (post_response.error)
         {
