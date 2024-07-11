@@ -211,6 +211,10 @@ input#search-button {
     flex-wrap: wrap;
 }
 
+.platform-requirement h2 {
+    text-align: center;
+}
+
 .platform-requirement img {
     width: 100%;
     height: 100%;
