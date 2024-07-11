@@ -137,6 +137,7 @@ $(async () => {
     <div class="admin-panel" id="wifi">
         <h2>WiFi:</h2>
         <p><b>Note:</b> These settings are only intended to work if running on a Raspberry Pi with WiFi functionality (eg: <a href="https://www.raspberrypi.com/products/raspberry-pi-zero-2-w/">Raspberry Pi Zero 2 W</a>).</p>
+        <p>Current: {{ ssid }}</p>
         <form action="/admin/update_wifi" method="post">
             <h3>
                 <label for="SSID">SSID:</label>
