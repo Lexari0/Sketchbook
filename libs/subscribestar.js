@@ -146,7 +146,7 @@ module.exports = {
         }
         return await this.getTier(tier_id);
     },
-    isItemCensoredForuser: async function(tags, viewer_access_token) {
+    isItemCensoredForUser: async function(tags, viewer_access_token) {
         tags = tags.filter(x => x.startsWith("subscribestar:"));
         if (tags.length == 0)
         {
