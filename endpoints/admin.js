@@ -208,6 +208,14 @@ module.exports = {
                 res.end(`Failed to upload file: ${error}`);
                 return true;
             }
+            if (item_id == undefined)
+            {
+                res.writeHead(302, {
+                    "Location": "/admin?error=Item had no gallery ID after uploading"
+                });
+                res.end(`Failed to upload file: ${error}`);
+                return true;
+            }
             res.writeHead(302, {
                 "Location": `/item/${item_id}/edit`
             });

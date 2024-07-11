@@ -368,10 +368,11 @@ ${required_query.replace(/^/gm,"    ")}
         return true;
     },
     getItemIDOfFile: async function(file_path) {
-        await db.select("gallery_item_id", "items", {
+        const found = await db.select("gallery_item_id", "items", {
             distinct: true,
             where: `file_path='${file_path}'`
         });
+        return found.length > 0 ? found[0] : undefined;
     },
     refreshContent: async function() {
         log.message("gallery", "Refreshing content directory...");
