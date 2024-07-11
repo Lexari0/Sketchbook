@@ -18,7 +18,6 @@ module.exports = {
             can_edit: admin.isRequestAdmin(req),
             is_admin: admin.isRequestAdmin(req)
         };
-        console.log({params});
         if (req)
         {
             params.query = await api.getParams(req);
