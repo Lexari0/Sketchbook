@@ -1,11 +1,12 @@
+const fs = require("fs");
 const http = require("http");
 const path = require("path");
-const fs = require("fs");
-const config = require("./config");
+const config = require(path.join(process.cwd(), "libs/config.js"));
+const log = require(path.join(process.cwd(), "libs/log.js"));
 
 var endpoints = {};
 
-console.log("Loading endpoints...");
+log.message("webserver", "Loading endpoints...");
 
 for (const item of fs.readdirSync(path.join(process.cwd(), "endpoints"), {withFileTypes: true, recursive: true}))
 {
@@ -19,7 +20,7 @@ for (const item of fs.readdirSync(path.join(process.cwd(), "endpoints"), {withFi
 
 const requestListener = async function (req, res) {
     try {
-        console.log("[Request] ", req.method, req.url);
+        log.message("webserver", "[Request] ", req.method, req.url);
         var url_split = req.url.split("?")
         const url_page = url_split.shift();
         const url_query = url_split.shift();
@@ -56,33 +57,33 @@ const requestListener = async function (req, res) {
                 }
             }
         }
-        console.log("[Response]", req.method, req.url, "->", res.statusCode);
+        log.message("webserver", "[Response]", req.method, req.url, "->", res.statusCode);
     } catch (e) {
         try {
             res.writeHead(502);
             res.end("Internal server error... Contact server host or try again later.");
         } catch {
-            console.error("Failed to send 502...");
+            log.error("webserver", "Failed to send 502...");
         }
-        console.error("[Response]", req.method, ":", req.url, "->", res.statusCode, "\n\n", e);
+        log.error("webserver", "[Response]", req.method, ":", req.url, "->", res.statusCode, "\n\n", e);
     }
 };
 
-console.log("Endpoint count: ", Object.keys(endpoints).length);
+log.message("webserver", "Endpoint count: ", Object.keys(endpoints).length);
 
 module.exports = {
     endpoints: endpoints,
     start: () => {
         const server = http.createServer(requestListener);
         server.on("error", e => {
-            console.error("Server error:", e.code);
+            log.error("webserver", "Server error:", e.code);
             if (e.code == "EACCES")
             {
-                console.error("Failed to start webserver... Perhaps the port", config.webserver.port, "is already in use?");
+                log.error("webserver", "Failed to start webserver... Perhaps the port", config.webserver.port, "is already in use?");
             }
         });
         server.listen(config.webserver.port, config.webserver.ip, () => {
-                console.log(`Server is running on http://${config.webserver.ip}:${config.webserver.port}`);
+                log.message("webserver", `Server is running on http://${config.webserver.ip}:${config.webserver.port}`);
             });
     }
 };

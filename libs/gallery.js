@@ -1,17 +1,45 @@
 const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
+const sharp = require("sharp");
 const sqlstring = require("sqlstring-sqlite");
 const config = require(path.join(process.cwd(), "libs/config.js"));
 const db = require(path.join(process.cwd(), "libs/db.js"));
+const log = require(path.join(process.cwd(), "libs/log.js"));
+
+const image_directories = {
+    "thumbs": path.join(process.cwd(), "gallery/thumbs"),
+    "small": path.join(process.cwd(), "gallery/small")
+};
+for (const dir of Object.values(image_directories))
+{
+    if (!fs.existsSync(dir))
+    {
+        log.message("gallery", "Making missing directory", dir);
+        fs.mkdirSync(dir, {recursive: true});
+        continue;
+    }
+}
 
 module.exports = {
     prepareTables: async function() {
         if (db.db == null) {
             db.open();
         }
-        await db.createTable("items", ["gallery_item_id INTEGER PRIMARY KEY AUTOINCREMENT", "file_path TEXT", "hash CHARACTER(64)", "created DATETIME DEFAULT CURRENT_TIMESTAMP", "last_update DATETIME DEFAULT CURRENT_TIMESTAMP"]);
+        await db.createTable("items", ["gallery_item_id INTEGER PRIMARY KEY AUTOINCREMENT", "file_path TEXT", "hash CHARACTER(64)", "created DATETIME DEFAULT CURRENT_TIMESTAMP", "last_update DATETIME DEFAULT CURRENT_TIMESTAMP", "missing INT DEFAULT 0"]);
         await db.createTable("item_tags", ["tag_entry INTEGER PRIMARY KEY AUTOINCREMENT", "gallery_item_id INTEGER", "tag TEXT"]);
+    },
+    refreshAlternates: async function(source_path) {
+        const thumbs_size = 256;
+        const small_size = 1024;
+        sharp(source_path)
+            .resize(thumbs_size, thumbs_size, "contain")
+            .webp({quality:80})
+            .toFile(path.join(image_directories["thumbs"], path.basename(source_path, path.extname(source_path)) + ".webp"));
+        sharp(source_path)
+            .resize(small_size, small_size, "inside")
+            .webp({quality:80})
+            .toFile(path.join(image_directories["small"], path.basename(source_path, path.extname(source_path)) + ".webp"));
     },
     buildSQLFromSearch: function (query) {
         var order_by = undefined;
@@ -80,7 +108,7 @@ module.exports = {
         const optional_query = optional_tags.length == 0 ? "item_tags" : "SELECT * FROM item_tags WHERE tag IN (" + optional_tags.join(", ") + ")";
         const excluded_query = excluded_tags.length == 0 ? optional_query : "SELECT * FROM (" + optional_query + ") WHERE gallery_item_id NOT IN (SELECT gallery_item_id FROM item_tags WHERE tag in (" + excluded_tags.join(", ") + "))"
         const required_query = required_tags.length == 0 ? excluded_query : "SELECT * FROM (SELECT * FROM (" + excluded_query + ") AS found INNER JOIN item_tags ON item_tags.gallery_item_id = found.gallery_item_id WHERE item_tags.tag IN (" + required_tags.join(", ") + ") GROUP BY item_tags.gallery_item_id HAVING COUNT(DISTINCT item_tags.tag) = " + required_tags.length + ") AS found INNER JOIN items ON items.gallery_item_id = found.gallery_item_id"
-        return "SELECT DISTINCT items.* FROM (" + required_query + ") AS found INNER JOIN items ON items.gallery_item_id=found.gallery_item_id ORDER BY " + order_by + " LIMIT " + limit + " OFFSET " + ((page - 1) * limit);
+        return "SELECT DISTINCT items.* FROM (" + required_query + ") AS found INNER JOIN items ON items.gallery_item_id=found.gallery_item_id WHERE items.missing=0 ORDER BY " + order_by + " LIMIT " + limit + " OFFSET " + ((page - 1) * limit);
     },
     search: async function (query) {
         return await db.all(this.buildSQLFromSearch(query));
@@ -100,23 +128,34 @@ module.exports = {
             return false;
         }
         const file_hash = await this.hashFile(file_path);
-        const current_entry = (await db.select("hash", "items", {
+        const current_entry = (await db.select(["gallery_item_id", "file_path", "hash", "missing"], "items", {
             distinct: true,
-            where: "file_path=" + sqlstring.escape(file_path)
+            where: "file_path=" + sqlstring.escape(file_path) + "OR hash=" + sqlstring.escape(file_hash)
             })).shift();
         if (current_entry === undefined) {
-            console.log("Inserted new item:", file_path);
+            log.message("gallery", "Inserted new item:", file_path);
             await db.insert("items", {file_path: sqlstring.escape(file_path), hash: sqlstring.escape(file_hash)});
         }
         else if (current_entry.hash != file_hash) {
-            console.log("Updating item:", file_path);
-            await db.update("items", {hash: sqlstring.escape(file_hash), last_update: "datetime(\"now\", \"localtime\")"}, {
+            log.message("gallery", "Updating item:", file_path);
+            this.refreshAlternates();
+            await db.update("items", {hash: sqlstring.escape(file_hash), last_update: "datetime(\"now\", \"localtime\")", missing: 0}, {
                 where: "file_path=" + sqlstring.escape(file_path)
-            })
+            });
+        }
+        else if (current_entry.missing || file_path != current_entry.file_path)
+        {
+            if (current_entry.missing) {
+                log.message("gallery", "Found missing item:", gallery_item_id);
+            }
+            log.message("gallery", "Item", current_entry.gallery_item_id,  "moved from", current_entry.file_path, "to", file_path);
+            await db.update("items", {file_path: sqlstring.escape(file_hash), last_update: "datetime(\"now\", \"localtime\")", missing: 0}, {
+                where: "hash=" + sqlstring.escape(file_hash)
+            });
         }
     },
     refreshContent: async function() {
-        console.log("Refreshing content directory...");
+        log.message("gallery", "Refreshing content directory...");
         for (var file of fs.readdirSync(config.gallery.content_path, {recursive: true}))
         {
             file = path.join(config.gallery.content_path, file);
@@ -124,6 +163,18 @@ module.exports = {
                 await this.updateItem(file);
             }
         }
-        console.log("Refreshed content!");
+        var new_missing_entries = [];
+        for (const entry of await db.select("gallery_entry_id", "items", {
+                distinct: true,
+                where: "missing=0"
+            }))
+        {
+            if (!fs.existsSync()) {
+                log.message("gallery", "Item went missing:", entry.gallery_item_id);
+                new_missing_entries.push(sqlstring.escape(entry.gallery_item_id));
+            }
+        }
+        await db.update("items", {missing:1}, {where: "gallery_item_id IN (" + new_missing_entries.join(", ") + ")"});
+        log.message("gallery", "Refreshed content!");
     }
 };

@@ -2,18 +2,19 @@ const path = require("path");
 const sqlite3 = require("sqlite3");
 const sqlstring = require("sqlstring-sqlite");
 const config = require(path.join(process.cwd(), "libs/config.js"));
+const log = require(path.join(process.cwd(), "libs/log.js"));
 
 module.exports = {
     db: null,
     open: function() {
         this.close();
-        console.log("Opening database", config.gallery.database_path);
+        log.message("db", "Opening database", config.gallery.database_path);
         this.db = new sqlite3.Database(path.join(process.cwd(), config.gallery.database_path));
     },
     close: function() {
         if (this.db)
         {
-            console.log("Closing database");
+            log.message("db", "Closing database");
             this.db.close();
         }
         this.db = null;
@@ -25,17 +26,17 @@ module.exports = {
         const command = "CREATE" + (options.temporary ? " TEMPORARY" : "") + " TABLE"
             + (options.if_not_exists ? " IF NOT EXISTS" : "") + " "
             + table_name + " (" + columns.join(", ") + ")";
-        console.log("[SQL]", command);
+        log.message("sql", command);
         return new Promise((resolve, reject) => {
             this.db.run(command, error => {
                     if (error)
                     {
-                        console.error("Failed to make table", table_name, "due to error:", error);
+                        log.error("db", "Failed to make table", table_name, "due to error:", error);
                         reject();
                     }
                     else
                     {
-                        console.log("Created table:", table_name);
+                        log.message("db", "Created table:", table_name);
                         resolve();
                     }
                 });
@@ -85,16 +86,16 @@ module.exports = {
         {
             throw "Bad type for 'values' given to db.insert(...)";
         }
-        console.log("[SQL]", command);
+        log.message("sql", command);
         return new Promise((resolve, reject) => this.db.run(command, error => {
                 if (error)
                 {
-                    console.error("Failed to insert into table", table_name, "due to error:", error);
+                    log.error("db", "Failed to insert into table", table_name, "due to error:", error);
                     reject();
                 }
                 else
                 {
-                    console.log("Inserted values into table", table_name, ":", values);
+                    log.message("db", "Inserted values into database table", table_name, ":", values);
                     resolve();
                 }
             })
@@ -117,17 +118,17 @@ module.exports = {
         {
             command += " WHERE " + options.where;
         }
-        console.log("[SQL]", command);
+        log.message("sql", command);
         return new Promise((resolve, reject) => {
             this.db.run(command, error => {
                     if (error)
                     {
-                        console.error("Failed to update", table_name, "due to error:", error);
+                        log.error("db", "Failed to update", table_name, "due to error:", error);
                         reject();
                     }
                     else
                     {
-                        console.log("Updated:", table_name);
+                        log.message("db", "Updated database table:", table_name);
                         resolve();
                     }
                 });
@@ -203,7 +204,7 @@ module.exports = {
                     sql = sql.replace("?", sqlstring.escape(param));
                 }
             }
-            console.log("[SQL]", sql);
+            log.message("sql", sql);
             this.db.all(sql,
                 (err, result) => { resolve(err ? [] : result); }
             );

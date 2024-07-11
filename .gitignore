@@ -3,4 +3,5 @@ package-lock.json
 config.yaml
 content
 gallery.db
+*.log
 
