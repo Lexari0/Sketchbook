@@ -114,7 +114,7 @@ a:hover, a:active {
 }
 #search-results > .item {
     margin: 0.5em;
-    width: min((100vw - 20em)/4 - 3em, 256px);
+    width: max(min((100vw - 20em)/4 - 3em, 256px), 16px);
     aspect-ratio: 1;
     border-radius: 0.25em;
     color: #eee;
@@ -148,7 +148,7 @@ a:hover, a:active {
     max-width: calc(100vw - 18.5em);
     margin: auto;
 }
-.item-info {
+#item-info {
     max-width: calc(100vw - 18.5em);
     background-color: #0004;
     padding: 1em;
