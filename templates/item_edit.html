@@ -6,9 +6,9 @@
 <script src="/static/common.js"></script>
 <script>
     var tag_changes = {current: [
-    //{% for tag in tags %}
+    {% for tag in tags %}
         tag.tag,
-    //{% end %}
+    {% end %}
     ], to_remove: {}, to_add: {}};
 
     function addTagToNewList(tag_name, check) {
