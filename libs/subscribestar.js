@@ -81,6 +81,7 @@ async function sendGraphQLRequest(query, logError = true, bearer_token = config.
     const post_response = await api.sendPOST(api_host, "/api/graphql/v1", { query }, "application/json", {"Authorization": `Bearer ${bearer_token}`});
     if (post_response == undefined)
     {
+        log.error("subscribestar", `GraphQL query (${query}) resulted in no response`);
         return undefined;
     }
     if (post_response.error && logError)
@@ -163,6 +164,7 @@ module.exports = {
         console.log("user: ", JSON.stringify(user));
         const viewer_id = user.id;
         const profile = await this.getProfile();
+        console.log("profile: ", JSON.stringify(profile));
         if (profile.id == viewer_id)
         {
             log.message("subscribestar", "Viewer is owner, visible");
