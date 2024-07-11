@@ -439,7 +439,7 @@ div.new-tags {
 div.edit-tag-info,
 div.edit-tag-category-info,
 div.admin-login,
-div.admin-panel {
+div.admin-panel, div.oauth-results-container {
     padding: 0.5em;
     background-color: #0004;
     border-radius: 0.25em;
