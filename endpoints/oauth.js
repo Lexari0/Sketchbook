@@ -33,6 +33,11 @@ const PLATFORMS = {
                 redirect_uri: subscribestar.getRedirectURI()
             });
             console.log("OAuth response: " + JSON.stringify(post_response));
+            if (post_response.error != undefined)
+            {
+                await sendOAuthPage(res, 503, {platform: "SubscribeStar", error: `Failed to get OAuth token from SubscribeStar: ${post_response.error_description}`}, req);
+                return;
+            }
             subscribestar.updateOauth(post_response);
         }
         catch (error)

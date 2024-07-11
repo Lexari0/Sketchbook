@@ -106,19 +106,13 @@ module.exports = {
                 if (typeof(data) == "object")
                 {
                     data = JSON.stringify(data);
+                    content_type = "application/json";
+                    console.log(`POST JSON data: ${data}`);
                 }
                 if (content_type == undefined)
                 {
-                    if (typeof(data) == "string")
-                    {
-                        content_type = "application/json";
-                    }
-                    else
-                    {
-                        content_type = "application/octet-stream";
-                    }
+                    content_type = "application/octet-stream";
                 }
-                data = Buffer.from(data, "utf8")
                 options.headers = {
                     "Content-Type": content_type,
                     "Content-Length": data.length
