@@ -40,12 +40,14 @@ async function getLogLines(file_path, lines, line_offsets = undefined) {
         const total_lines = line_offsets.length;
         const start_offset = line_offsets[total_lines.length - lines];
         return await new Promise(async (resolve, reject) => {
+            console.log("Opening file: ", file_path);
             fs.open(file_path, (err, fd) => {
                 if (err != undefined)
                 {
                     reject(err);
                     return;
                 }
+                console.log("fstat...");
                 fs.fstat(fd, function(err, stats) {
                     if (err != undefined)
                     {
@@ -54,12 +56,15 @@ async function getLogLines(file_path, lines, line_offsets = undefined) {
                     }
                     const buffer_size = stats.size - start_offset;
                     var buffer = new Buffer(buffer_size);
+                    console.log("buffer_size: ", buffer_size);
+                    console.log("read...");
                     fs.read(fd, buffer, 0, buffer_size, start_offset, (err, bytes_read, buffer) => {
                         if (err != undefined)
                         {
                             reject(err);
                             return;
                         }
+                        console.log("bytes_read: ", bytes_read);
                         resolve(buffer);
                     });
                 });
@@ -85,7 +90,13 @@ module.exports = {
             const line_offsets = await getFileLineOffsets(file_path);
             const total_lines = line_offsets.length;
             const lines = Math.max(0, Math.min(params.lines == undefined ? 20 : params.lines, total_lines));
-            api.sendResponse(res, 200, {error:"", total_lines, lines, log: await getLogLines(file_path, lines, line_offsets)});
+            const log = await getLogLines(file_path, lines, line_offsets);
+            if (log === undefined)
+            {
+                api.sendResponse(res, 502, {error:"Failed to read log file"});
+                return true;
+            }
+            api.sendResponse(res, 200, {error:"", total_lines, lines, log});
             return true;
         };
         endpoints["/api/log/files"] = async (req, res) => {
@@ -113,10 +124,16 @@ module.exports = {
                 return true;
             }
             const params = await api.getParams(req);
-            const lines = Math.max(0, Math.min(params.lines == undefined ? 20 : params.lines, total_lines));
             const line_offsets = await getFileLineOffsets(file_path);
             const total_lines = line_offsets.length;
-            api.sendResponse(res, 200, {error:"", file_name, total_lines, lines, log: await getLogLines(file_path, lines, line_offsets)});
+            const lines = Math.max(0, Math.min(params.lines == undefined ? 20 : params.lines, total_lines));
+            const log = await getLogLines(file_path, lines, line_offsets);
+            if (log === undefined)
+            {
+                api.sendResponse(res, 502, {error:"Failed to read log file"});
+                return true;
+            }
+            api.sendResponse(res, 200, {error:"", file_name, total_lines, lines, log});
             return true;
         };
     }
