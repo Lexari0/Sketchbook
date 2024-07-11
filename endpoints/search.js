@@ -1,6 +1,7 @@
 const path = require("path");
 const html = require(path.join(process.cwd(), "libs/html.js"));
 const config = require(path.join(process.cwd(), "libs/config.js"));
+const gallery = require(path.join(process.cwd(), "libs/gallery.js"));
 
 module.exports = {
     register_endpoints: endpoints => {

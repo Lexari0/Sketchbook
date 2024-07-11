@@ -18,30 +18,50 @@ module.exports = {
         this.db = null;
     },
     createTable: function (table_name, columns, options = {
-        temporary: false,
-        if_not_exists: true
+            temporary: false,
+            if_not_exists: true
         }) {
-        const column_def = ", ".join(columns);
-        this.db.run("CREATE ? TABLE ? (?)",
-            options.temporary ? "TEMPORARY" : "",
-            table_name,
-            options.if_not_exists ? "IF NOT EXISTS" : "",
-            column_def);
+        const command = "CREATE" + (options.temporary ? " TEMPORARY" : "") + " TABLE"
+            + (options.if_not_exists ? " IF NOT EXISTS" : "") + " "
+            + table_name + " (" + columns.join(", ") + ")";
+        console.log("[SQL]", command);
+        this.db.run(command,
+            error => {
+                if (error)
+                {
+                    console.error("Failed to make table", table_name, "due to error:", error);
+                }
+                else
+                {
+                    console.log("Created table:", table_name);
+                }
+            });
     },
     insert: function (table_name, values, options = {
         }) {
+        const callback = error => {
+            if (error)
+            {
+                console.error("Failed to insert into table", table_name, "due to error:", error);
+            }
+            else
+            {
+                console.log("Inserted values into table", table_name, ":", values);
+            }
+        };
         if (values instanceof Array)
         {
             this.db.run("INSERT INTO ? VALUES (?)",
-            table_name,
-            ", ".join(values));
+                [table_name, values.join(", ")],
+                callback);
         }
         else if (values instanceof Object)
         {
             this.db.run("INSERT INTO ? (?) VALUES (?)",
-            table_name,
-            ", ".join(Object.keys(values)),
-            ", ".join(Object.values(values)));
+                [table_name,
+                Object.keys(values).join(", "),
+                Object.values(values).join(", ")],
+                callback);
         }
         else
         {
@@ -59,7 +79,7 @@ module.exports = {
         return await this.all("SELECT ? ? ? FROM ? ? ? ? ?",
             [options.distinct ? "DISTINCT" : "",
             options.all ? "ALL" : "",
-            ", ".join(columns),
+            columns.join(", "),
             table_name,
             options.where !== undefined ? "WHERE " + options.where : "",
             options.group_by !== undefined ? "GROUP BY " + options.group_by : "",

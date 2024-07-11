@@ -1,7 +1,9 @@
 const webserver = require("./libs/webserver.js");
 const db = require("./libs/db.js");
 
-db.open();
+if (db.db == null) {
+    db.open();
+}
 webserver.start();
 
 function exitHandler() {
