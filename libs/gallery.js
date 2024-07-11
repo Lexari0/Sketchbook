@@ -366,6 +366,12 @@ ${required_query.replace(/^/gm,"    ")}
         }
         return true;
     },
+    getItemIDOfFile: async function(file_path) {
+        await db.select("gallery_entry_id", "items", {
+            distinct: true,
+            where: `hash=${hashFile(file_path)}`
+        });
+    },
     refreshContent: async function() {
         log.message("gallery", "Refreshing content directory...");
         log.message("gallery", "  Checking existing files...");

@@ -1,9 +1,11 @@
+const exec = require("child_process").exec;
+const formidable = require("formidable");
 const fs = require("fs");
 const path = require("path");
-const exec = require("child_process").exec;
 const admin = require(path.join(process.cwd(), "libs/admin.js"));
 const api = require(path.join(process.cwd(), "libs/api.js"));
 const config = require(path.join(process.cwd(), "libs/config.js"));
+const gallery = require(path.join(process.cwd(), "libs/gallery.js"));
 const html = require(path.join(process.cwd(), "libs/html.js"));
 
 async function getWifiSSID() {
@@ -87,60 +89,60 @@ module.exports = {
                 res.end(`<h1>HTTP POST method must be used for updating the config.</h1>`);
                 return true;
             }
-            var errors = "";
-            if (admin.isRequestAdmin(req))
+            if (!admin.isRequestAdmin(req))
             {
-                const params = await api.getParams(req);
-                if ("server.owner.name" in params)
-                {
-                    config.server.owner.name = params["server.owner.name"];
-                }
-                if ("server.owner.email" in params)
-                {
-                    config.server.owner.email = params["server.owner.email"];
-                }
-                if ("gallery.name" in params)
-                {
-                    config.gallery.name = params["gallery.name"];
-                }
-                if ("gallery.distribute_source" in params)
-                {
-                    config.gallery.distribute_source = params["gallery.distribute_source"];
-                }
-                if ("gallery.recommended_tags" in params)
-                {
-                    config.gallery.recommended_tags = params["gallery.recommended_tags"];
-                }
-                if ("gallery.top_links.add" in params)
-                {
-                    config.gallery.top_links.push({
-                        text: params["gallery.top_links.add.text"],
-                        link: params["gallery.top_links.add.link"]
-                    });
-                }
-                if ("gallery.admin.password" in params)
-                {
-                    if (!admin.isPasswordCorrect(params.password))
-                    {
-                        errors += "error.gallery.admin.password=Current password is incorrect!";
-                    }
-                    else
-                    {
-                        config.gallery.admin.password = params["gallery.admin.password"];
-                    }
-                    config.gallery.top_links.push({
-                        text: params["gallery.top_links.add.text"],
-                        link: params["gallery.top_links.add.link"]
-                    });
-                }
-                config.save();
+                res.writeHead(302, {
+                    "Location": "/admin?$error=Must be logged in as admin to update the config!"
+                });
+                res.end();
+                return true;
             }
-            else
+            const params = await api.getParams(req);
+            if ("server.owner.name" in params)
             {
-                errors += `error=Must be logged in as admin to update the config!`
+                config.server.owner.name = params["server.owner.name"];
             }
+            if ("server.owner.email" in params)
+            {
+                config.server.owner.email = params["server.owner.email"];
+            }
+            if ("gallery.name" in params)
+            {
+                config.gallery.name = params["gallery.name"];
+            }
+            if ("gallery.distribute_source" in params)
+            {
+                config.gallery.distribute_source = params["gallery.distribute_source"];
+            }
+            if ("gallery.recommended_tags" in params)
+            {
+                config.gallery.recommended_tags = params["gallery.recommended_tags"];
+            }
+            if ("gallery.top_links.add" in params)
+            {
+                config.gallery.top_links.push({
+                    text: params["gallery.top_links.add.text"],
+                    link: params["gallery.top_links.add.link"]
+                });
+            }
+            if ("gallery.admin.password" in params)
+            {
+                if (!admin.isPasswordCorrect(params.password))
+                {
+                    errors += "error.gallery.admin.password=Current password is incorrect!";
+                }
+                else
+                {
+                    config.gallery.admin.password = params["gallery.admin.password"];
+                }
+                config.gallery.top_links.push({
+                    text: params["gallery.top_links.add.text"],
+                    link: params["gallery.top_links.add.link"]
+                });
+            }
+            config.save();
             res.writeHead(302, {
-                "Location": errors ? `/admin?${errors}` : "/admin"
+                "Location": "/admin"
             });
             res.end();
             return true;
@@ -160,10 +162,37 @@ module.exports = {
                 res.end();
                 return true;
             }
-            req
-            const item_id = 3; // TODO: Generate new id
+            var item_id;
+            try
+            {
+                item_id = await new Promise((resolve, reject) => {
+                    var form = new formidable.IncomingForm();
+                    form.parse(req, async (err, fields, form) => {
+                        if (err)
+                        {
+                            reject(err);
+                            return;
+                        }
+                        const temp_file_path = form.file.filepath;
+                        const file_hash = gallery.hashFile(temp_file_path);
+                        const final_file_path = path.join(process.cwd(), "content", file_hash + path.extname(temp_file_path));
+                        fs.rename(temp_file_path, final_file_path, reject);
+                        if (!await gallery.updateItem(final_file_path))
+                        {
+                            reject("Failed to update gallery");
+                        }
+                        resolve(await gallery.getItemIDOfFile(final_file_path));
+                    });
+                });
+            }
+            catch (error)
+            {
+                res.writeHead(503);
+                res.end(`Failed to upload file: ${error}`);
+                return;
+            }
             res.writeHead(302, {
-                "Location": `/item/${item_id}`
+                "Location": `/item/${item_id}/edit`
             });
             res.end();
             return true;
