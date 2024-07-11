@@ -114,9 +114,9 @@ module.exports = {
             return;
         }
         const file_path = path.join(this.image_directories.small, `${gallery_item_id}.webp`);
-        var image = await sharp(file_path);
-        await image.blur(25.0);
-        await image.webp({quality: 1});
+        var image = sharp(file_path);
+        image.blur(30.0);
+        image.webp({quality: 1});
         return await image.toBuffer();
     },
     refreshAlternates: async function(gallery_item_id) {
@@ -145,6 +145,18 @@ module.exports = {
                 const metadata = await image.metadata();
                 size = Math.min(size, metadata.width, metadata.height);
                 await image.resize(size, size, {fit});
+            }
+            await image.webp({quality})
+            await image.toFile(destination_file_path);
+        }
+        async function createCensoredAlternate(destination_file_path, size, fit, quality) {
+            var image = await sharp(file_path);
+            if (size)
+            {
+                const metadata = await image.metadata();
+                size = Math.min(size, metadata.width, metadata.height);
+                await image.resize(size, size, {fit});
+                await image.blur(50.0);
             }
             await image.webp({quality})
             await image.toFile(destination_file_path);
