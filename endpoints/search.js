@@ -11,13 +11,15 @@ module.exports = {
         endpoints["/search"] = async (req, res) => {
             const template = fs.readFileSync(path.join(process.cwd(), "templates/search.html"), "utf-8")
             var params = {config: structuredClone(config), query: await api.getParams(req)};
+            const query = (params.query.q ? params.query.q : "").split(/\++/g);
+            const searched_tags = query.filter(tag => tag.replace(/^[~-]+/, ""));
             delete params.config.api;
             delete params.config.webserver;
             if (config.gallery.recommended_tags.length > 0)
             {
                 params["tags"] = await db.select(["tag", "COUNT(tag) AS count"], "item_tags", {
                     distinct: true,
-                    where: "tag IN (" + config.gallery.recommended_tags.map(x => sqlstring.escape(x)).join() + ")",
+                    where: "tag IN (" + config.gallery.recommended_tags.map(sqlstring.escape).join() + ") AND tag NOT IN (" + searched_tags.map(sqlstring.escape) + ")",
                     group_by: "tag",
                     order_by: "count DESC, tag",
                     limit: 16
@@ -27,6 +29,7 @@ module.exports = {
             {
                 params["tags"] = await db.select(["tag", "COUNT(tag) AS count"], "item_tags", {
                     distinct: true,
+                    where: "tag NOT IN (" + searched_tags.map(sqlstring.escape) + ")",
                     group_by: "tag",
                     order_by: "count DESC, tag",
                     limit: 16
