@@ -67,7 +67,10 @@ module.exports = {
             if (!admin.isRequestAdmin(req))
             {
                 const subscribestar_tags = (await db.select("tag", "item_tags_with_data", {where: `gallery_item_id=${gallery_item_id} AND tag LIKE "subscribestar:%"`})).map(x => x.tag);
-                const subscribestar_access_token = cookies.getRequestCookies(req).subscribestar_access_token;
+                const user_cookies = cookies.getRequestCookies(req);
+                const subscribestar_access_token = user_cookies.subscribestar_access_token;
+                console.log("user_cookies: ", JSON.stringify(user_cookies));
+                console.log(`subscribestar_access_token: ${subscribestar_access_token}`);
                 censor_item |= await subscribestar.isItemCensoredForUser(subscribestar_tags, subscribestar_access_token);
             }
             if (censor_item)
