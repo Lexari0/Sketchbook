@@ -5,12 +5,11 @@
 <script src="/static/jquery-3.7.1.min.js"></script>
 <script src="/static/common.js"></script>
 <script>
-    window.onload = async () => {
-        await buildTagList("/api/gallery/tags?q={{ tag.tag }}",
+    $(async () => {
+        buildTagList("/api/gallery/tags?q={{ tag.tag }}",
             tag => `<li><a class="tag-link" href="/tag/${tag.tag}" tag="${tag.tag}">${tag.tag}</a>: ${tag.count}</li>`
         );
-        await commonPostLoad();
-    };
+    });
 </script>
 </head>
 <body>
@@ -19,8 +18,7 @@
 <aside id="sidebar">
     <section id="search">
         <form class="tag-search" method="get" accept-charset="utf-8">
-            <input id="search-bar" type="text" value="">
-            <br>
+            <input id="search-bar" type="text" value="" autocomplete="off">
             <input id="search-button" type="submit" value="Show Tag">
         </form>
     </section>

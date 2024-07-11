@@ -5,12 +5,21 @@
 <script src="/static/jquery-3.7.1.min.js"></script>
 <script src="/static/common.js"></script>
 <script>
-    window.onload = async () => {
-        await buildTagList("/api/gallery/tags?category={{ category.category }}",
+    $(async () => {
+        buildTagList("/api/gallery/tags?category={{ category.category }}",
             tag => `<li><a class="tag-link" href="/tag/${tag.tag}" tag="${tag.tag}">${tag.tag}</a>: ${tag.count}</li>`
         );
-        await commonPostLoad();
-    };
+        $("form.category-search").submit(function (event) {
+            event.preventDefault();
+            const search_text = $(this).find("#search-bar").prop("value").replace(/^\s+|\s+$/g, "").replace(/\s+/g, "_");
+            console.log(search_text);
+            if (search_text.length == 0 || search_text.match(/\//g))
+            {
+                return;
+            }
+            window.location.href = "/tags/category/" + search_text;
+        });
+    });
 </script>
 </head>
 <body>
@@ -18,10 +27,9 @@
 <div id="main-body">
 <aside id="sidebar">
     <section id="search">
-        <form class="tag-search" method="get" accept-charset="utf-8">
-            <input id="search-bar" type="text" value="">
-            <br>
-            <input id="search-button" type="submit" name="tag" value="Show Tag">
+        <form class="category-search" method="get" accept-charset="utf-8">
+            <input id="search-bar" type="text" value="" autocomplete="off">
+            <input id="search-button" type="submit"value="Show Category">
         </form>
     </section>
     <div class="sidebar-header">

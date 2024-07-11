@@ -8,11 +8,11 @@
 </script>
 <script src="/static/common.js"></script>
 <script>
-    window.onload = async () => {
+    $(async () => {
         buildTagList(`/api/gallery/tags?q=${query}`,
             tag => `<li>(<a href="/tag/${tag.tag}">?</a>/<a href="/search?q=${query}+-${tag.tag}">-</a>/<a href="/search?q=${query}+${tag.tag}">+</a>) <a class="tag-link" href="/search?q=${tag.tag}" tag="${tag.tag}">${tag.tag}</a>: ${tag.count}</li>`
-        ).then(commonPostLoad);
-    };
+        );
+    });
 </script>
 </head>
 <body>
@@ -21,7 +21,7 @@
 <aside id="sidebar">
     <section id="search">
         <form action="/search" method="get" accept-charset="utf-8">
-            <input id="search-bar" type="text" name="q" value="{( query.q )}">
+            <input id="search-bar" type="text" name="q" value="{( query.q )}" autocomplete="off">
             <br>
             <input id="search-button" type="submit" value="Search">
         </form>

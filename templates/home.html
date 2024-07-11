@@ -3,6 +3,8 @@
 <head>
 <title>{{ config.gallery.name }}</title>
 <link rel="stylesheet" type="text/css" href="/static/main.css" />
+<script src="/static/jquery-3.7.1.min.js"></script>
+<script src="/static/common.js"></script>
 </head>
 <body>
 <div id="titlebar" class="home">
@@ -14,7 +16,8 @@
 <div id="main-body">
 <div id="front-query">
     <form action="/search" method="get" accept-charset="utf-8">
-        <input type="text" name="q" id="search-bar"></input>
+        <input type="text" name="q" id="search-bar" autocomplete="off"></input>
+        <div class="autocomplete"></div>
         <input type="submit" value="Search" id="search-button"></input>
     </form>
 </div>

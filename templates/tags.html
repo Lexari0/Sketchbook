@@ -8,7 +8,7 @@
 </script>
 <script src="/static/common.js"></script>
 <script>
-    window.onload = async () => {
+    $(async () => {
         Promise.all([
             buildTagList(`/api/gallery/tags?q=${query}`,
                 tag => `<li><a class="tag-link" href="/tag/${tag.tag}" tag="${tag.tag}">${tag.tag}</a>: ${tag.count}</li>`
@@ -16,31 +16,32 @@
             buildAPIList(".category-list", "/api/gallery/tags/categories", json => json.categories,
                 category => `<li><a class="category-link" href="/tags/category/${category.category}">${category.category}</a>: ${category.count}</li>`
             ),
-        ]).then(commonPostLoad);
-    };
+        ]);
+    });
 </script>
 </head>
 <body>
 {# templates/titlebar.html #}
 <div id="main-body">
-<aside id="sidebar">
-    <section id="search">
+<div class="horizontal-stack">
+    <div id="tag-list-section">
+        <h2 class="list-header">Tags</h2>
         <form class="tag-search" method="get" accept-charset="utf-8">
-            <input id="search-bar" type="text" value="">
-            <br>
+            <input id="search-bar" type="text" value="" autocomplete="off">
             <input id="search-button" type="submit" value="Show Tag">
         </form>
-    </section>
-</aside>
-<div id="tag-list-section">
-    <h2 class="list-header">Tags</h2>
-    <ul class="tag-list">
-    </ul>
-</div>
-<div id="category-list-section">
-    <h2 class="list-header">Categories</h2>
-    <ul class="category-list">
-    </ul>
+        <ul class="tag-list">
+        </ul>
+    </div>
+    <div id="category-list-section">
+        <h2 class="list-header">Categories</h2>
+        <form class="category-search" method="get" accept-charset="utf-8">
+            <input id="search-bar" type="text" value="" autocomplete="off">
+            <input id="search-button" type="submit" value="Show Category">
+        </form>
+        <ul class="category-list">
+        </ul>
+    </div>
 </div>
 </div>
 <footer>
