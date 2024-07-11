@@ -6,26 +6,13 @@
 <script>
     const urlParams = new URLSearchParams(window.location.search);
     window.onload = (async () => {
-        const response = await fetch("/api/gallery/search?q=" + urlParams.get("q").replace(" ", "+"));
-        const items = (await response.json()).r;
-        console.log("items:", items);
-        const contents = $("#search-contents");
-        $(".tag-link").each(i => {
+        $(".tag-link").each(function (i) {
             const text = $(this).text();
             if (text.length > 20)
             {
                 $(this).text(text.substring(0, 20) + "...");
             }
         });
-        if (items === undefined)
-        {
-            contents.append("<strong id=\"error\">Failed to perform search! Please contact site owner or try again later.</strong>");
-            return;
-        }
-        for (const item of items)
-        {
-            contents.append(`<div id="item"><img src="/item/${item.gallery_item_id}/thumb" /></div>`);
-        }
     });
 </script>
 </head>

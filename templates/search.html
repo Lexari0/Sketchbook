@@ -8,7 +8,7 @@
         const response = await fetch("/api/gallery/search?q={{ query.q }}");
         const json = await response.json();
         const page_count = Math.ceil(json.item_count / 50);
-        $(".tag-link").each(i => {
+        $(".tag-link").each(function (i) {
             const text = $(this).text();
             if (text.length > 20)
             {
