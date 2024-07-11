@@ -116,7 +116,7 @@ module.exports = {
                         try
                         {
                             log.message("api", "Updating DB file path");
-                            await db.update("items", {file_path: final_file_path, hash: file_hash}, {
+                            await db.update("items", {file_path: sqlstring.escape(final_file_path), hash: sqlstring.escape(file_hash)}, {
                                 where: `gallery_item_id=${sqlstring.escape(gallery_item_id)}`,
                                 });
                         }
