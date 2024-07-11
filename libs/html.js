@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const log = require(path.join(process.cwd(), "libs/log.js"));
 
 function addGenerator(page, htmlTag, defaultAttributeMap = {}, hasContent = true) {
     if (hasContent)
@@ -130,6 +131,10 @@ module.exports = function (defaultContents = undefined) {
                 return template;
             }
             function findParam(params, path) {
+                if (params == undefined)
+                {
+                    return undefined;
+                }
                 var split_path = path.split(".");
                 if (split_path.length === 0)
                 {
@@ -151,6 +156,10 @@ module.exports = function (defaultContents = undefined) {
                     const pre_section = template.substr(0, start_match.index);
                     const template_after_pre_section = template.substr(pre_section.length + start_match[0].length)
                     const end_match = template_after_pre_section.match(re_end);
+                    if (!end_match)
+                    {
+                        throw `${start_match[0]} had no {#end#} block!`;
+                    }
                     const section_body_source = template_after_pre_section.substr(0, end_match.index);
                     const post_section = template_after_pre_section.substr(end_match.index + end_match[0].length);
                     const found_param = findParam(params, container_key);
@@ -181,24 +190,26 @@ module.exports = function (defaultContents = undefined) {
             }
             function evalIf(template, params) {
                 const re_start = /{\?\s*if\s+([^\s]+)\s*\?}/s;
+                const re_else = /{\?\s*else\s*\?}/s;
                 const re_end = /{\?\s*end\s*\?}/s;
                 while (start_match = template.match(re_start))
                 {
                     const condition = start_match[1];
                     const pre_section = template.substr(0, start_match.index);
-                    const template_after_pre_section = template.substr(pre_section.length + start_match[0].length)
-                    const end_match = template_after_pre_section.match(re_end);
-                    const section_body_source = template_after_pre_section.substr(0, end_match.index);
-                    const post_section = template_after_pre_section.substr(end_match.index + end_match[0].length);
+                    const template_without_pre_section = template.substr(start_match.index);
+                    var end_match = template_without_pre_section.match(re_end);
+                    if (!end_match)
+                    {
+                        throw `${start_match[0]} had no {?end?} block!`;
+                    }
+                    const section_to_eval = template_without_pre_section.substr(0, end_match.index + end_match[0].length);
+                    const else_match = section_to_eval.match(re_else);
+                    end_match = section_to_eval.match(re_end); // Bad re-evaluation :(
+                    const pass_body = () => section_to_eval.substr(start_match[0].length, (else_match ? else_match.index : end_match.index) - start_match[0].length);
+                    const fail_body = () => else_match ? section_to_eval.substr(else_match.index + else_match[0].length, end_match.index - (else_match.index + else_match[0].length)) : "";
+                    const post_section = template_without_pre_section.substr(end_match.index + end_match[0].length);
                     const found_param = findParam(params, condition);
-                    if (found_param)
-                    {
-                        template = pre_section + section_body_source + post_section;
-                    }
-                    else
-                    {
-                        template = pre_section + post_section;
-                    }
+                    template = pre_section + (found_param ? pass_body() : fail_body()).replace(/^\s+|\s+$/g, "") + post_section;
                 }
                 return template;
             }

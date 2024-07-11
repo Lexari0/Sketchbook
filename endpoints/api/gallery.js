@@ -63,7 +63,7 @@ module.exports = {
             const item = await apiGalleryIDLookup(gallery_item_id, res, "simple" in query);
             if (item !== undefined)
             {
-                api.sendResponse(res, 200, {error: "", [gallery_item_id]: item});
+                api.sendResponse(res, 200, {error: "", item});
             }
             return true;
         };
@@ -131,13 +131,51 @@ module.exports = {
             const use_like = query.like && query.like.length > 0;
             const like = use_like ? query.like.replace(/\\/g, "\\\\").replace(/_/g, "\\_").replace(/%/g, "\\%") + "%" : undefined;
             const count = parseInt(query.count);
+            const category = query.category;
+            var where = [];
+            if (use_like)
+            {
+                where.push(`tags.tag LIKE ${sqlstring.escape(like)} ESCAPE '\\'`);
+            }
+            if (category)
+            {
+                where.push(`tag_categories.category=${sqlstring.escape(category)}`);
+            }
+            if (where.length === 0)
+            {
+                where = undefined;
+            }
+            else
+            {
+                where = where.join(" AND ");
+            }
+            // TODO: Use query.q to search for items and count tags on those items
             const limit = Math.max(Math.min(isNaN(count) ? 20 : count, 100), 1);
             const tags = await db.select(["tags.tag", "tags.description", "tag_categories.category", "(SELECT COUNT(*) FROM item_tags WHERE item_tags.tag_id=tags.tag_id) AS count"], "tags LEFT JOIN tag_categories on tags.tag_category_id=tag_categories.tag_category_id", {
-                where: use_like ? "tags.tag LIKE " + sqlstring.escape(like) + " ESCAPE \\" : undefined,
-                order_by: "tags.tag",
+                where,
+                order_by: "count DESC, tags.tag",
                 limit: limit
             });
             api.sendResponse(res, 200, {error: "", like: use_like ? query.like : "", count: limit, tags});
+            return true;
+        };
+        endpoints["/api/gallery/tags/categories"] = async (req, res) => {
+            if (!await api.requestIsValid(req, res, config.api.enabled_endpoints.gallery.tags)) {
+                return true;
+            }
+            const query = await api.getParams(req);
+            const use_like = query.like && query.like.length > 0;
+            const like = use_like ? query.like.replace(/\\/g, "\\\\").replace(/_/g, "\\_").replace(/%/g, "\\%") + "%" : undefined;
+            const count = parseInt(query.count);
+            // TODO: Use query.q to search for items and count tags on those items
+            const limit = Math.max(Math.min(isNaN(count) ? 20 : count, 100), 1);
+            // TODO: Add meta "None" category via query
+            const categories = await db.select(["tag_categories.category", "tag_categories.description", "tag_categories.color", "(SELECT COUNT(*) FROM tags WHERE tags.tag_category_id=tag_categories.tag_category_id) AS count"], "tag_categories", {
+                where: use_like ? "tag_categories.category LIKE " + sqlstring.escape(like) + " ESCAPE \\" : undefined,
+                order_by: "count DESC, tag_categories.category",
+                limit: limit
+            });
+            api.sendResponse(res, 200, {error: "", like: use_like ? query.like : "", count: limit, categories});
             return true;
         };
     }

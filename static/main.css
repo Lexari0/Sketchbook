@@ -102,9 +102,11 @@ a:hover, a:active {
     float: left;
     background-color: #0004;
     padding: 1em;
-    margin-right: 0.5em;
     border-radius: 0.5em;
     height: fit-content;
+}
+#sidebar, #tag-list-section {
+    margin-right: 0.5em;
 }
 #content {
     flex-grow: 1;
@@ -153,20 +155,48 @@ a:hover, a:active {
     max-width: calc(100vw - 18.5em);
     margin: auto;
 }
-#item-info {
+#item-info, #tag-info, #category-info, #tag-list-section, #category-list-section {
     max-width: calc(100vw - 18.5em);
     background-color: #0004;
     padding: 1em;
     border-radius: 0.5em;
     height: fit-content;
 }
-.item-name, .item-description {
+#tag-list-section, #category-list-section {
+    flex: 1;
+}
+.list-header {
+    margin-top: 0;
+}
+#tag-name, #tag-description, #category-name, #category-description, #item-name, #item-description {
     margin: 0;
 }
-#tag-list {
+#tag-name, #category-name, #item-name, #tag-info > form, #category-info > form, #item-info > form {
+    display: inline-block;
+}
+hr {
+    border: 1px solid #0008;
+    border-radius: 1px;
+}
+i.missing {
+    color: #0008;
+}
+.tag-list, .category-list {
     list-style: none;
     padding-left: 1em;
     margin: 0;
+}
+.tag-list li, .category-list li {
+    width: auto;
+    display: flex;
+    flex-direction: row;
+    max-width: 100%;
+}
+.tag-link, .category-link {
+    flex: 1;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 }
 #post-search-contents {
     width: 100%;

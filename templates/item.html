@@ -4,15 +4,15 @@
 <link rel="stylesheet" type="text/css" href="/static/main.css" />
 <script src="/static/jquery-3.7.1.min.js"></script>
 <script>
-    window.onload = (async () => {
-        $(".tag-link").each(function (i) {
-            const text = $(this).text();
-            if (text.length > 20)
-            {
-                $(this).text(text.substring(0, 17) + "...");
-            }
-        });
-    });
+    const query = "{{ query.q }}";
+</script>
+<script src="/static/common.js"></script>
+<script>
+    window.onload = async () => {
+        buildTagList(`/api/gallery/tags?q=${query}`,
+            tag => `<li>(<a href="/tag/${tag.tag}">?</a>/<a href="/search?q=${query}+-${tag.tag}">-</a>/<a href="/search?q=${query}+${tag.tag}">+</a>) <a class="tag-link" href="/search?q=${tag.tag}" tag="${tag.tag}">${tag.tag}</a>: ${tag.count}</li>`
+        ).then(commonPostLoad);
+    };
 </script>
 </head>
 <body>
@@ -28,16 +28,8 @@
     </section>
     <div class="sidebar-header">
         <h3>Tags</h3>
-        {? if can_edit ?}
-        <form action="/item/{{ item.gallery_item_id }}/edit" method="get" accept-charset="utf-8">
-            <input type="submit" value="Edit" />
-        </form>
-        {? end ?}
     </div>
-    <ul id="tag-list"> <!-- TODO: Make this list on client-side -->
-        {% for tag in tags %}
-        <li>(<a href="/search?q={{ query.q }}+-{{ tag.tag }}">-</a>/<a href="/search?q={{ query.q }}+{{ tag.tag }}">+</a>) <a class="tag-link" href="/search?q={{ tag.tag }}">{{ tag.tag }}</a>: {{ tag.count }}</li>
-        {% end %}
+    <ul class="tag-list">
     </ul>
 </aside>
 <section id="content">
@@ -50,8 +42,19 @@
     </div>
     <div id="item-info">
         <h3 id="item-name">{{ item.name }}</h3>
+        {? if can_edit ?}
+        <form action="/item/{{ item.gallery_item_id }}/edit" method="get" accept-charset="utf-8">
+            <input type="submit" value="Edit" />
+        </form>
+        {? end ?}
         <hr />
-        <p id="item-description">{{ item.description }}</p>
+        <p id="item-description">
+            {? if item.description ?}
+            {{ item.description }}
+            {? else ?}
+            <i class="missing">No description...</i>
+            {? end ?}
+        </p>
     </div>
 </section>
 </div>

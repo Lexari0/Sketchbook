@@ -1,20 +1,23 @@
 <!DOCTYPE html>
 <head>
-<title>{{ config.gallery.name }} - Tag: {{ tag.tag }}</title>
+<title>{{ config.gallery.name }} - Tags</title>
 <link rel="stylesheet" type="text/css" href="/static/main.css" />
 <script src="/static/jquery-3.7.1.min.js"></script>
 <script>
-    window.onload = (async () => {
-        $("form.tag-search").submit(function (event) {
-            event.preventDefault();
-            const search_text = $("#search-bar").prop("value");
-            if (search_text.match(/\//g))
-            {
-                return;
-            }
-            window.location.href = "/tag/" + search_text;
-        });
-    });
+    const query = "{{ query.q }}";
+</script>
+<script src="/static/common.js"></script>
+<script>
+    window.onload = async () => {
+        Promise.all([
+            buildTagList(`/api/gallery/tags?q=${query}`,
+                tag => `<li><a class="tag-link" href="/tag/${tag.tag}" tag="${tag.tag}">${tag.tag}</a>: ${tag.count}</li>`
+            ),
+            buildAPIList(".category-list", "/api/gallery/tags/categories", json => json.categories,
+                category => `<li><a class="category-link" href="/tags/category/${category.category}">${category.category}</a>: ${category.count}</li>`
+            ),
+        ]).then(commonPostLoad);
+    };
 </script>
 </head>
 <body>
@@ -28,29 +31,17 @@
             <input id="search-button" type="submit" value="Show Tag">
         </form>
     </section>
-    <div class="sidebar-header">
-        <h3>Tags</h3>
-    </div>
-    <ul id="tag-list"> <!-- TODO: Show related tags -->
-        {% for tag in tags %}
-        <li>(<a href="/search?q={{ query.q }}+-{{ tag.tag }}">-</a>/<a href="/search?q={{ query.q }}+{{ tag.tag }}">+</a>) <a class="tag-link" href="/search?q={{ tag.tag }}">{{ tag.tag }}</a>: {{ tag.count }}</li>
-        {% end %}
-    </ul>
 </aside>
-<section id="content">
-    <div id="tag-contents">
-        <h2 id="tag-name">
-            {{ tag.tag }}
-            {? if can_edit ?}
-            <form action="/tag/{{ tag.tag }}/edit" method="get" accept-charset="utf-8">
-                <input type="submit" value="Edit" />
-            </form>
-            {? end ?}
-        </h2>
-        <p id="tag-description">{{ tag.description }}</p>
-        <div id="tag-search-results"></div>
-    </div>
-</section>
+<div id="tag-list-section">
+    <h2 class="list-header">Tags</h2>
+    <ul class="tag-list">
+    </ul>
+</div>
+<div id="category-list-section">
+    <h2 class="list-header">Categories</h2>
+    <ul class="category-list">
+    </ul>
+</div>
 </div>
 <footer>
     {# templates/footer_content.html #}

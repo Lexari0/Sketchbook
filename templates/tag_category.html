@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <head>
-<title>{{ config.gallery.name }} - Tag: {{ tag.tag }}</title>
+<title>{{ config.gallery.name }} - Category: {{ category.category }}</title>
 <link rel="stylesheet" type="text/css" href="/static/main.css" />
 <script src="/static/jquery-3.7.1.min.js"></script>
 <script src="/static/common.js"></script>
 <script>
     window.onload = async () => {
-        await buildTagList("/api/gallery/tags?q={{ tag.tag }}",
+        await buildTagList("/api/gallery/tags?category={{ category.category }}",
             tag => `<li><a class="tag-link" href="/tag/${tag.tag}" tag="${tag.tag}">${tag.tag}</a>: ${tag.count}</li>`
         );
         await commonPostLoad();
@@ -21,35 +21,27 @@
         <form class="tag-search" method="get" accept-charset="utf-8">
             <input id="search-bar" type="text" value="">
             <br>
-            <input id="search-button" type="submit" value="Show Tag">
+            <input id="search-button" type="submit" name="tag" value="Show Tag">
         </form>
     </section>
     <div class="sidebar-header">
-        <h3>Related Tags</h3>
+        <h3>Tags in Category</h3>
     </div>
     <ul class="tag-list">
     </ul>
 </aside>
 <section id="content">
-    <div id="tag-info">
-        <h2 id="tag-name">Tag: {{ tag.tag }}</h3>
+    <div id="category-info">
+        <h2 id="category-name">Category: {{ category.category }}</h3>
         {? if can_edit ?}
-        <form action="/tag/{{ tag.tag }}/edit" method="get" accept-charset="utf-8">
+        <form action="/tags/category/{{ category.category }}/edit" method="get" accept-charset="utf-8">
             <input type="submit" value="Edit" />
         </form>
         {? end ?}
         <hr />
-        <h3 id="tag-category">
-            Category:
-            {? if tag.category ?}
-            <a href="/tags/category/{{ tag.category }}">{{ tag.category }}</a>
-            {? else ?}
-            <i class="missing">None</i>
-            {? end ?}
-        </h3>
         <p id="tag-description">
-            {? if tag.description ?}
-            {{ tag.description }}
+            {? if category.description ?}
+            {{ category.description }}
             {? else ?}
             <i class="missing">No description...</i>
             {? end ?}
