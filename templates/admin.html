@@ -15,12 +15,47 @@ function textField(name, value, key) {
     key = key ? key : name;
     return `<div class="info-field" field="${name}"><h3><span class="field-name">${name}</span>: <input type="text" class="field-value" name="${key}" value="${value}"></h3></div>`;
 }
+function checkboxField(name, checked, key) {
+    key = key ? key : name;
+    return `<div class="info-field" field="${name}"><h3><span class="field-name">${name}</span>: <input type="checkbox" class="field-value" name="${key}" ${checked ? "checked" : ""}></h3></div>`;
+}
 function fileField(name, key) {
     key = key ? key : name;
     return `<div class="info-field" field="${name}"><h3><span class="field-name">${name}</span>: </h3><input type="file" name="${key}"></div>`;
 }
 function submitButton(text = "Update") {
     return `<input type="submit" value="${text}">`
+}
+function configFormSubmit(form, event) {
+    event.preventDefault();
+    var fields = {};
+    form.find("input").each((i, x) => {
+        if (x.type === "text")
+        {
+            a[x.name] = x.value;
+        }
+        else if (x.type === "checkbox")
+        {
+            //a[x.name] = x.checked;
+        }
+    });
+    fetch(`/api/config/update`, {
+        method:"POST",
+        body: Object.keys(fields).map(key => `${key}=${fields[key]}`).join("\n")
+    }).then(async response => {
+        if (!response.ok)
+        {
+            return {error: await response.text()};
+        }
+        return await response.json();
+    }).then(json => {
+        if (json.error.length > 0)
+        {
+            console.error("API Error:\n" + json.error);
+            return;
+        }
+        window.location.reload();
+    }).catch(() => {});
 }
 
 $(async () => {
@@ -46,27 +81,9 @@ $(async () => {
             source_field.html(`<a href="${json.software.source}">${source_field.html()}</a>`);
             server_owner.append(textField("Name", json.owner.name, "server.owner.name"));
             server_owner.append(textField("Email", json.owner.email, "server.owner.email"));
+            server_owner.append(checkboxField("Test Checkbox", false, "server.test"));
             server_owner.append(submitButton());
-            server_owner.submit(event => {
-                event.preventDefault();
-                fetch(`/api/config/update`, {
-                    method:"POST",
-                    body: `server.owner.name=${$("input[name='server.owner.name']").val()}\nserver.owner.email=${$("input[name='server.owner.email']").val()}`
-                }).then(async response => {
-                    if (!response.ok)
-                    {
-                        return {error: await response.text()};
-                    }
-                    return await response.json();
-                }).then(json => {
-                        if (json.error.length > 0)
-                        {
-                            console.error("API Error:\n" + json.error);
-                            return;
-                        }
-                        window.location.reload();
-                }).catch(() => {});
-            });
+            server_owner.submit(configFormSubmit);
         });
     fetch("/api/gallery")
         .then(response => response.json())
