@@ -99,7 +99,7 @@ module.exports = {
             {
                 return true;
             }
-            const files = fs.readdirSync(log.getDirectory()).map(file => [file, fs.statSync(path.join(log.getDirectory(), file))]).filter(file => !file[1].isDirectory()).sort((a, b) => a[1].ctimeMs - b[1].ctimeMs);
+            const files = fs.readdirSync(log.getDirectory()).map(file => [file, fs.statSync(path.join(log.getDirectory(), file))]).filter(file => !file[1].isDirectory()).sort((a, b) => b[1].ctimeMs - a[1].ctimeMs);
             const params = await api.getParams(req);
             const count = Math.max(0, Math.min(params.count == undefined ? 20 : params.count, files.length));
             api.sendResponse(res, 200, {error:"", total_count: files.length, count, files: files.slice(0, count).map(file => file[0])});
