@@ -198,7 +198,7 @@ module.exports = {
         await this.addUntaggedTag(gallery_item_id);
     },
     addUntaggedTag: async function(gallery_item_id) {
-        await db.all(`INSERT OR REPLACE INTO item_tags (gallery_item_id, tag) SELECT ${gallery_item_id}, "untagged" WHERE NOT EXISTS (SELECT * FROM item_tags WHERE gallery_item_id=${new_entry.gallery_item_id})`);
+        await db.all(`INSERT OR REPLACE INTO item_tags (gallery_item_id, tag) SELECT ${gallery_item_id}, "untagged" WHERE NOT EXISTS (SELECT * FROM item_tags WHERE gallery_item_id=${gallery_item_id})`);
     },
     removeUntaggedTag: async function(gallery_item_id) {
         await db.all(`DELETE FROM item_tags WHERE gallery_item_id=${gallery_item_id} AND tag_entry IN (SELECT a.tag_entry FROM item_tags AS a INNER JOIN item_tags AS b WHERE b.gallery_item_id=a.gallery_item_id AND a.tag="untagged" AND NOT b.tag="untagged");`);
