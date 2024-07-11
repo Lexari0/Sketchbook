@@ -435,7 +435,7 @@ ${required_query.replace(/^/gm,"    ")}
         return await this.isItemCensoredWithCookies(gallery_item_id, user_cookies);
     },
     isItemCensoredWithCookies: async function(gallery_item_id, cookies) {
-        return await this.getItemCensorResult(gallery_item_id, cookies).censored;
+        return (await this.getItemCensorResult(gallery_item_id, cookies)).censored;
     },
     getItemCensorResult: async function(gallery_item_id, cookies) {
         var censoring_platforms = [];
