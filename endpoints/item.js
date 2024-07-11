@@ -51,7 +51,7 @@ module.exports = {
             const split_url = req.url.split("?").shift().split("/").filter(String);
             const gallery_item_id = parseInt(split_url[1]);
             // TODO: Only censor if the user doesn't have access
-            const censored = await getCensoredAlternate(gallery_item_id);
+            const censored = await gallery.getCensoredAlternate(gallery_item_id);
             if (censored != undefined)
             {
                 res.writeHead(200, {
