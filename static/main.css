@@ -70,7 +70,7 @@ a:hover, a:active {
 }
 #front-query input#search-bar, #search input#search-bar {
     text-align: center;
-    width: 100%;
+    width: calc(100% - 0.5em);
 }
 .tag-search, .category-search {
     display: flex;
@@ -104,6 +104,9 @@ input#search-button {
     padding: 0.5em 1em;
     display: flex;
     color: #42865e;
+}
+.item-search .autocomplete-entry, .item-search .autocomplete-entry-selected {
+    padding: 0.25em 0.5em;
 }
 .autocomplete-entry:hover, .autocomplete-entry-selected {
     background-color: #0004;

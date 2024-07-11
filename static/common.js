@@ -29,8 +29,8 @@ function updateAutocompleteCSS(autocomplete_element, search_bar_element) {
 
 function setupTagAutocomplete() {
     var typing_timer;
-    const auto_complete_delay_ms = 500;
-    const tag_search_bar = $("form.tag-search #search-bar, #front-query #search-bar");
+    const auto_complete_delay_ms = 200;
+    const tag_search_bar = $("form.tag-search #search-bar, #front-query #search-bar, .item-search #search-bar");
     const autocomplete = tag_search_bar.parent().find("div.autocomplete");
     updateAutocompleteCSS(autocomplete, tag_search_bar);
     $(window).resize(() => updateAutocompleteCSS(autocomplete, tag_search_bar));
