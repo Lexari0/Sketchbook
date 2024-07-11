@@ -63,6 +63,7 @@ module.exports = {
                 console.log(`Cloning config key: ${k} (${new_config[k]})`)
                 config[k] = structuredClone(new_config[k]);
             }
+            config.save();
             api.sendResponse(res, 200, {error: "", params, changed_config})
             return true;
         };
