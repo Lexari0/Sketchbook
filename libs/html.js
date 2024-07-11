@@ -158,11 +158,15 @@ module.exports = function (defaultContents = undefined) {
                     const end_match = template_after_pre_section.match(re_end);
                     if (!end_match)
                     {
-                        throw `${start_match[0]} had no {#end#} block!`;
+                        throw `Bad template! ${start_match[0]} had no {#end#} block!`;
                     }
                     const section_body_source = template_after_pre_section.substr(0, end_match.index);
                     const post_section = template_after_pre_section.substr(end_match.index + end_match[0].length);
                     const found_param = findParam(params, container_key);
+                    if (found_param == undefined)
+                    {
+                        throw `Bad template! ${start_match[0]} has a bad container key "${container_key}" (not in params)`;
+                    }
                     const looper_re = new RegExp(`{{\\s*${looper_key}(\\.[^\\s]*)?\\s*}}`);
                     const global_re = new RegExp(looper_re, "g")
                     var section_body = ""

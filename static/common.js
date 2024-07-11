@@ -31,6 +31,10 @@ function setupTagAutocomplete() {
     var typing_timer;
     const auto_complete_delay_ms = 200;
     const tag_search_bar = $("form.tag-search #search-bar, #front-query #search-bar, .item-search #search-bar");
+    if (tag_search_bar.length === 0)
+    {
+        return;
+    }
     const autocomplete = tag_search_bar.parent().find("div.autocomplete");
     updateAutocompleteCSS(autocomplete, tag_search_bar);
     $(window).resize(() => updateAutocompleteCSS(autocomplete, tag_search_bar));
@@ -177,3 +181,24 @@ $(async () => {
     });
     setupTagAutocomplete();
 });
+
+function formatAsTag(tag) {
+    return tag.replace(/^\s+|\s+$/, "").replace(/\s+/g, "_").toLowerCase()
+}
+
+function getInvalidCharactersInTag(tag) {
+    return [...new Set(tag.match(/[:{}<>="'`]/g))]
+}
+
+function getErrorMessageForInvalidCharacters(bad_matches) {
+    if (bad_matches.length === 0)
+    {
+        return "No invalid characters in tag.";
+    }
+    const last = bad_matches.pop();
+    if (bad_matches.length === 0)
+    {
+        return `${last} is an illegal or reserved character in tags!`;
+    }
+    return `${bad_matches.map(x => `'${x}'`).join()}${bad_matches.length > 1 ? "," : ""} and '${last}' are illegal or reserved characters in tags!`;
+}

@@ -286,6 +286,15 @@ input#search-button {
     display: inline-block;
 }
 
+.form-field {
+    margin-top: 0.25em;
+    font-size: x-large;
+}
+
+.form-field:first-of-type {
+    margin-top: 0;
+}
+
 hr {
     border: 1px solid #0008;
     border-radius: 1px;
@@ -349,9 +358,41 @@ div.new-tags {
     height: fit-content;
 }
 
+div.edit-tag-info {
+    padding: 0.5em;
+    background-color: #0004;
+    border-radius: 0.25em;
+    margin: 0 0.5em;
+    height: fit-content;
+    width: max(50%, 50em);
+}
+
 div.existing-tags h2,
-div.new-tags h2 {
+div.new-tags h2,
+div.edit-tag-info h2 {
     white-space: nowrap;
+}
+
+div.edit-tag-info input[type=submit],
+div.edit-tag-info select {
+    min-width: 100%;
+    max-width: 100%;
+}
+
+form.submit-changes input[type=submit],
+.tag-category {
+    font-size: larger;
+}
+
+form.submit-changes input[type=submit] {
+    margin-top: 0.5em;
+}
+
+
+div.edit-tag-info input[type=text],
+div.edit-tag-info textarea {
+    min-width: calc(100% - 8px);
+    max-width: calc(100% - 8px);
 }
 
 form.add-tag {

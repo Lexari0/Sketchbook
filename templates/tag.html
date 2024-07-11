@@ -41,7 +41,7 @@
         <h3 id="tag-category">
             Category:
             {? if tag.category ?}
-            <a href="/tags/category/{{ tag.category }}">{{ tag.category }}</a>
+            <a href="/tags/category/{{ tag.category }}" style="color: {{ tag.color }}">{{ tag.category }}</a>
             {? else ?}
             <i class="missing">None</i>
             {? end ?}

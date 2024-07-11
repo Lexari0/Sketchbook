@@ -47,7 +47,7 @@ module.exports = {
                 order_by: "tag",
                 group_by: "tag"
             });
-            item.description = item.description.replace("\n", "<br />")
+            item.description = item.description.replace(/\n/g, "<br />");
             var params = {config: structuredClone(config), item, query: {q:"", ...(await api.getParams(req))}, tags: tags_with_counts, can_edit: canEdit(req)};
             delete params.config.api;
             delete params.config.webserver;

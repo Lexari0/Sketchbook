@@ -3,27 +3,35 @@
 <title>{{ config.gallery.name }} - Editing #{{ item.gallery_item_id }}</title>
 <link rel="stylesheet" type="text/css" href="/static/main.css" />
 <script src="/static/jquery-3.7.1.min.js"></script>
-<script src="/static/common.js"></script>
 <script>
     var tag_changes = {to_remove: {}, to_add: {}};
-    $(async () => {
+    window.onload = (async () => {
         $("input[type=checkbox]").prop("checked", false);
         const new_tag_list = $("#tag-list.new-tags");
         const new_tag_name = $("input.new-tag-name");
         new_tag_name.prop("value", "");
         $("form.add-tag").submit(function(event) {
             event.preventDefault();
-            const tag_name = formatAsTag(new_tag_name.prop("value"));
+            const tag_name = new_tag_name.prop("value").replace(/^\s+|\s+$/, "").replace(/\s+/g, "_").toLowerCase();
             if (tag_name.length === 0)
             {
                 return;
             }
-            const bad_matches = getInvalidCharactersInTag(tag_name);
-            const error_msg = $(this).find(".error");
+            var bad_matches = [...new Set(tag_name.match(/[:{}<>="'`]/g))]
+            const error_msg = $("form.add-tag .error")
             if (bad_matches.length > 0)
             {
-                error_msg.text(getErrorMessageForInvalidCharacters(bad_matches));
-                error_msg.append("<br />");
+                const last = bad_matches.pop();
+                if (bad_matches.length === 0)
+                {
+                    error_msg.text(`${last} is an illegal or reserved character in tags!`)
+                    error_msg.append("<br />");
+                }
+                else
+                {
+                    error_msg.text(`${bad_matches.map(x => `'${x}'`).join()}${bad_matches.length > 1 ? "," : ""} and '${last}' are illegal or reserved characters in tags!`);
+                    error_msg.append("<br />");
+                }
                 return;
             }
             error_msg.html("");

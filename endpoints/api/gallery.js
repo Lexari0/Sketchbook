@@ -168,9 +168,9 @@ module.exports = {
             const like = use_like ? query.like.replace(/\\/g, "\\\\").replace(/_/g, "\\_").replace(/%/g, "\\%") + "%" : undefined;
             const count = parseInt(query.count);
             // TODO: Use query.q to search for items and count tags on those items
-            const limit = Math.max(Math.min(isNaN(count) ? 20 : count, 100), 1);
+            const limit = Math.max(isNaN(count) ? 20 : count, 1);
             // TODO: Add meta "None" category via query
-            const categories = await db.select(["tag_categories.category", "tag_categories.description", "tag_categories.color", "(SELECT COUNT(*) FROM tags WHERE tags.tag_category_id=tag_categories.tag_category_id) AS count"], "tag_categories", {
+            const categories = await db.select(["tag_categories.tag_category_id AS id", "tag_categories.category", "tag_categories.description", "tag_categories.color", "(SELECT COUNT(*) FROM tags WHERE tags.tag_category_id=tag_categories.tag_category_id) AS count"], "tag_categories", {
                 where: use_like ? "tag_categories.category LIKE " + sqlstring.escape(like) + " ESCAPE \\" : undefined,
                 order_by: "count DESC, tag_categories.category",
                 limit: limit

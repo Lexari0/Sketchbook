@@ -82,7 +82,7 @@ module.exports = {
                 "editable INTEGER DEFAULT 1"
             ]),
             db.all("CREATE VIEW IF NOT EXISTS item_tags_with_data AS SELECT item_tags.item_tag_entry, item_tags.gallery_item_id, tags.* FROM item_tags INNER JOIN tags ON item_tags.tag_id=tags.tag_id"),
-            db.all("CREATE VIEW IF NOT EXISTS tags_with_categories AS SELECT tags.*, tag_categories.category, tag_categories.color FROM tags INNER JOIN tag_categories ON tags.tag_category_id=tag_categories.tag_category_id")
+            db.all("CREATE VIEW IF NOT EXISTS tags_with_categories AS SELECT tags.*, categories.category, categories.color FROM tags INNER JOIN (SELECT * FROM tag_categories UNION ALL VALUES(0, null, null, null, 0)) AS categories ON tags.tag_category_id=categories.tag_category_id")
         ]);
         await db.all("INSERT OR IGNORE INTO tag_categories (category, description, color, editable) VALUES " + built_in_categories.map(c => `(${c.map(sqlstring.escape).join(", ")}, 0)`).join(", "));
         await Promise.all(Object.keys(built_in_tags).map(category =>

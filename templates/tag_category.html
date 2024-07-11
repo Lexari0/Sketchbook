@@ -41,7 +41,7 @@
 </aside>
 <section id="content">
     <div id="category-info">
-        <h2 id="category-name">Category: {{ category.category }}</h3>
+        <h2 id="category-name">Category: <span style="color: {{ category.color }}">{{ category.category }}</span></h3>
         {? if can_edit ?}
         <form action="/tags/category/{{ category.category }}/edit" method="get" accept-charset="utf-8">
             <input type="submit" value="Edit" />
