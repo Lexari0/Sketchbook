@@ -92,7 +92,7 @@ module.exports = {
         return new Promise((resolve, reject) => {
             if (Object.keys(params).length > 0)
             {
-                page += "?" + "&".join(Object.keys(params).map(key => encodeURIComponent(toString(key)) + (params[key] ? "=" + encodeURIComponent(toString(params[key])) : "")))
+                page += "?" + Object.keys(params).map(key => encodeURIComponent(toString(key)) + (params[key] ? "=" + encodeURIComponent(toString(params[key])) : "")).join("&");
             }
             var options = {
                 hostname: hostname,
