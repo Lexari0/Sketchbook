@@ -36,7 +36,7 @@ function configFormSubmit(form, event) {
         }
         else if (x.type === "checkbox")
         {
-            //a[x.name] = x.checked;
+            a[x.name] = x.checked;
         }
     });
     fetch(`/api/config/update`, {
@@ -81,9 +81,8 @@ $(async () => {
             source_field.html(`<a href="${json.software.source}">${source_field.html()}</a>`);
             server_owner.append(textField("Name", json.owner.name, "server.owner.name"));
             server_owner.append(textField("Email", json.owner.email, "server.owner.email"));
-            server_owner.append(checkboxField("Test Checkbox", false, "server.test"));
             server_owner.append(submitButton());
-            server_owner.submit(configFormSubmit);
+            server_owner.submit(event => configFormSubmit(server_owner, event));
         });
     fetch("/api/gallery")
         .then(response => response.json())
