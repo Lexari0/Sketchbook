@@ -5,7 +5,7 @@ $(function() {
         content.style.padding = "0 18px";
         content.style.display = "none";
         content.style.overflow = "hidden";
-        content.style.backgroundColor = "#0004";
+        content.style.backgroundColor = "#fff2";
         content.style.marginBottom = "0.5em";
         element.addEventListener("click", function() {
             this.classList.toggle("active");
