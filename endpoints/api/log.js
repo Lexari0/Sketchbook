@@ -82,9 +82,9 @@ module.exports = {
             }
             const params = await api.getParams(req);
             const file_path = log.getActiveFile();
-            const lines = Math.max(0, Math.min(params.lines == undefined ? 20 : params.lines, total_lines));
             const line_offsets = await getFileLineOffsets(file_path);
             const total_lines = line_offsets.length;
+            const lines = Math.max(0, Math.min(params.lines == undefined ? 20 : params.lines, total_lines));
             api.sendResponse(res, 200, {error:"", total_lines, lines, log: await getLogLines(file_path, lines, line_offsets)});
             return true;
         };
