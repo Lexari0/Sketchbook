@@ -12,7 +12,8 @@ module.exports = {
                 host: req.host,
                 method: req.method,
                 path: req.path,
-                protocol: req.protocol
+                protocol: req.protocol,
+                secure: req.secure
             },
             config: config.clone(),
             can_edit: admin.isRequestAdmin(req),
