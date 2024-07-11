@@ -73,7 +73,7 @@ Paramters: None
 
 ### `GET` `/api/gallery/items`
 
-Provides a list of items in the gallery
+Provides a list of items in the gallery.
 
 Parameters:
 
@@ -94,6 +94,34 @@ Parameters:
     },
     19: {
       "_comment": "Contents identical to response from /api/gallery/item/19"
+    }
+  ]
+}
+```
+
+### `GET` `/api/gallery/search`
+
+Queries the gallery with a given search criteria and responds with posts which match that criteria
+
+Parameters:
+
+- `q`: Search query. Specific format TBD.
+- `page`: Page of items to receive, if multiple pages are necessary.
+
+#### Example Response
+
+```json
+{
+  "page_count": 2,
+  "items": [
+    519: {
+      "_comment": "Contents identical to response from /api/gallery/item/519"
+    },
+    580: {
+      "_comment": "Contents identical to response from /api/gallery/item/580"
+    },
+    926: {
+      "_comment": "Contents identical to response from /api/gallery/item/926"
     }
   ]
 }
