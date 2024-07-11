@@ -17,7 +17,7 @@
             {
                 return;
             }
-            var bad_matches = [...new Set(tag_name.match(/[:{}<>=]/g))]
+            var bad_matches = [...new Set(tag_name.match(/[:{}<>="'`]/g))]
             if (bad_matches.length > 0)
             {
                 const last = bad_matches.pop();
