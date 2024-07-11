@@ -75,8 +75,23 @@ module.exports = {
                     }
                 });
                 req.on("end", () => {
+                    var section = undefined;
                     for (const url_param of body.split(/[&\n]/))
                     {
+                        // Hack to deal with forms which submit files
+                        if (section != undefined)
+                        {
+                            if (url_param == section + "--")
+                            {
+                                section = undefined;
+                            }
+                            continue;
+                        }
+                        if (url_param.startsWith(/-+/))
+                        {
+                            section = url_param;
+                            break;
+                        }
                         var split_param = url_param.split("=");
                         const k = split_param.shift();
                         const v = split_param.join("=");
