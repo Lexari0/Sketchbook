@@ -37,6 +37,10 @@ const DEFAULT = {
                 link: "/"
             },
             {
+                text: "Gallery",
+                link: "/search"
+            },
+            {
                 text: "Tags",
                 link: "/tags"
             },

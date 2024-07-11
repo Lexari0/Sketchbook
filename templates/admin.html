@@ -19,6 +19,16 @@ function checkboxField(name, checked, key) {
     key = key ? key : name;
     return `<div class="info-field" field="${name}"><h3><span class="field-name">${name}</span>: <input type="checkbox" class="field-value" name="${key}" ${checked ? "checked" : ""}></h3></div>`;
 }
+function dropdownField(name, value, key, values) {
+    key = key ? key : name;
+    var field = $(`<div class="info-field" field="${name}"><h3><span class="field-name">${name}</span>:<select name="${key}">`);
+    var select = field.find("select");
+    for (const option of values)
+    {
+        select.append($(`<option value="${option}">${option}</option>`));
+    }
+    return field;
+}
 function fileField(name, key) {
     key = key ? key : name;
     return `<div class="info-field" field="${name}"><h3><span class="field-name">${name}</span>: </h3><input type="file" name="${key}"></div>`;
@@ -59,9 +69,9 @@ function configFormSubmit(form, event) {
 }
 
 $(async () => {
-    fetch("/api/server")
+    fetch("/api/config")
         .then(response => response.json())
-        .then(json => {
+        .then(config => {
             const server_software = $("#server-software");
             const server_owner = $("#server-owner form");
             if (json.error.length > 0)
@@ -70,19 +80,41 @@ $(async () => {
                 server_owner.append(`<b class="error">Failed to get server owner info: ${json.error}</b>`);
                 return;
             }
-            server_software.append(infoField("Name", json.software.name));
-            server_software.append(infoField("Version", json.software.version));
-            server_software.append(infoField("Author", json.software.author));
-            server_software.append(infoField("License", json.software.license));
+            server_software.append(infoField("Name", config.server.software.name));
+            server_software.append(infoField("Version", config.server.software.version));
+            server_software.append(infoField("Author", config.server.software.author));
+            server_software.append(infoField("License", config.server.software.license));
             const license_field = server_software.find(".info-field[field=License] .field-value")
-            license_field.html(`<a href="https://opensource.org/licenses/?ls=${json.software.license}">${license_field.html()}</a>`);
+            license_field.html(`<a href="https://opensource.org/licenses/?ls=${config.server.software.license}">${license_field.html()}</a>`);
             server_software.append(titleField("Source"));
             const source_field = server_software.find(".info-field[field=Source] .field-name")
-            source_field.html(`<a href="${json.software.source}">${source_field.html()}</a>`);
-            server_owner.append(textField("Name", json.owner.name, "server.owner.name"));
-            server_owner.append(textField("Email", json.owner.email, "server.owner.email"));
+            source_field.html(`<a href="${config.server.software.source}">${source_field.html()}</a>`);
+            server_owner.append(textField("Name", config.server.owner.name, "server.owner.name"));
+            server_owner.append(textField("Email", config.server.owner.email, "server.owner.email"));
             server_owner.append(submitButton());
             server_owner.submit(event => configFormSubmit(server_owner, event));
+            const gallery_config = $("form.gallery-config");
+            gallery_config.append(textField("Name", config.gallery.name, "gallery.name"));
+            gallery_config.append(checkboxField("Distribute Source Content", config.gallery.distribute_source, "gallery.distribute_source"));
+            gallery_config.submit(event => configFormSubmit(server_owner, event));
+            const api = $("#api form");
+            api.find(".api-keys").append(textField("Key", config.api.key, "api.key"));
+            const enabled_endpoints = api.find(".enabled-endpoints");
+            function addEndpointDropdowns(key, value) {
+                if (typeof(value) === "object")
+                {
+                    for (const subkey of Object.keys(value))
+                    {
+                        addEndpointDropdowns(`${key}.${subkey}`, value[subkey]);
+                    }
+                    return;
+                }
+                const endpoint = "/api/" + (key.endsWith("._") ? key.substring(0, key.length - 2) : key).replace(/./g, "/");
+                enabled_endpoints.append(dropdownField(endpoint, value, key, ["any", "key", "admin"]));
+            }
+            addEndpointDropdowns("", config.api.enabled_endpoints);
+            gallery_config.append(checkboxField("Distribute Source Content", config.gallery.distribute_source, "gallery.distribute_source"));
+            gallery_config.submit(event => configFormSubmit(server_owner, event));
         });
     fetch("/api/gallery")
         .then(response => response.json())
@@ -138,11 +170,23 @@ $(async () => {
     </div>
     <div class="admin-panel" id="server-owner">
         <h2>Server Owner:</h2>
-        <form action="/api/config/update" method="post">
+        <form>
+        </form>
+    </div>
+    <div class="admin-panel" id="api">
+        <h2>API:</h2>
+        <form>
+            <div class="api-keys">
+            </div>
+            <div class="enabled-endpoints">
+            </div>
+            <input class="button" type="submit" value="Update">
         </form>
     </div>
     <div class="admin-panel" id="gallery">
         <h2>Gallery:</h2>
+        <form class="gallery-config">
+        </form>
         <div class="info"></div>
         <hr />
         <form action="/admin/upload_item" method="post" enctype="multipart/form-data">
