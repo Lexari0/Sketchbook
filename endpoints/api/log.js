@@ -53,7 +53,7 @@ async function getLogLines(file_path, lines, line_offsets = undefined) {
                         return;
                     }
                     const buffer_size = stats.size - start_offset;
-                    var buffer = new Buffer(buffer_size);
+                    var buffer = Buffer.alloc(buffer_size);
                     fs.read(fd, buffer, 0, buffer_size, start_offset, (err, bytes_read, buffer) => {
                         if (err != undefined)
                         {
@@ -84,7 +84,7 @@ module.exports = {
             const file_path = log.getActiveFile();
             const line_offsets = await getFileLineOffsets(file_path);
             const total_lines = line_offsets.length;
-            const lines = Math.max(0, Math.min(params.lines == undefined ? 20 : params.lines, total_lines));
+            const lines = Math.max(0, Math.min(params.lines == undefined ? 20 : params.lines, total_lines, 1000));
             const logs = await getLogLines(file_path, lines, line_offsets);
             if (logs === undefined)
             {
@@ -121,7 +121,7 @@ module.exports = {
             const params = await api.getParams(req);
             const line_offsets = await getFileLineOffsets(file_path);
             const total_lines = line_offsets.length;
-            const lines = Math.max(0, Math.min(params.lines == undefined ? 20 : params.lines, total_lines));
+            const lines = Math.max(0, Math.min(params.lines == undefined ? 20 : params.lines, total_lines, 1000));
             const logs = await getLogLines(file_path, lines, line_offsets);
             if (logs === undefined)
             {
