@@ -10,22 +10,14 @@ module.exports = {
         endpoints["/admin"] = async (req, res) => {
             if (admin.isRequestAdmin(req))
             {
-                var params = {config: structuredClone(config)};
-                delete params.config.api;
-                delete params.config.webserver;
-                delete params.config.gallery.admin;
                 const template = fs.readFileSync(path.join(process.cwd(), "templates/admin.html"), "utf-8")
-                const body = html().buildTemplate(template, params).finalize();
+                const body = await html.buildTemplate(template, {}, req);
                 res.writeHead(200, {"Content-Type": "text/html"});
                 res.end(body);
                 return true;
             }
-            var params = {config: structuredClone(config)};
-            delete params.config.api;
-            delete params.config.webserver;
-            delete params.config.gallery.admin;
             const template = fs.readFileSync(path.join(process.cwd(), "templates/admin_login.html"), "utf-8")
-            const body = html().buildTemplate(template, params).finalize();
+            const body = await html.buildTemplate(template, {}, req);
             res.writeHead(200, {"Content-Type": "text/html"});
             res.end(body);
             return true;
@@ -42,15 +34,13 @@ module.exports = {
             {
                 if (admin.isPasswordCorrect(params.password))
                 {
-                    console.log("Successful login");
                     res.writeHead(302, {
-                        "Set-Cookie": admin.stringifyCookies({session_token: admin.generateNewToken()}),
+                        "Set-Cookie": `session_token=${admin.generateNewToken()}; Path=/; Max-Age=${admin.token_valid_time_sec}`,
                         "Location": "/admin"
                     });
                     res.end();
                     return true;
                 }
-                console.log("Failed login");
             }
             res.writeHead(302, {
                 "Location": "/admin?error=Login failed... Password was incorrect."

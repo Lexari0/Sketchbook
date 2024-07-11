@@ -2,20 +2,12 @@ const fs = require("fs");
 const mime = require("mime-types");
 const path = require("path");
 const sqlstring = require("sqlstring-sqlite");
+const admin = require(path.join(process.cwd(), "libs/admin.js"));
 const api = require(path.join(process.cwd(), "libs/api.js"));
-const network = require(path.join(process.cwd(), "libs/network.js"));
 const config = require(path.join(process.cwd(), "libs/config.js"));
 const db = require(path.join(process.cwd(), "libs/db.js"));
 const gallery = require(path.join(process.cwd(), "libs/gallery.js"));
 const html = require(path.join(process.cwd(), "libs/html.js"));
-
-function canEdit(req) {
-    if (config.gallery.edit_ip_whitelist.length === 0)
-    {
-        return network.ipv4.ipInSubnet(req.socket.remoteAddress);
-    }
-    return config.gallery.edit_ip_whitelist.contains(req.socket.remoteAddress);
-}
 
 module.exports = {
     register_endpoints: endpoints => {
@@ -48,12 +40,9 @@ module.exports = {
                 group_by: "tag"
             });
             item.description = item.description.replace(/\n/g, "<br />");
-            var params = {config: structuredClone(config), item, query: {q:"", ...(await api.getParams(req))}, tags: tags_with_counts, can_edit: canEdit(req)};
-            delete params.config.api;
-            delete params.config.webserver;
-            delete params.config.gallery.admin;
+            const params = {item, tags: tags_with_counts};
             const template = fs.readFileSync(path.join(process.cwd(), "templates/item.html"), "utf-8")
-            const body = html().buildTemplate(template, params).finalize();
+            const body = await html.buildTemplate(template, params, req);
             res.writeHead(200, {"Content-Type": "text/html"});
             res.end(body);
             return true;
@@ -150,12 +139,9 @@ module.exports = {
                 where: `items.gallery_item_id=${gallery_item_id}`,
                 order_by: "tag"
             }));
-            var template_params = {config: structuredClone(config), item, tags: tags};
-            delete template_params.config.api;
-            delete template_params.config.webserver;
-            delete template_params.config.gallery.admin;
+            const template_params = {item, tags};
             const template = fs.readFileSync(path.join(process.cwd(), "templates/item_edit.html"), "utf-8")
-            const body = html().buildTemplate(template, template_params).finalize();
+            const body = await html.buildTemplate(template, template_params, req);
             res.writeHead(200, {"Content-Type": "text/html"});
             res.end(body);
             return true;

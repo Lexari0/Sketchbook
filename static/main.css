@@ -53,6 +53,18 @@ a:active {
     text-align: left;
 }
 
+.admin-notice {
+    color: darkred;
+    font-style: italic;
+    font-size: 1em;
+    padding: 0 2em;
+    margin: 0;
+}
+
+.home .admin-notice {
+    text-align: center;
+}
+
 .top-links {
     display: flex;
     flex-direction: row;

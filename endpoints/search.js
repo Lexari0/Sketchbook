@@ -10,11 +10,9 @@ module.exports = {
     register_endpoints: endpoints => {
         endpoints["/search"] = async (req, res) => {
             const template = fs.readFileSync(path.join(process.cwd(), "templates/search.html"), "utf-8")
-            var params = {config: structuredClone(config), query: await api.getParams(req)};
+            var params = {};
             const query = (params.query.q ? decodeURIComponent(params.query.q) : "").split(/\++/g);
             const searched_tags = query.map(tag => tag.replace(/^[~-]/, ""));
-            delete params.config.api;
-            delete params.config.webserver;
             if (config.gallery.recommended_tags.length > 0)
             {
                 params["tags"] = await db.select(["tag", "COUNT(tag_id) AS count"], "item_tags_with_data", {
@@ -35,7 +33,7 @@ module.exports = {
                     limit: 16
                     });
             }
-            const body = html().buildTemplate(template, params).finalize();
+            const body = await html.buildTemplate(template, params, req);
             res.writeHead(200, {"Content-Type": "text/html"});
             res.end(body);
             return true;

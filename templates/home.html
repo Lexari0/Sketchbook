@@ -8,7 +8,14 @@
 </head>
 <body>
 <div id="titlebar" class="home">
+    {? if is_admin ?}
+    <div>
+      <h1 class="title">{{ config.gallery.name }}</h1>
+      <h1 class="admin-notice">Admin Mode</h1>
+    </div>
+    {? else ?}
     <h1 class="title">{{ config.gallery.name }}</h1>
+    {? end ?}
     <div class="top-links">
       {% for link in config.gallery.top_links %}<h2><a href="{{ link.link }}">{{ link.text }}</a></h2>{% end %}
     </div>

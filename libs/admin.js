@@ -4,11 +4,11 @@ const config = require(path.join(process.cwd(), "libs/config.js"));
 
 var active_token = undefined;
 var active_token_valid_until = undefined;
-const token_valid_time_min = 60;
-const token_valid_time_sec = 60 * token_valid_time_min;
-const token_valid_time_ms = 1000 * token_valid_time_sec;
 
 module.exports = {
+    token_valid_time_min: 60,
+    token_valid_time_sec: 60 * this.token_valid_time_min,
+    token_valid_time_ms: 1000 * this.token_valid_time_sec,
     revokeToken: function() {
         active_token = undefined;
         active_token_valid_until = undefined;
@@ -16,17 +16,21 @@ module.exports = {
     isTokenValid: function(token) {
         if (Date.now() > active_token_valid_until)
         {
+            console.log("Token expired");
+            revokeToken();
             return false;
         }
         if (active_token === undefined)
         {
+            console.log("No active token");
             return false;
         }
+        console.log("Checking token:", {active_token, token});
         return active_token === token;
     },
     generateNewToken: function() {
         this.revokeToken();
-        active_token_valid_until = Date.now() + token_valid_time_ms;
+        active_token_valid_until = Date.now() + this.token_valid_time_ms;
         active_token = uuid();
         return active_token;
     },
@@ -43,10 +47,11 @@ module.exports = {
         return Object.keys(cookies).map(k => `${k}=${cookies[k] ? cookies[k] : ""}`).join("&");
     },
     isRequestAdmin: function(req) {
-        return this.isTokenValid(this.getRequestCookies(req).session_token);
+        const cookies = this.getRequestCookies(req);
+        console.log(cookies);
+        return this.isTokenValid(cookies.session_token);
     },
     isPasswordCorrect: function(password) {
-        console.log("Admin login attempt:", {config_pass: config.gallery.admin.password, password});
         return config.gallery.admin.password && config.gallery.admin.password.length > 0 && config.gallery.admin.password === password;
     }
 };

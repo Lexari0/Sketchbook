@@ -16,12 +16,9 @@ module.exports = {
                 distinct: true,
                 order_by: "count, tag",
             });
-            var params = {config: structuredClone(config), tags: tags_with_counts, can_edit: admin.isRequestAdmin(req)};
-            delete params.config.api;
-            delete params.config.webserver;
-            delete params.config.gallery.admin;
+            const params = {tags: tags_with_counts};
             const template = fs.readFileSync(path.join(process.cwd(), "templates/tags.html"), "utf-8")
-            const body = html().buildTemplate(template, params).finalize();
+            const body = await html.buildTemplate(template, params, req);
             res.writeHead(200, {"Content-Type": "text/html"});
             res.end(body);
             return true;
@@ -52,12 +49,9 @@ module.exports = {
             {
                 tag.color = "#000";
             }
-            var params = {config: structuredClone(config), tag, can_edit: tag.editable && admin.isRequestAdmin(req)};
-            delete params.config.api;
-            delete params.config.webserver;
-            delete params.config.gallery.admin;
+            const params = {tag, can_edit: tag.editable && admin.isRequestAdmin(req)};
             const template = fs.readFileSync(path.join(process.cwd(), "templates/tag.html"), "utf-8")
-            const body = html().buildTemplate(template, params).finalize();
+            const body = await html.buildTemplate(template, params, req);
             res.writeHead(200, {"Content-Type": "text/html"});
             res.end(body);
             return true;
@@ -121,12 +115,9 @@ module.exports = {
                     editable: 1
                 };
             }
-            var template_params = {config: structuredClone(config), tag, can_edit: true};
-            delete template_params.config.api;
-            delete template_params.config.webserver;
-            delete template_params.config.gallery.admin;
+            const template_params = {tag};
             const template = fs.readFileSync(path.join(process.cwd(), "templates/tag_edit.html"), "utf-8")
-            const body = html().buildTemplate(template, template_params).finalize();
+            const body = await html.buildTemplate(template, template_params, req);
             res.writeHead(200, {"Content-Type": "text/html"});
             res.end(body);
             return true;
@@ -153,12 +144,9 @@ module.exports = {
             {
                 category.description = category.description.replace(/\n/g, "<br />");
             }
-            var params = {config: structuredClone(config), category, can_edit: category.editable && admin.isRequestAdmin(req)};
-            delete params.config.api;
-            delete params.config.webserver;
-            delete params.config.gallery.admin;
+            const params = {category, can_edit: category.editable && admin.isRequestAdmin(req)};
             const template = fs.readFileSync(path.join(process.cwd(), "templates/tag_category.html"), "utf-8")
-            const body = html().buildTemplate(template, params).finalize();
+            const body = await html.buildTemplate(template, params, req);
             res.writeHead(200, {"Content-Type": "text/html"});
             res.end(body);
             return true;
@@ -220,12 +208,9 @@ module.exports = {
                     editable: 1
                 };
             }
-            var template_params = {config: structuredClone(config), category, can_edit: true};
-            delete template_params.config.api;
-            delete template_params.config.webserver;
-            delete template_params.config.gallery.admin;
+            const template_params = {category, can_edit: true};
             const template = fs.readFileSync(path.join(process.cwd(), "templates/tag_category_edit.html"), "utf-8")
-            const body = html().buildTemplate(template, template_params).finalize();
+            const body = await html.buildTemplate(template, template_params, req);
             res.writeHead(200, {"Content-Type": "text/html"});
             res.end(body);
             return true;
