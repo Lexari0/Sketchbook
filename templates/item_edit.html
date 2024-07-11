@@ -5,7 +5,11 @@
 <script src="/static/jquery-3.7.1.min.js"></script>
 <script src="/static/common.js"></script>
 <script>
-    var tag_changes = {current: [{% for tag in tags %}{{ tag.tag }},{% end %}], to_remove: {}, to_add: {}};
+    var tag_changes = {current: [
+        //{% for tag in tags %}
+        "{{ tag.tag }}",
+        //{% end %}
+    ], to_remove: {}, to_add: {}};
 
     function addTagToNewList(tag_name, check) {
         new_tag_list.append(`<li><input type="checkbox" onchange="toggleAdd('${tag_name}')" name="add-${tag_name}" value="${tag_name}" checked><label for="add-${tag_name}">${tag_name}</label></li>`);
