@@ -195,6 +195,10 @@ module.exports = {
                         }
                         catch (err)
                         {
+                            if (fs.existsSync(final_file_path))
+                            {
+                                fs.unlinkSync(final_file_path);
+                            }
                             reject(err);
                             return;
                         }

@@ -70,9 +70,10 @@
     <div class="item-preview">
         <h2>Editing Item #{{ item.gallery_item_id }}</h2>
         <img src="/item/{{ item.gallery_item_id }}/small" />
-        <form class="submit-changes">
+        <form class="submit-changes" method="post" enctype="multipart/form-data">
             <div class="form-field">Name:</div><input class="name" type="text" name="name" value="{{ item.name }}"><br />
             <div class="form-field">Description:</div><textarea class="description" name="description" rows="5">{{ item.description }}</textarea><br />
+            <div class="form-field">Replacement file:</div><input type="file" class="file" name="file" accept=".png,.webp,.jpg,.jpeg,.svg,.bmp,.ico,.tiff,">
             <input class="button" type="submit" value="Update Item">
         </form>
     </div>

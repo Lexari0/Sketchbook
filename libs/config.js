@@ -60,7 +60,12 @@ const DEFAULT = {
             server: "any",
             gallery: {
                 _: "any",
-                item: "any",
+                item: {
+                    _: "any",
+                    new_file: "admin",
+                    add_tag: "admin",
+                    remove_tag: "admin"
+                },
                 items: "any",
                 refresh: "key",
                 search: "any",
