@@ -8,7 +8,7 @@ const PATH = path.join(process.cwd(), "config.yaml");
 const DEFAULT = {
     webserver: {
         ip: "0.0.0.0",
-        port: 80
+        port: 8090
     },
     server: {
         software: {

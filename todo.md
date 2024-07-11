@@ -22,14 +22,14 @@
 -- [x] SQL command entry (if /api/sql endpoint is enabled; warn that this is dangerous)
 -- [ ] Update WiFi credentials form
 --- [ ] Revert if connection fails for 1 minute
--- [ ] "Restart" and "Update" buttons
+-- [ ] "Restart" and "Update" buttons (need to figure out linux permissions)
 ---  [ ] Check for updates (display change logs)
 -- [ ] "Refresh SSL Certificate" button
 - [ ] Add server domain field to config
 - [ ] Clean up Pi (reset git repository)
 - [ ] Create systemd service
-- [ ] Install certbot
--- [ ] Create disk image from Pi SD
+- [x] Install certbot
+- [ ] Create disk image from Pi SD
 - [ ] Setup walkthrough
 -- [ ] Determine if port 443 and 80 are in use
 --- [ ] If not, determine if port forwarding is possible (may need to make Godot HTML project to create websocket server in browser)
