@@ -6,6 +6,7 @@ $(function() {
         content.style.display = "none";
         content.style.overflow = "hidden";
         content.style.backgroundColor = "#0004";
+        content.style.marginBottom = "0.5em";
         element.addEventListener("click", function() {
             this.classList.toggle("active");
             content.style.display = content.style.display === "block" ? "none" : "block";
