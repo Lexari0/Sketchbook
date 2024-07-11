@@ -12,6 +12,7 @@ Parameters: None
 
 ```json
 {
+  "error": "",
   "software": {
     "name": "Sketchbook",
     "version": "1.0",
@@ -36,8 +37,9 @@ Parameters: None
 
 ```json
 {
+  "error": "",
   "item_count": 621,
-  "last_update": "June 21, 2024 20:17:40 GMT+00:00"
+  "last_update": "2024-06-21 20:17:40"
 }
 ```
 
@@ -51,23 +53,25 @@ Paramters: None
 
 ```json
 {
-  "name": "untitled",
-  "artist": "SomeDog",
-  "uploaded_on": "June 20, 2024 17:17:40 GMT+00:00",
-  "last_edited": "June 21, 2024 20:17:40 GMT+00:00",
-  "resolutions": {
-    "thumb": "/item/4_thumb.jpg",
-    "low": "/item/4_low.png",
-    "high": "/item/4.png"
+  "1": {
+    "name": "untitled",
+    "uploaded_on": "2024-06-20 11:12:04"
+    "last_edited": "2024-06-21 20:17:40"
+    "source": "https://some_dogs_gallery/4",
+    "missing": 0,
+    "tags": [
+      "dog",
+      "cat",
+      "plaid_shirt"
+    ],
+    "resolutions": {
+      "thumb": "/item/1/thumb",
+      "small": "/item/1/small",
+      "large": "/item/1/large"
+    },
+    "uri": "/item/1"
   },
-  "rating": "safe"
-  "tags": [
-    "dog",
-    "cat",
-    "plaid_shirt"
-  ],
-  "uri": "/4",
-  "source": "https://some_dogs_gallery/4"
+  "error": ""
 }
 ```
 
@@ -84,6 +88,8 @@ Parameters:
 
 ```json
 {
+  "error": "",
+  "page": 1,
   "page_count": 3,
   "items": {
     "42": {
@@ -113,6 +119,8 @@ Parameters:
 ```json
 {
   "page_count": 2,
+  "q": "foo"
+  "item_count": 3,
   "items": {
     "519": {
       "_comment": "Contents identical to response from /api/gallery/item/519"
