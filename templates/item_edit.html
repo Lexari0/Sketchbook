@@ -23,7 +23,7 @@
     }
 
     $(async () => {
-        buildAPIList(".new-tags#tag-list", "/api/subscriptions/subscribestar/tiers", json => json.tiers.map(tier => tier.tag).filter(tag => tag in tag_changes.current), tag_name => createHTMLForNewTag(tag_name, false));
+        buildAPIList(".new-tags#tag-list", "/api/subscriptions/subscribestar/tiers", json => json.tiers.map(tier => tier.tag).filter(tag_changes.current.includes), tag_name => createHTMLForNewTag(tag_name, false));
     });
 
     $(async () => {
