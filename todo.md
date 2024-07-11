@@ -30,6 +30,7 @@
 
 - [ ] Config wiki/documentation
 - [x] API endpoints wiki/documentation
+- [x] Search wiki/documentation
 - [ ] Database wiki/documentation
 - [ ] Admin panel improvements
 -- [ ] "Restart" and "Update" buttons
