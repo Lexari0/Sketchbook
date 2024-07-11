@@ -51,7 +51,7 @@ $(async () => {
                 event.preventDefault();
                 fetch(`/api/config/update`, {
                     method:"POST",
-                    body: `server.owner.name=${server_software.find("input[name='server.owner.name']").value()}\nserver.owner.email=${server_software.find("input[name='server.owner.email']").value()}`
+                    body: `server.owner.name=${$("input[name='server.owner.name']").val()}\nserver.owner.email=${$("input[name='server.owner.email']").val()}`
                 }).then(async response => {
                     if (!response.ok)
                     {
