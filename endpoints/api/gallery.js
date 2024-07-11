@@ -1,12 +1,27 @@
 const path = require("path");
+const sqlstring = require("sqlstring-sqlite");
 const api = require(path.join(process.cwd(), "libs/api.js"));
 const config = require(path.join(process.cwd(), "libs/config.js"));
 const db = require(path.join(process.cwd(), "libs/db.js"));
 const gallery = require(path.join(process.cwd(), "libs/gallery.js"));
+const log = require(path.join(process.cwd(), "libs/log.js"));
 
-async function apiGalleryIDLookup(gallery_item_id, res) {
+async function apiGalleryIDLookup(gallery_item_id, res, simple = false) {
+    const simple_item = {
+        resolutions: {
+            thumb: `/item/${gallery_item_id}/thumb`,
+            small: `/item/${gallery_item_id}/small`,
+            large: `/item/${gallery_item_id}/large`,
+            source: config.gallery.distribute_source ? `/item/${gallery_item_id}/source` : undefined
+        },
+        uri: `/item/${gallery_item_id}`
+    };
+    if (simple)
+    {
+        return simple_item;
+    }
     const item_query_result = (await db.select(
-            ["name", "created AS uploaded_on", "last_update AS last_edited", "source", "missing"],
+            ["name", "description", "created AS uploaded_on", "last_update AS last_edited", "source", "missing"],
             "items",
             {where: `gallery_item_id=${gallery_item_id}`}
         )).shift();
@@ -18,20 +33,11 @@ async function apiGalleryIDLookup(gallery_item_id, res) {
         }
         return undefined;
     }
-    var item = {...item_query_result,
-        tags: (await db.select("tag", "item_tags", {where: `gallery_item_id=${gallery_item_id}`})).map(x => x.tag),
-        resolutions: {
-            thumb: `/item/${gallery_item_id}/thumb`,
-            small: `/item/${gallery_item_id}/small`,
-            large: `/item/${gallery_item_id}/large`
-        },
-        uri: `/item/${gallery_item_id}`
+    return {
+        ...simple_item,
+        ...item_query_result,
+        tags: (await db.select("tag", "item_tags INNER JOIN tags ON tags.tag_id=item_tags.tag_id", {where: `gallery_item_id=${gallery_item_id}`})).map(x => x.tag)
     };
-    if (config.gallery.distribute_source)
-    {
-        item.resolutions.source = `/item/${gallery_item_id}/source`
-    }
-    return item;
 }
 
 module.exports = {
@@ -82,7 +88,7 @@ module.exports = {
             for (const item of items_query_result)
             {
                 items[item.gallery_item_id] = item;
-                items[item.gallery_item_id].tags = (await db.select("tag", "item_tags", {where: `gallery_item_id=${item.gallery_item_id}`})).map(x => x.tag);
+                items[item.gallery_item_id].tags = (await db.select("tag", "item_tags INNER JOIN tags ON item_tags.tag_id=tags.tag_id", {where: `gallery_item_id=${item.gallery_item_id}`})).map(x => x.tag);
                 items[item.gallery_item_id].resolutions = {
                     thumb: `/item/${item.gallery_item_id}/thumb`,
                     small: `/item/${item.gallery_item_id}/small`,
@@ -95,7 +101,7 @@ module.exports = {
                 items[item.gallery_item_id].uri = `/item/${item.gallery_item_id}`;
                 delete items[item.gallery_item_id].gallery_item_id;
             }
-            api.sendResponse(res, 200, {error: "", page, page_count, items});
+            api.sendResponse(res, 200, {error: "", item_count, page, page_count, items});
             return true;
         };
         endpoints["/api/gallery/search"] = async (req, res) => {
@@ -111,9 +117,26 @@ module.exports = {
             var search_results = {};
             for (const search_result of query_results.items)
             {
-                search_results[search_result.gallery_item_id] = await apiGalleryIDLookup(search_result.gallery_item_id);
+                search_results[search_result.gallery_item_id] = await apiGalleryIDLookup(search_result.gallery_item_id, undefined, "simple" in query);
             }
             api.sendResponse(res, 200, {error: "", q: query.q, item_count: query_results.item_count, items: search_results});
+            return true;
+        };
+        endpoints["/api/gallery/tags"] = async (req, res) => {
+            if (!await api.requestIsValid(req, res, config.api.enabled_endpoints.gallery.tags)) {
+                return true;
+            }
+            const query = await api.getParams(req);
+            const use_like = query.like && query.like.length > 0;
+            const like = use_like ? query.like.replace(/\\/g, "\\\\").replace(/_/g, "\\_").replace(/%/g, "\\%") + "%" : undefined;
+            const count = parseInt(query.count);
+            const limit = Math.max(Math.min(isNaN(count) ? 20 : count, 100), 1);
+            const tags = await db.select(["tags.tag", "tags.description", "tag_categories.category", "(SELECT COUNT(*) FROM item_tags WHERE item_tags.tag_id=tags.tag_id) AS count"], "tags LEFT JOIN tag_categories on tags.tag_category_id=tag_categories.tag_category_id", {
+                where: use_like ? "tags.tag LIKE " + sqlstring.escape(like) + " ESCAPE \\" : undefined,
+                order_by: "tags.tag",
+                limit: limit
+            });
+            api.sendResponse(res, 200, {error: "", like: use_like ? query.like : "", count: limit, tags});
             return true;
         };
     }

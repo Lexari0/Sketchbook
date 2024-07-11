@@ -32,7 +32,7 @@ module.exports = {
                     if (error)
                     {
                         log.error("db", "Failed to make table", table_name, "due to error:", error);
-                        reject();
+                        reject(error);
                     }
                     else
                     {
@@ -91,7 +91,7 @@ module.exports = {
                 if (error)
                 {
                     log.error("db", "Failed to insert into table", table_name, "due to error:", error);
-                    reject();
+                    reject(error);
                 }
                 else
                 {
@@ -124,7 +124,7 @@ module.exports = {
                     if (error)
                     {
                         log.error("db", "Failed to update", table_name, "due to error:", error);
-                        reject();
+                        reject(error);
                     }
                     else
                     {
@@ -190,7 +190,7 @@ module.exports = {
         return await this.all(command);
     },
     all: async function (sql, params) {
-        return new Promise(resolve => {
+        return new Promise((resolve, reject) => {
             if (params) {
                 for (const param of params)
                 {
@@ -199,7 +199,16 @@ module.exports = {
             }
             log.message("sql", sql);
             this.db.all(sql,
-                (err, result) => { resolve(err ? [] : result); }
+                (error, result) => {
+                    if (error)
+                    {
+                        reject(error);
+                    }
+                    else
+                    {
+                        resolve(result);
+                    };
+                }
             );
         })
     }

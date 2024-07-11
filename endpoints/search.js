@@ -17,20 +17,20 @@ module.exports = {
             delete params.config.webserver;
             if (config.gallery.recommended_tags.length > 0)
             {
-                params["tags"] = await db.select(["tag", "COUNT(tag) AS count"], "item_tags", {
+                params["tags"] = await db.select(["tag", "COUNT(tag_id) AS count"], "item_tags INNER JOIN tags ON item_tags.tag_id=tags.tag_id", {
                     distinct: true,
                     where: "tag IN (" + config.gallery.recommended_tags.map(sqlstring.escape).join() + ") AND tag NOT IN (" + searched_tags.map(sqlstring.escape) + ")",
-                    group_by: "tag",
+                    group_by: "tag_id",
                     order_by: "count DESC, tag",
-                    limit: 16
+                    limit: config.gallery.recommended_tags.length
                     });
             }
             else
             {
-                params["tags"] = await db.select(["tag", "COUNT(tag) AS count"], "item_tags", {
+                params["tags"] = await db.select(["tag", "COUNT(tag_id) AS count"], "item_tags INNER JOIN tags ON item_tags.tag_id=tags.tag_id", {
                     distinct: true,
                     where: "tag NOT IN (" + searched_tags.map(sqlstring.escape) + ")",
-                    group_by: "tag",
+                    group_by: "tag_id",
                     order_by: "count DESC, tag",
                     limit: 16
                     });

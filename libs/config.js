@@ -51,6 +51,7 @@ const DEFAULT = {
                 _: "any",
                 item: "any",
                 items: "any",
+                tags: "any",
                 search: "any"
             },
             sql: "none",
@@ -60,6 +61,7 @@ const DEFAULT = {
     logging: {
         path: "last.log",
         enabled_categories: {
+            api: false,
             db: true,
             config: true,
             gallery: true,

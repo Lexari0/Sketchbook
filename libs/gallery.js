@@ -9,6 +9,36 @@ const db = require(path.join(process.cwd(), "libs/db.js"));
 const log = require(path.join(process.cwd(), "libs/log.js"));
 
 const content_path = path.join(process.cwd(), config.gallery.content_path);
+const built_in_categories = [
+    [
+        "artist",
+        "Tags of this category denote artists involved in the creation of an item.",
+        "#6e30a1"
+    ],
+    [
+        "character",
+        "Tags of this category denote a specific character.",
+        "#a88932"
+    ],
+    [
+        "copyright",
+        "Tags of this category denote a specific copyright or franchise.",
+        "#a84632"
+    ],
+    [
+        "meta",
+        "Tags of this category are either automatically applied based on a specified rule or apply special rules to a search query.",
+        "#0871c2"
+    ]
+];
+const built_in_tags = {
+    meta: [
+        [
+            "untagged",
+            "Item has no other tags."
+        ]
+    ]
+};
 
 module.exports = {
     image_directories: {
@@ -20,22 +50,43 @@ module.exports = {
         if (db.db == null) {
             db.open();
         }
-        await db.createTable("items", [
-            "gallery_item_id INTEGER PRIMARY KEY AUTOINCREMENT",
-            "name TEXT DEFAULT 'untitled'",
-            "description TEXT DEFAULT ''",
-            "file_path TEXT",
-            "hash CHARACTER(64)",
-            "source TEXT",
-            "created DATETIME DEFAULT CURRENT_TIMESTAMP",
-            "last_update DATETIME DEFAULT CURRENT_TIMESTAMP",
-            "missing INT DEFAULT 0"
+        await Promise.all([
+            db.createTable("items", [
+                "gallery_item_id INTEGER PRIMARY KEY AUTOINCREMENT",
+                "name TEXT DEFAULT 'untitled'",
+                "description TEXT DEFAULT ''",
+                "file_path TEXT",
+                "hash CHARACTER(64)",
+                "source TEXT",
+                "created DATETIME DEFAULT CURRENT_TIMESTAMP",
+                "last_update DATETIME DEFAULT CURRENT_TIMESTAMP",
+                "missing INTEGER DEFAULT 0"
+            ]),
+            db.createTable("item_tags", [
+                "item_tag_entry INTEGER PRIMARY KEY AUTOINCREMENT",
+                "gallery_item_id INTEGER REFERENCES items NOT NULL",
+                "tag_id INTEGER REFERENCES tags NOT NULL"
+            ]),
+            db.createTable("tags", [
+                "tag_id INTEGER PRIMARY KEY AUTOINCREMENT",
+                "tag TEXT UNIQUE NOT NULL",
+                "description TEXT",
+                "tag_category_id INTEGER REFERENCES tag_categories DEFAULT 0",
+                "editable INTEGER DEFAULT 1"
+            ]),
+            db.createTable("tag_categories", [
+                "tag_category_id INTEGER PRIMARY KEY AUTOINCREMENT",
+                "category TEXT UNIQUE NOT NULL",
+                "description TEXT",
+                "color TEXT",
+                "editable INTEGER DEFAULT 1"
+            ]),
+            db.all("CREATE TABLE IF NOT EXISTS item_tags_with_data AS SELECT item_tags.item_tag_entry, item_tags.gallery_item_id, tags.* FROM item_tags INNER JOIN tags ON item_tags.tag_id=tags.tag_id")
         ]);
-        await db.createTable("item_tags", [
-            "tag_entry INTEGER PRIMARY KEY AUTOINCREMENT",
-            "gallery_item_id INTEGER REFERENCES items",
-            "tag TEXT"
-        ]);
+        await db.all("INSERT OR IGNORE INTO tag_categories (category, description, color, editable) VALUES " + built_in_categories.map(c => `(${c.map(sqlstring.escape).join(", ")}, 0)`).join(", "));
+        await Promise.all(Object.keys(built_in_tags).map(category =>
+            db.all("INSERT OR IGNORE INTO tags (tag, description, tag_category_id, editable) SELECT " + built_in_tags[category].map(sqlstring.escape).join(", ") + ", tag_category_id, 0 FROM tag_categories WHERE category=" + sqlstring.escape(category))
+        ));
     },
     refreshAlternates: async function(gallery_item_id) {
         const entry = (await db.select(["file_path", "missing"], "items", {where: `gallery_item_id=${gallery_item_id}`})).shift();
@@ -160,12 +211,34 @@ module.exports = {
 
         if (required_tags.length === 0 && excluded_tags.length === 0 && optional_tags.length === 0)
         {
-            return "SELECT DISTINCT " + selected_columns + ", (SELECT COUNT(*) FROM items) AS item_count FROM items WHERE missing=0 ORDER BY " + order_by + " LIMIT " + limit + " OFFSET " + ((page - 1) * limit);
+            return `SELECT DISTINCT ${selected_columns}, (SELECT COUNT(*) FROM items) AS item_count FROM items WHERE missing=0 ORDER BY ${order_by} LIMIT ${limit} OFFSET ${((page - 1) * limit)}`;
         }
-        const optional_query = optional_tags.length === 0 ? "item_tags" : "SELECT * FROM item_tags WHERE tag IN (" + optional_tags.join(", ") + ")";
-        const excluded_query = excluded_tags.length === 0 ? optional_query : "SELECT * FROM (" + optional_query + ") WHERE gallery_item_id NOT IN (SELECT gallery_item_id FROM item_tags WHERE tag IN (" + excluded_tags.join(", ") + "))"
-        const required_query = required_tags.length === 0 ? excluded_query : "SELECT * FROM (" + excluded_query + ") AS found INNER JOIN item_tags ON item_tags.gallery_item_id = found.gallery_item_id WHERE item_tags.tag IN (" + required_tags.join(", ") + ") GROUP BY item_tags.gallery_item_id HAVING COUNT(DISTINCT item_tags.tag) = " + required_tags.length
-        return "SELECT DISTINCT " + selected_columns + ", (SELECT COUNT(*) FROM (" + required_query + ")) AS item_count FROM (" + required_query + ") AS found INNER JOIN items ON items.gallery_item_id=found.gallery_item_id WHERE items.missing=0 ORDER BY " + order_by + " LIMIT " + limit + " OFFSET " + ((page - 1) * limit);
+        const base_table = "item_tags_with_data";
+        const optional_query = optional_tags.length === 0 ? base_table :
+`SELECT * FROM ${base_table} AS base WHERE base.tag IN (
+    ${optional_tags.join(", ")}
+)`;
+        const excluded_query = excluded_tags.length === 0 ? optional_query :
+`SELECT * FROM (
+${optional_query.replace(/^/gm,"    ")}
+) AS optional WHERE optional.tag NOT IN (
+    ${excluded_tags.join(", ")}
+)`;
+        const required_query = required_tags.length === 0 ? excluded_query :
+`SELECT * FROM (
+${excluded_query.replace(/^/gm,"    ")}
+) AS excluded INNER JOIN item_tags_with_data ON excluded.gallery_item_id=item_tags_with_data.gallery_item_id WHERE item_tags_with_data.tag IN (
+    ${required_tags.join(", ")}
+) GROUP BY item_tags_with_data.gallery_item_id HAVING COUNT(
+    DISTINCT item_tags_with_data.tag_id
+)=${required_tags.length}`;
+        return `SELECT DISTINCT ${selected_columns}, (
+    SELECT COUNT(*) FROM (
+${required_query.replace(/^/gm,"        ")}
+    )
+) AS item_count FROM (
+${required_query.replace(/^/gm,"    ")}
+) AS required INNER JOIN items ON items.gallery_item_id=required.gallery_item_id WHERE items.missing=0 ORDER BY ${order_by} LIMIT ${limit} OFFSET ${((page - 1) * limit)}`;
     },
     search: async function (query) {
         const result = await db.all(this.buildSQLFromSearch(query));
@@ -189,7 +262,7 @@ module.exports = {
     },
     addTags: async function(gallery_item_id, ...tags) {
         log.message("gallery", "Adding tags to item", gallery_item_id, ":", tags.join(", "))
-        await db.all("INSERT OR REPLACE INTO item_tags (gallery_item_id, tag) " + tags.map(tag => `SELECT ${gallery_item_id}, ${tag} WHERE NOT EXISTS (SELECT * FROM item_tags WHERE gallery_item_id=${gallery_item_id} AND tag=${tag})`).join(" UNION ALL "));
+        await db.all("INSERT OR REPLACE INTO item_tags (gallery_item_id, tag_id) " + tags.map(tag => `SELECT ${gallery_item_id}, tag_id FROM tags WHERE tag=${tag} AND NOT EXISTS (SELECT * FROM item_tags WHERE gallery_item_id=${gallery_item_id} AND tag=${tag})`).join(" UNION ALL "));
         await this.removeUntaggedTag(gallery_item_id);
     },
     removeTags: async function(gallery_item_id, ...tags) {
@@ -198,10 +271,10 @@ module.exports = {
         await this.addUntaggedTag(gallery_item_id);
     },
     addUntaggedTag: async function(gallery_item_id) {
-        await db.all(`INSERT OR REPLACE INTO item_tags (gallery_item_id, tag) SELECT ${gallery_item_id}, "untagged" WHERE NOT EXISTS (SELECT * FROM item_tags WHERE gallery_item_id=${gallery_item_id})`);
+        await db.all(`INSERT OR REPLACE INTO item_tags (gallery_item_id, tag_id) SELECT ${gallery_item_id}, tag_id FROM tags WHERE tag='untagged' AND NOT EXISTS (SELECT * FROM item_tags WHERE gallery_item_id=${gallery_item_id})`);
     },
     removeUntaggedTag: async function(gallery_item_id) {
-        await db.all(`DELETE FROM item_tags WHERE gallery_item_id=${gallery_item_id} AND tag_entry IN (SELECT a.tag_entry FROM item_tags AS a INNER JOIN item_tags AS b WHERE b.gallery_item_id=a.gallery_item_id AND a.tag="untagged" AND NOT b.tag="untagged");`);
+        await db.all(`DELETE FROM item_tags WHERE gallery_item_id=${gallery_item_id} AND item_tag_entry IN (SELECT a.item_tag_entry FROM (item_tags INNER JOIN tags ON item_tags.tag_id=tags.tag_id) AS a INNER JOIN (item_tags INNER JOIN tags ON item_tags.tag_id=tags.tag_id) AS b ON a.tag_id<>b.tag_id AND b.gallery_item_id=a.gallery_item_id WHERE a.tag="untagged");`);
     },
     updateMetaTags: async function(gallery_item_id) {
         await Promise.all([
@@ -260,14 +333,14 @@ module.exports = {
                 where: "hash=" + sqlstring.escape(file_hash)
             });
         }
-        const tag_query_result = (await db.select("COUNT(tag) AS count", "item_tags", {
+        const tag_query_result = (await db.select("COUNT(tag_id) AS count", "item_tags", {
                 distinct: true,
                 where: `gallery_item_id=${current_entry.gallery_item_id}`
             })).shift();
         if (tag_query_result === undefined || tag_query_result.count == 0)
         {
             log.message("gallery", "Item", current_entry.gallery_item_id, "is untagged, giving it the default tag.");
-            await db.all(`INSERT OR REPLACE INTO item_tags (gallery_item_id, tag) SELECT ${current_entry.gallery_item_id}, 'untagged' WHERE NOT EXISTS (SELECT * FROM item_tags WHERE gallery_item_id=6)`);
+            await this.addUntaggedTag(current_entry.gallery_item_id)
         }
     },
     refreshContent: async function() {
