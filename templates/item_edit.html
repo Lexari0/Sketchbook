@@ -19,10 +19,7 @@
     }
 
     $(async () => {
-        const response = await fetch("/api/subscriptions/subscribestar/tiers", {
-            method: "GET",
-            body: form_data
-        });
+        const response = await fetch("/api/subscriptions/subscribestar/tiers");
         console.log(`GET response: ${response}`);
         if (response.error != "" && response.error != undefined)
         {
