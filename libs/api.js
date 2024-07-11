@@ -88,18 +88,19 @@ module.exports = {
         }
         return req.params;
     },
-    sendPOST: function(hostname, path, params = {}, data, content_type) {
+    sendPOST: function(hostname, page, params = {}, data, content_type) {
         return new Promise((resolve, reject) => {
+            if (params.length > 0)
+            {
+                page += "?" + "&".join(Object.keys(params).map(key => encodeURIComponent(toString(key)) + (params[key] ? "=" + encodeURIComponent(toString(params[key])) : "")))
+            }
             var options = {
                 hostname: hostname,
                 port: 443,
-                path: path,
+                path: page,
                 method: "POST"
             };
-            if (params.length > 0)
-            {
-                path += "?" + "&".join(Object.keys(params).map(key => encodeURIComponent(toString(key)) + (params[key] ? "=" + encodeURIComponent(toString(params[key])) : "")))
-            }
+            console.log("Sending POST request: " + path.join(hostname, page));
             if (data != undefined)
             {
                 if (content_type == undefined)
