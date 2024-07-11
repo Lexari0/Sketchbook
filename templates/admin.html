@@ -100,11 +100,11 @@ $(async () => {
             server_owner.submit(event => configFormSubmit(server_owner, event));
             const gallery_config = $("form.gallery-config");
             gallery_config.append(textField("Name", config.gallery.name, "gallery.name", "The title of this website shown in the browser tab and page header"));
-            gallery_config.append(checkboxField("Distribute Source Content", config.gallery.distribute_source, "gallery.distribute_source", "If enabled, viewers can request your source content.&gt;br/&lt;This can use a lot of network bandwidth"));
+            gallery_config.append(checkboxField("Distribute Source Content", config.gallery.distribute_source, "gallery.distribute_source", "If enabled, viewers can request your source content.&lt;br/&gt;This can use a lot of network bandwidth"));
             gallery_config.append(submitButton());
             gallery_config.submit(event => configFormSubmit(gallery_config, event));
             const api = $("#api form");
-            api.find(".api-keys").append(textField("Key", config.api.key, "api.key", "The API key your server uses to talk to other Sketchbook galleries.&gt;br/&lt;Don't change unless you know what you're doing."));
+            api.find(".api-keys").append(textField("Key", config.api.key, "api.key", "The API key your server uses to talk to other Sketchbook galleries.&lt;br/&gt;Don't change unless you know what you're doing."));
             const enabled_endpoints = api.find(".enabled-endpoints");
             function addEndpointDropdowns(key, value) {
                 if (typeof(value) === "object")
@@ -220,7 +220,7 @@ $(() => {
             <div class="api-keys">
             </div>
             <button type="button" class="collapsible"><h3>Enabled Endpoints</h3></button>
-            <div class="enabled-endpoints" data-tooltip="Check the wiki at the Software Source for information on each API endpoint.&gt;br/&lt;Don't touch unless you know what you're doing.">
+            <div class="enabled-endpoints" data-tooltip="Check the wiki at the Software Source for information on each API endpoint.&lt;br/&gt;Don't touch unless you know what you're doing.">
             </div>
         </form>
     </div>
