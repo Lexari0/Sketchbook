@@ -62,13 +62,13 @@ const DEFAULT = {
                 _: "admin",
                 update: "admin"
             },
-            server: "any",
+            echo: "key",
             gallery: {
                 _: "any",
                 item: {
                     _: "any",
-                    new_file: "admin",
                     add_tag: "admin",
+                    new_file: "admin",
                     remove_tag: "admin"
                 },
                 items: "any",
@@ -76,13 +76,18 @@ const DEFAULT = {
                 search: "any",
                 tags: "any"
             },
-            sql: "admin",
-            echo: "key",
+            log: {
+                current: "admin",
+                file: "admin",
+                files: "admin"
+            },
+            server: "any",
             subscriptions: {
                 subscribestar: {
                     tiers: "any"
                 }
-            }
+            },
+            sql: "admin"
         }
     },
     subscribestar: {

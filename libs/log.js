@@ -3,19 +3,18 @@ const path = require("path");
 const config = require(path.join(process.cwd(), "libs/config.js"));
 
 const logging_start_datetime = new Date();
-const logs_path = path.join(process.cwd(), "logs");
-const file_paths = [
-    path.join(process.cwd(), config.logging.path),
-    path.join(logs_path, (() => {
-        const datetime = logging_start_datetime.toISOString().split("T");
-        const date = datetime[0];
-        const time = datetime[1].substring(0, 8);
-        return `${date}.${time.replace(/:/g, "-")}.log`;
-    })())
-];
-if (!fs.existsSync(logs_path))
+const logs_directory = path.join(process.cwd(), "logs");
+const recent_file = config.logging.path != undefined && config.logging.path.length > 0 ? path.join(process.cwd(), config.logging.path) : undefined;
+const active_file = path.join(logs_directory, (() => {
+    const datetime = logging_start_datetime.toISOString().split("T");
+    const date = datetime[0];
+    const time = datetime[1].substring(0, 8);
+    return `${date}.${time.replace(/:/g, "-")}.log`;
+})());
+const file_paths = recent_file == undefined ? [active_file] : [recent_file, active_file];
+if (!fs.existsSync(logs_directory))
 {
-    fs.mkdirSync(logs_path);
+    fs.mkdirSync(logs_directory);
 }
 
 function printFileWriteError(error) {
@@ -25,7 +24,8 @@ function printFileWriteError(error) {
     }
 }
 
-for (const file of file_paths) {
+for (const file of file_paths)
+{
     fs.writeFile(file, "Sketchbook logging started at " + logging_start_datetime.toISOString() + "\n\n", printFileWriteError);
 }
 
@@ -38,6 +38,9 @@ function categoryEnabled(category) {
 }
 
 module.exports = {
+    getActiveFile: function() {
+        return active_file;
+    },
     message: function (category, ...message) {
         if (!categoryEnabled(category))
         {
