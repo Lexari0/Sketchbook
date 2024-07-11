@@ -3,9 +3,7 @@
 ## Version 1.0
 
 - [x] Create nginx reverse proxy on Pi
--- [ ] Grab server domain from sketchbook config
-- [x] Install certbot
--- [ ] Integrate with certbot
+-- [ ] Grab server domain from sketchbook config and automatically update `sites-available/sketchbook` file
 - [x] Add server domain field to config
 - [x]Tag/category wiki
 -- [x] Tag/category editing
@@ -20,39 +18,67 @@
 -- [ ] Config options should all have hover tooltip descriptions
 -- [ ] Links to log files
 -- [x] SQL command entry (if /api/sql endpoint is enabled; warn that this is dangerous)
--- [ ] "Refresh SSL Certificate" button
-- [ ] New image upload
-- [ ] Update image upload
+- [x] New image upload
+- [x] Update image upload
+- [ ] SubscribeStar API integration
+-- [x] Creator OAuth setup in /admin
+-- [x] Censor "premium" items
+-- [x] Show "connect to SubscribeStar" link on censored images if viewer doesn't have active OAuth access token
+-- [ ] Show "upgrade subscription" link on censored images if viewer has OAuth access token, but not the correct subscription tier
+- [ ] Admin password should query the "sketchbook" user's password on the system using `openssl passwd` instead of leaving it plaintext in the config
 
-### Setup walkthrough
+## Beta Release
 
-- [ ] Determine if port 443 and 80 are in use
--- [ ] If not, determine if port forwarding is possible (may need to make Godot HTML project to create websocket server in browser)
-- [ ] Set up Raspberry Pi SD from image
--- [ ] Set WiFi credentials if using WiFi
-- [ ] Put SD card in Pi and connect power (Ethernet if not using WiFi)
-- [ ] Scan for sketchbook.local from browser
--- [ ] Might fail if the Pi did not connect to the same network or if mDNS is not available. As a backup the Pi should write it's local IP address to a file in /boot
-- [ ] Forward port 443 and 80 to Sketchbook's IP address
--- [ ] Confirm Sketchbook is reached on WAN port 80; continue setup locally
--- [ ] Input desired domain and trigger certbot
---- [ ] certbot may fail, display stdout and stderr via websocket
---- [ ] If certbot succeeds, try to GET /api/server.
----- [ ] If that fails, warn that port 443 may not be forwarded properly and show a button to check again
---- [ ] Enable "force https" nginx site and show link to "finish setup"
-- [ ] "Congratulations on finishing setup!" Recommend "adding content" guide.
-
-
-## Version 1.0
-
-- [ ] Clean up Pi (reset git repository and user info)
 - [ ] Config wiki/documentation
 - [ ] API endpoints wiki/documentation
 - [ ] Database wiki/documentation
 - [ ] Admin panel improvements
--- [ ] "Restart" and "Update" buttons (need to figure out linux permissions)
----  [ ] Check for updates (display change logs)
-- [ ] Create disk image from Pi SD
+-- [ ] "Restart" and "Update" buttons
+- [ ] Create install script
+
+### Install Script
+
+- [ ] Ensure running as 'sudo'
+- [ ] Ask if the hostname should be changed to "sketchbook"
+- [ ] Installs prerequisites
+-- [ ] nginx
+-- [ ] nvm, nodejs, and npm
+-- [ ] npm packages
+-- [ ] avahi-daemon
+-- [ ] certbot
+- [ ] Requests initial config information:
+-- [ ] Server domain
+--- [ ] DNS lookup (`host -4 -t A ${domain} | cut -d' ' -f4`) to confirm it points to this machine's public IP (`curl ifconfig.co -4`) with `[[ diff <(command1) <(command2) ]]`
+--- [ ] Check port 443 is forwarded to this device, provide an error and link to setup guide if not
+--- [ ] Check port 80 is forwarded to this device, provide a warning (might be intentional) and link to setup guide if not
+-- [ ] Artist name
+-- [ ] Website name (default: My Sketchbook Gallery)
+-- [ ] Artist email
+-- [ ] Admin password
+--- [ ] Create new user "sketchbook" with provided admin password and the groups: sketchbook, www-data, shadow
+--- [ ] Add following file as `/etc/sudoers.d/sketchbook-power`: `sketchbook ALL=NOPASSWD: /sbin/reboot now, /sbin/poweroff now`
+- [ ] Downloads most recent release from Github to /home/sketchbook/
+- [ ] Allow "sketchbook" user to restart nginx systemctl service
+- [ ] Create, start, and enable "sketchbook" systemctl service which runs `node /home/sketchbook/index.js` as "sketchbook"
+- [ ] Create nginx file `sites-available/sketchbook` (owned by sketchbook:sketchbook) reverse proxy to internal port 8090
+- [ ] If port 80 is forwarded to this device: 
+-- [ ] Ask to enable nginx reverse proxy ("yes" suggested if user doesn't have another webserver on the network)
+-- [ ] "Yes" will create a symbolic link from nginx's `sites-enabled/sketchbook` to `sites-available/sketchbook` and run certbot for the domain: `certbot --agree-tos --nginx -d ${domain} -m ${email} -n` (should return 0)
+- [ ] Congratulate user for setting up and tell them to go to `https://${domain}/admin` in a web browser and enter their password to upload content
+
+## Public Release
+
+- [ ] Admin panel improvements
+--  [ ] Check for updates (display change logs)
+- [ ] Add `meta:hidden` tag which prevents an item from being listed in search or viewed by non-admins
+-- [ ] Apply the `meta:hidden` tag to items by default
+-- [ ] `meta:hidden` should be ignored by `meta:untagged`
+- [ ] Setup walkthroughs
+-- [ ] Raspberry Pis
+-- [ ] Orange Pi Zero 2W
+-- [ ] Orange Pi 3
+-- [ ] Radxa Zero 3E
+-- [ ] Unused desktop PC as a server
 
 ## Version 1.1
 
@@ -62,8 +88,7 @@
 --- [ ] Revert if connection fails for 1 minute
 -- [ ] "Restart" and "Update" buttons (need to figure out linux permissions)
 ---  [ ] Check for updates (display change logs)
--- [ ] "Refresh SSL Certificate" button
---- [ ] Integrate with certbot
+-- [ ] "Refresh SSL Certificate" button to manually run certbot
 
 ## Future
 
