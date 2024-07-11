@@ -33,7 +33,7 @@
         {
             if (cookies.subscribestar_access_token == undefined)
             {
-                $(".platform-requirement").append(`<a href="https://www.subscribestar.com/oauth2/authorize?client_id={{ config.subscribestar.client_id }}&redirect_uri=https%3A%2F%2F{{ config.server.domain }}%2Foauth%2Fsubscribestar&response_type=code&scope=content_provider_profile.read+content_provider_profile.subscriptions.read+user.read">Connect to<br /><img src="/static/ss_logo_v.png" /></a>`);
+                $(".platform-requirement").append(`<a href="https://www.subscribestar.com/oauth2/authorize?client_id={{ config.subscribestar.client_id }}&redirect_uri=https%3A%2F%2F{{ config.server.domain }}%2Foauth%2Fsubscribestar&response_type=code&scope=content_provider_profile.read+content_provider_profile.subscriptions.read+user.read"><h3>Connect to</h3><img src="/static/ss_logo_v.png" /></a>`);
             }
         }
     });

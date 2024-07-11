@@ -211,6 +211,11 @@ input#search-button {
     flex-wrap: wrap;
 }
 
+.platform-requirement img {
+    width: 100%;
+    height: 100%;
+}
+
 .sidebar-header {
     display: flex;
     flex-direction: row;
