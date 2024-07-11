@@ -20,7 +20,8 @@ const PLATFORMS = {
         const query = await api.getParams(req);
         if (query.error != undefined)
         {
-            return false;
+            await sendOAuthPage(res, 503, {platform: "SubscribeStar", error: req.error}, req);
+            return;
         }
         try
         {
@@ -36,9 +37,9 @@ const PLATFORMS = {
         catch
         {
             await sendOAuthPage(res, 503, {platform: "SubscribeStar", error: "Server side error getting POST response from SubscribeStar"}, req);
-            return true;
+            return;
         }
-        return false;
+        sendOAuthPage(res, 200, {platform: "SubscribeStar"}, req);
     }
 };
 
@@ -57,10 +58,7 @@ module.exports = {
                     res.end();
                     return true;
                 }
-                if (!await PLATFORMS[platform](req, res))
-                {
-                    await sendOAuthPage(res, 200, {platform}, req);
-                }
+                await PLATFORMS[platform](req, res);
                 return true;
             }
         }

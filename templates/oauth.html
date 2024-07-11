@@ -17,10 +17,10 @@
             <h2>OAuth Result - {{ platform }}</h2>
             <hr />
             <p>
-            {? if req.error ?}
-                Success!
+            {? if error ?}
+                Failed: {{ error }}
             {? else ?}
-                Failed ({{ req.error }}): {{ req.error_description }}
+                Success!
             {? end ?}
             </p>
             <p><a href="/admin">Return to Admin Panel</a></p>
