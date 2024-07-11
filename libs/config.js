@@ -1,5 +1,6 @@
 const chokidar = require("chokidar");
 const fs = require("fs");
+const exec = require("child_process").exec;
 const path = require("path");
 const uuid = require("uuid").v4;
 const yaml = require("yaml");
@@ -191,6 +192,16 @@ function reload() {
     if (!fs.existsSync(module.exports.gallery.content_path))
     {
         fs.mkdirSync(module.exports.gallery.content_path);
+    }
+    
+    const nginx_site_file = "/etc/nginx/sites-available/sketchbook";
+    if (fs.existsSync(nginx_site_file))
+    {
+        log.message("config", "Updating nginx site file");
+        var site_config = fs.readFileSync(nginx_site_file);
+        site_config = site_config.replace(/^set \$server_domain [^\s]+;$/g, `set $server_domain ${config.server.domain};`);
+        fs.writeFileSync(nginx_site_file, site_config);
+        exec("systemctl is-active --quiet nginx && sudo systemctl restart --quiet nginx");
     }
 }
 reload();

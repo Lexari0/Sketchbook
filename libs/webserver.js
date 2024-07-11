@@ -18,7 +18,7 @@ for (const item of fs.readdirSync(path.join(process.cwd(), "endpoints"), {withFi
     }
 }
 
-const requestListener = async function (req, res) {
+async function requestListener(req, res) {
     try {
         log.message("webserver", "[Request] ", req.method, req.url, `(${req.socket.remoteAddress})`);
         var url_split = req.url.split("?")
