@@ -12,7 +12,7 @@
             const text = $(this).text();
             if (text.length > 20)
             {
-                $(this).text(text.substring(0, 20) + "...")
+                $(this).text(text.substring(0, 20) + "...");
             }
         });
         const results = $("#search-results");
@@ -23,7 +23,7 @@
         }
         for (const item of Object.values(json.items))
         {
-            results.append(`<div id="item"><a href="${item.uri}?q={{ query.q }}"><img src="${item.resolutions.thumb}"/></a></div>`);
+            results.append(`<div class="item"><a href="${item.uri}?q={{ query.q }}"><img src="${item.resolutions.thumb}"/></a></div>`);
         }
         const page_links = $("#search-page-links");
         const query = "{{ query.q }}";

@@ -93,7 +93,7 @@ a:hover, a:active {
     gap: 0.5em;
 }
 #sidebar {
-    min-width: 15em;
+    min-width: 20em;
     float: left;
     background-color: #0004;
     padding: 1em;
@@ -110,11 +110,12 @@ a:hover, a:active {
 #search-results {
     display: flex;
     flex-wrap: wrap;
+    justify-content: space-evenly;
 }
-#search-results > #item {
+#search-results > .item {
     margin: 0.5em;
-    width: 15em;
-    height: 15em;
+    width: min((100vw - 20em)/4 - 3em, 256px);
+    aspect-ratio: 1;
     border-radius: 0.25em;
     color: #eee;
     background-color: #0004;
@@ -122,20 +123,20 @@ a:hover, a:active {
     border-width: 0.25em;
     border-style: solid;
 }
-#item {
+.item {
     display: flex;
     align-items: center;
 }
-#item > p {
+.item > p {
     text-align: center;
     width: 100%;
 }
-#item * {
+.item * {
     max-height:100%;
     max-width:100%;
     border-radius: 5em;
 }
-#item img {
+.item img {
     border-radius: 0.25em;
 }
 .imgbox {
@@ -147,14 +148,14 @@ a:hover, a:active {
     max-width: calc(100vw - 18.5em);
     margin: auto;
 }
-#item-info {
+.item-info {
     max-width: calc(100vw - 18.5em);
     background-color: #0004;
     padding: 1em;
     border-radius: 0.5em;
     height: fit-content;
 }
-#item-name, #item-description {
+.item-name, .item-description {
     margin: 0;
 }
 #tag-list {
@@ -174,13 +175,13 @@ a:hover, a:active {
     border-radius: 0.25em;
     padding: 0.5em;
 }
-#item-preview, div.existing-tags, div.new-tags {
+.item-preview, div.existing-tags, div.new-tags {
     padding: 0.5em;
     background-color: #0004;
     border-radius: 0.25em;
     margin: 0 0.5em;
 }
-#item-preview {
+.item-preview {
     height: fit-content;
 }
 div.existing-tags, div.new-tags {
@@ -189,17 +190,17 @@ div.existing-tags, div.new-tags {
 div.existing-tags, div.new-tags {
     flex-grow: 1;
 }
-#item-preview img {
+.item-preview img {
     width: 512px;
 }
-#item-preview form {
+.item-preview form {
     max-width: 512px;
 }
-#item-preview input, #item-preview textarea {
+.item-preview input, .item-preview textarea {
     min-width: 504px;
     max-width: 504px;
 }
-#item-preview input.button {
+.item-preview input.button {
     width: 512px;
     max-width: 512px;
 }
