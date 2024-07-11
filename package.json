@@ -19,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/Lexari0/Sketchbook/issues"
   },
-  "homepage": "https://github.com/Lexari0/Sketchbook#readme"
+  "homepage": "https://github.com/Lexari0/Sketchbook#readme",
+  "dependencies": {
+    "yaml": "^2.3.4"
+  }
 }
