@@ -159,9 +159,9 @@ module.exports = {
             log.message("subscribestar", "Viewer has no access_token, censor");
             return true;
         }
-        const user = await this.sendGraphQLRequest("{ user { id } }", true, viewer_access_token);
+        const user = await this.sendGraphQLRequest("{ user { id } }", true, viewer_access_token).user;
         console.log("user: ", JSON.stringify(user));
-        const viewer_id = user.user.id;
+        const viewer_id = user.id;
         const profile = await this.getProfile();
         if (profile.id == viewer_id)
         {
