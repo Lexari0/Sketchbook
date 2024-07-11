@@ -1,3 +1,4 @@
+const path = require("path");
 const api = require(path.join(process.cwd(), "libs/api.js"));
 const config = require(path.join(process.cwd(), "libs/config.js"));
 
