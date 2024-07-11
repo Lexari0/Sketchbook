@@ -47,6 +47,25 @@ $(async () => {
             server_owner.append(textField("Name", json.owner.name, "server.owner.name"));
             server_owner.append(textField("Email", json.owner.email, "server.owner.email"));
             server_owner.append(submitButton());
+            server_owner.submit(event => {
+                event.preventDefault();
+                fetch(`/api/config/update`, {
+                    method:"POST",
+                    body: `server.owner.name=${server_software.find("input[name='server.owner.name']").value()}\nserver.owner.email=${server_software.find("input[name='server.owner.email']").value()}`
+                }).then(async response => {
+                    if (!response.ok)
+                    {
+                        return {error: await response.text()};
+                    }
+                    return await response.json();
+                }).then(json => {
+                        if (json.error.length > 0)
+                        {
+                            console.error("API Error:\n" + json.error);
+                            return;
+                        }
+                }).catch(() => {});
+            });
         });
     fetch("/api/gallery")
         .then(response => response.json())
