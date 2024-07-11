@@ -34,7 +34,7 @@
         </form>
         {? end ?}
     </div>
-    <ul id="tag-list"> <!-- TODO: Make this list on client-side -->
+    <ul id="tag-list">
         {% for tag in tags %}
         <li>(<a href="/search?q={{ query.q }}+-{{ tag.tag }}">-</a>/<a href="/search?q={{ query.q }}+{{ tag.tag }}">+</a>) <a class="tag-link" href="/search?q={{ tag.tag }}">{{ tag.tag }}</a>: {{ tag.count }}</li>
         {% end %}

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<head>
+<title>{{ config.gallery.name }} - Tag: {{ tag.tag }}</title>
+<link rel="stylesheet" type="text/css" href="/static/main.css" />
+<script src="/static/jquery-3.7.1.min.js"></script>
+<script>
+    window.onload = (async () => {
+        $("form.tag-search").submit(function (event) {
+            event.preventDefault();
+            const search_text = $("#search-bar").prop("value");
+            if (search_text.match(/\//g))
+            {
+                return;
+            }
+            window.location.href = "/tag/" + search_text;
+        });
+    });
+</script>
+</head>
+<body>
+{# templates/titlebar.html #}
+<div id="main-body">
+<aside id="sidebar">
+    <section id="search">
+        <form class="tag-search" method="get" accept-charset="utf-8">
+            <input id="search-bar" type="text" value="">
+            <br>
+            <input id="search-button" type="submit" value="Show Tag">
+        </form>
+    </section>
+    <div class="sidebar-header">
+        <h3>Tags</h3>
+    </div>
+    <ul id="tag-list"> <!-- TODO: Show related tags -->
+        {% for tag in tags %}
+        <li>(<a href="/search?q={{ query.q }}+-{{ tag.tag }}">-</a>/<a href="/search?q={{ query.q }}+{{ tag.tag }}">+</a>) <a class="tag-link" href="/search?q={{ tag.tag }}">{{ tag.tag }}</a>: {{ tag.count }}</li>
+        {% end %}
+    </ul>
+</aside>
+<section id="content">
+    <div id="tag-contents">
+        <h2 id="tag-name">
+            {{ tag.tag }}
+            {? if can_edit ?}
+            <form action="/tag/{{ tag.tag }}/edit" method="get" accept-charset="utf-8">
+                <input type="submit" value="Edit" />
+            </form>
+            {? end ?}
+        </h2>
+        <p id="tag-description">{{ tag.description }}</p>
+        <div id="tag-search-results"></div>
+    </div>
+</section>
+</div>
+<footer>
+    {# templates/footer_content.html #}
+</footer>
+</body>

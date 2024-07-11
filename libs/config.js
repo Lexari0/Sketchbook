@@ -36,6 +36,10 @@ const DEFAULT = {
                 link: "/"
             },
             {
+                text: "Tags",
+                link: "/tags"
+            },
+            {
                 text: "Sourcecode",
                 link: "https://github.com/Lexari0/Sketchbook"
             }
