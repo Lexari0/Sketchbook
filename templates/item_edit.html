@@ -17,16 +17,17 @@
             {
                 return;
             }
-            if (bad_match = [...new Set(tag_name.match(/[:{}<>=]/g))])
+            var bad_matches = [...new Set(tag_name.match(/[:{}<>=]/g))]
+            if (bad_matches.length > 0)
             {
-                const last = bad_match.pop();
-                if (bad_match.length === 0)
+                const last = bad_matches.pop();
+                if (bad_matches.length === 0)
                 {
                     $("form.add-tag .error").text(`${last} is an illegal or reserved character in tags!`);
                 }
                 else
                 {
-                    $("form.add-tag .error").text(`${bad_match.map(x => `'${x}'`).join()}${bad_match.length > 1 ? "," : ""} and '${last}' are illegal or reserved characters in tags!`);
+                    $("form.add-tag .error").text(`${bad_matches.map(x => `'${x}'`).join()}${bad_matches.length > 1 ? "," : ""} and '${last}' are illegal or reserved characters in tags!`);
                 }
                 return;
             }
