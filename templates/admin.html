@@ -160,6 +160,41 @@ $(async () => {
             .catch(() => {});
     });
 });
+
+function updateRecentLogs() {
+    const recent_logs = $("#logs .recent-logs textarea");
+    fetch("/api/log/current", { method:"POST" })
+        .then(response => response.json())
+        .then(json => {
+            if (json.error.length > 0)
+            {
+                recent_logs.val(`Failed to get server logs: ${json.error}`);
+                return;
+            }
+            return json.logs;
+        })
+        .then(recent_logs.val)
+}
+$(updateRecentLogs);
+$(() => {
+    const log_file_list = $("#logs .log-files ,log-files .file-list ul");
+    fetch("/api/log/files", { method:"POST" })
+        .then(response => response.json())
+        .then(json => {
+            if (json.error.length > 0)
+            {
+                recent_logs.val(`Failed to get server logs: ${json.error}`);
+                return;
+            }
+            return json.files;
+        })
+        .then(files => {
+            for (const file_name of files)
+            {
+                log_file_list.append(`<li><form action="/api/log/file/${file_name}" method="post"><button type="submit" class="text-link">${file_name}</button><input type="hidden" name="plaintext" value="true" /></form></li>`)
+            }
+        })
+});
 </script>
 </head>
 <body>
@@ -205,11 +240,10 @@ $(async () => {
             </div>
         </form>
     </div>
-    <!-- TODO
     <div class="admin-panel" id="logs">
         <div class="recent-logs">
             <h3>Recent Logs:</h3>
-            <textarea readonly>NYI</textarea>
+            <textarea readonly></textarea>
         </div>
         <hr />
         <div class="log-files">
@@ -219,7 +253,6 @@ $(async () => {
             </div>
         </div>
     </div>
-    -->
     <!-- TODO
     <div class="admin-panel" id="wifi">
         <h2>WiFi:</h2>

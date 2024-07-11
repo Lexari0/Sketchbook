@@ -12,12 +12,15 @@ body {
 }
 
 a:link,
-a:visited {
+a:visited,
+button.text-link:active {
     color: #42865e;
 }
 
 a:hover,
-a:active {
+a:active,
+button.text-link:hover,
+button.text-link:active {
     color: #1a9e6f;
 }
 
@@ -584,6 +587,17 @@ div.new-tags {
 
 .collapsible:hover {
     background-color: #fff3;
+}
+
+button.text-link {
+    border:none;
+    outline:none;
+    background:none;
+    cursor:pointer;
+    padding:0;
+    text-decoration:underline;
+    font-family:inherit;
+    font-size:inherit;
 }
 
 footer {

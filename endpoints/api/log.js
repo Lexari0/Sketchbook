@@ -115,10 +115,29 @@ module.exports = {
             const file_path = path.join(log.getDirectory(), file_name);
             if (!fs.existsSync(file_path) || !fs.statSync(file_path).isDirectory())
             {
-                api.sendResponse(res, 400, {error:"No log file with the provided file name.", file_name});
+                if (params.plaintext)
+                {
+                    api.sendResponse(res, 400, "Error: No log file with the provided file name.");
+                }
+                else
+                {
+                    api.sendResponse(res, 400, {error:"No log file with the provided file name.", file_name});
+                }
                 return true;
             }
             const params = await api.getParams(req);
+            if (params.plaintext)
+            {
+                try
+                {
+                    api.sendResponse(res, 200, fs.readFileSync(file_path));
+                }
+                catch (err)
+                {
+                    api.sendResponse(res, 502, `Error: Failed to read log file; ${err}`);
+                }
+                return true;
+            }
             const line_offsets = await getFileLineOffsets(file_path);
             const total_lines = line_offsets.length;
             const lines = Math.max(0, Math.min(params.lines == undefined ? 20 : params.lines, total_lines, 1000));
@@ -126,9 +145,11 @@ module.exports = {
             if (logs === undefined)
             {
                 api.sendResponse(res, 502, {error:"Failed to read log file"});
-                return true;
             }
-            api.sendResponse(res, 200, {error:"", file_name, total_lines, lines, logs});
+            else
+            {
+                api.sendResponse(res, 200, {error:"", file_name, total_lines, lines, logs});
+            }
             return true;
         };
     }

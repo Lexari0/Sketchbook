@@ -140,8 +140,21 @@ module.exports = {
         });
     },
     sendResponse: function(res, code, data) {
-        res.writeHead(code, {"Content-Type": "application/json"});
-        res.end(JSON.stringify(data, undefined, 2));
+        if (typeof(data) === "object")
+        {
+            res.writeHead(code, {"Content-Type": "application/json"});
+            res.end(JSON.stringify(data, undefined, 2));
+        }
+        else if (typeof(data) === "string")
+        {
+            res.writeHead(code, {"Content-Type": "text/plain"});
+            res.end(data);
+        }
+        else
+        {
+            res.writeHead(code, {"Content-Type": "text/plain"});
+            res.end(`${data}`);
+        }
     },
     keyIsValid: function(key) {
         return this.key == key || key in config.api.permitted_keys;
