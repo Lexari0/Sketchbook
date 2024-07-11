@@ -118,9 +118,10 @@ module.exports = {
         }
         const selected_columns = "items.gallery_item_id, items.hash, items.created, items.last_update"
 
+        console.log({required_tags, excluded_tags, optional_tags});
         if (required_tags.length === 0 && excluded_tags.length === 0 && optional_tags.length === 0)
         {
-            required_tags.push(sqlstring.escape("untagged"));
+            return "SELECT DISTINCT * FROM items WHERE missing=0 ORDER BY " + order_by + " LIMIT " + limit + " OFFSET " + ((page - 1) * limit);
         }
         const optional_query = optional_tags.length === 0 ? "item_tags" : "SELECT * FROM item_tags WHERE tag IN (" + optional_tags.join(", ") + ")";
         const excluded_query = excluded_tags.length === 0 ? optional_query : "SELECT * FROM (" + optional_query + ") WHERE gallery_item_id NOT IN (SELECT gallery_item_id FROM item_tags WHERE tag IN (" + excluded_tags.join(", ") + "))"

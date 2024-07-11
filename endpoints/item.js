@@ -29,7 +29,8 @@ module.exports = {
                 return true;
             }
             const tags = (await db.select("item_tags.tag", "items INNER JOIN item_tags", {
-                where: `items.gallery_item_id=${gallery_item_id}`,
+                distinct: true,
+                where: `item_tags.gallery_item_id=${gallery_item_id}`,
                 order_by: "tag",
             })).map(x => x.tag);
             var params = {config: structuredClone(config), item, query: await api.getParams(req), tags };

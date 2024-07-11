@@ -158,7 +158,7 @@ module.exports = function (defaultContents = undefined) {
                             section_body.replace(new RegExp(`\\{\\{\\s*${looper_key}\\s*\\}\\}`, "g"), `{{ ${container_key}.${i} }}`)
                         );
                     template = pre_section
-                        + section_array.join()
+                        + section_array.join("")
                         + post_section
                 }
                 return template;

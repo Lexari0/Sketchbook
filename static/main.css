@@ -13,7 +13,7 @@ a:hover, a:active {
 }
 #title, #small-title {
     color: #0f100f;
-    background-color: #0004;
+    background-color: #0006;
     position: sticky;
     top: 0;
 }
@@ -60,7 +60,7 @@ a:hover, a:active {
     width: 15em;
     float: left;
     min-height: 25em;
-    background-color: #0003;
+    background-color: #0006;
     padding: 1em;
     margin-right: 0.5em;
     border-radius: 0.5em;
@@ -97,9 +97,10 @@ a:hover, a:active {
 }
 .imgbox {
     height: 100%;
-    width: auto;
+    width: 100%;
 }
 .imgbox img {
     max-height: calc(100vh - 4.5em);
+    max-width: calc(100vw - 18.5em);
     margin: auto;
 }

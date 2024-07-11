@@ -26,7 +26,7 @@ module.exports = {
                 api.sendResponse(res, 400, {error: "Missing query parameter 'q'"});
                 return true;
             }
-            api.sendResponse(res, 200, {error: "", q: query.q, r: await gallery.search(query.q)});
+            api.sendResponse(res, 200, {error: "", q: query.q, r: await gallery.search(decodeURIComponent(query.q))});
             return true;
         };
     }
