@@ -33,7 +33,6 @@ async function getFileLineOffsets(file_path) {
 async function getLogLines(file_path, lines, line_offsets = undefined) {
     try
     {
-        const params = await api.getParams(req);
         if (line_offsets == undefined)
         {
             line_offsets = await getFileLineOffsets(file_path);
